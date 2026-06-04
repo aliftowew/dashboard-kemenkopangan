@@ -157,6 +157,12 @@ svg text{font-family:'JetBrains Mono',monospace}
 .set-acts{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;margin-top:22px}
 .btn.solid{background:linear-gradient(180deg,var(--gold),#B8923E);color:#08111d;border:1px solid transparent;font-weight:700}
 .btn.solid:hover{filter:brightness(1.06);background:linear-gradient(180deg,var(--gold),#B8923E)}
+td.band-ok{background:rgba(95,184,146,.18)}
+td.band-warn{background:rgba(216,179,98,.18)}
+td.band-bad{background:rgba(232,155,106,.20)}
+tr.total td.band-ok{background:rgba(95,184,146,.26)}
+tr.total td.band-warn{background:rgba(216,179,98,.26)}
+tr.total td.band-bad{background:rgba(232,155,106,.28)}
 </style>
 <script>
 /* === Portal access guard (login gate) === */
@@ -192,8 +198,8 @@ body{background-image:radial-gradient(circle at 18% -10%,rgba(216,179,98,.08),tr
     <p><b>Koefisien Variasi (CV)</b> mengukur seberapa <b>seragam</b> harga beras antar wilayah: simpangan baku dibagi rata-rata, dinyatakan dalam persen. <b>Makin kecil, makin seragam</b> — pasokan dan distribusi merata; makin besar berarti disparitas harga antar wilayah makin lebar. Target <b>RPJMN 2025–2029: <span id="defTarget">17–22%</span></b>. <span class="muted">Interpretasi nilai tinggi/rendah selengkapnya ada di tab Metodologi.</span></p>
   </div>
 
-  <!-- COLLAPSIBLE IMPORT -->
-  <div class="card fade" style="animation-delay:.05s">
+  <!-- COLLAPSIBLE IMPORT (unggah dipindah ke portal admin; disembunyikan di sini) -->
+  <div class="card fade" id="importCard" style="animation-delay:.05s;display:none">
     <button class="disc" id="upToggle" aria-expanded="false">
       <span class="lft"><span class="car">▸</span> Impor / unggah data</span>
       <span class="hint" id="upHint">tersembunyi — klik untuk membuka</span>
@@ -398,13 +404,15 @@ function compute(){
 }
 
 const fmt=(v,d=2)=>v==null||isNaN(v)?"—":v.toLocaleString("id-ID",{minimumFractionDigits:d,maximumFractionDigits:d});
+function band(v){if(v==null||isNaN(v))return "";if(v<=TARGET_HI)return "band-ok";if(v<=WARN_HI)return "band-warn";return "band-bad";}
 function render(){
   R=compute();
   document.getElementById("k_sp").innerHTML=fmt(R.totSp.cv)+"<small>%</small>";
   (function(){const cv=R.totSp.cv,el=document.getElementById("k_sp_status");if(!el)return;
     if(cv==null||isNaN(cv)){el.className="cvstat";el.innerHTML="";return;}
     let cls,lab;if(cv<=TARGET_HI){cls="ok";lab="Tercapai";}else if(cv<=WARN_HI){cls="warn";lab="Hati-hati";}else{cls="bad";lab="Tidak tercapai";}
-    el.className="cvstat "+cls;el.innerHTML='<span class="d"></span>'+lab+' · target '+TARGET_LO+'–'+TARGET_HI+'%';})();
+    el.className="cvstat "+cls;el.innerHTML='<span class="d"></span>'+lab+' · target '+TARGET_LO+'–'+TARGET_HI+'%';
+    const card=el.closest(".kpi");if(card){card.style.borderTopColor=(cls==="ok"?"var(--green)":cls==="warn"?"var(--gold)":"var(--rust)");}})();
   document.getElementById("k_tmp").innerHTML=fmt(R.natTotal)+"<small>%</small>";
   document.getElementById("k_scope").innerHTML=R.nIncl+'<small> / '+R.nEx+'</small>';
   document.getElementById("k_scope_cap").textContent=R.nIncl+" masuk · "+R.nEx+" dikeluarkan";
@@ -413,8 +421,8 @@ function render(){
   document.getElementById("hdrmeta").textContent=meta;
   document.getElementById("footmeta").textContent="Tersimpan · "+meta;
   let sb="";
-  R.monthsSp.forEach(m=>{sb+=`<tr><td>${m.label}</td><td class="num">${fmt(m.cv)}</td><td class="num" style="color:var(--muted)">${m.n}</td></tr>`;});
-  sb+=`<tr class="total"><td>TOTAL</td><td class="num">${fmt(R.totSp.cv)}</td><td class="num">${R.totSp.n}</td></tr>`;
+  R.monthsSp.forEach(m=>{sb+=`<tr><td>${m.label}</td><td class="num ${band(m.cv)}">${fmt(m.cv)}</td><td class="num" style="color:var(--muted)">${m.n}</td></tr>`;});
+  sb+=`<tr class="total"><td>TOTAL</td><td class="num ${band(R.totSp.cv)}">${fmt(R.totSp.cv)}</td><td class="num">${R.totSp.n}</td></tr>`;
   document.getElementById("sp_body").innerHTML=sb;
   let th="<tr><th>Provinsi</th>"+R.groups.map(g=>`<th>${g.short}</th>`).join("")+"<th>Total</th></tr>";
   document.getElementById("tmp_head").innerHTML=th;
@@ -434,9 +442,9 @@ function render(){
   let cb="";
   R.groups.forEach((g,gi)=>{
     g.idx.forEach(i=>{const x=R.dailyDetail[i];
-      cb+=`<tr><td>${x.date.slice(8,10)}/${x.date.slice(5,7)}/${x.date.slice(0,4)}</td><td class="num">${x.n}</td><td class="num">${x.mean!=null?Math.round(x.mean).toLocaleString("id-ID"):'–'}</td><td class="num">${x.std!=null?fmt(x.std,1):'–'}</td><td class="num">${fmt(x.cv)}</td></tr>`;});
+      cb+=`<tr><td>${x.date.slice(8,10)}/${x.date.slice(5,7)}/${x.date.slice(0,4)}</td><td class="num">${x.n}</td><td class="num">${x.mean!=null?Math.round(x.mean).toLocaleString("id-ID"):'–'}</td><td class="num">${x.std!=null?fmt(x.std,1):'–'}</td><td class="num ${band(x.cv)}">${fmt(x.cv)}</td></tr>`;});
     const ms=R.monthsSp[gi];
-    cb+=`<tr class="total"><td>${g.label} — rata² Koefisien Variasi harian</td><td class="num">${ms.n}</td><td></td><td></td><td class="num">${fmt(ms.cv)}</td></tr>`;});
+    cb+=`<tr class="total"><td>${g.label} — rata² Koefisien Variasi harian</td><td class="num">${ms.n}</td><td></td><td></td><td class="num ${band(ms.cv)}">${fmt(ms.cv)}</td></tr>`;});
   document.getElementById("cal_body").innerHTML=cb;
   drawCur();
 }
