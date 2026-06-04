@@ -352,7 +352,7 @@ body{background-image:radial-gradient(circle at 18% -10%,rgba(216,179,98,.08),tr
     </div>
     <div class="set-acts">
       <button class="btn" id="setExport">⧉ Salin untuk permanen</button>
-      <button class="btn" id="setReset">↺ Reset</button>
+      <button class="btn" id="setReset">↺ Pakai default file</button>
       <button class="btn" id="setCancel">Batal</button>
       <button class="btn solid" id="setSave">Simpan</button>
     </div>
@@ -535,6 +535,34 @@ function mergeInto(neu){
 function handleFile(file){
   const fr=new FileReader();
   fr.onload=e=>{try{const neu=parseWorkbook(e.target.result);mergeInto(neu);save();initFilter=true;renderFilter();render();
+    document.getElementById("status").textContent="Diperbarui: "+file.name+" ("+neu.dates.length+" hari, "+Object.keys(neu.panel).length+" prov)";toast("Data digabung & tersimpan ✓");
+  }catch(err){toast("Gagal: "+err);console.error(err);}};
+  fr.readAsArrayBuffer(file);
+}
+
+function discToggle(btn,body,hint){const open=body.classList.toggle("open");btn.setAttribute("aria-expanded",open);hint.textContent=open?"klik untuk menyembunyikan":"tersembunyi — klik untuk membuka";}
+document.getElementById("upToggle").addEventListener("click",()=>discToggle(document.getElementById("upToggle"),document.getElementById("upBody"),document.getElementById("upHint")));
+document.getElementById("fltToggle").addEventListener("click",()=>discToggle(document.getElementById("fltToggle"),document.getElementById("fltBody"),document.getElementById("fltHint")));
+const drop=document.getElementById("drop"),fileIn=document.getElementById("file");
+drop.addEventListener("click",()=>fileIn.click());
+fileIn.addEventListener("change",e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over");}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over");}));
+drop.addEventListener("drop",e=>{if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+document.getElementById("tpl").addEventListener("click",downloadTemplate);
+document.getElementById("fltAll").addEventListener("click",()=>setAll(true));
+document.getElementById("fltNone").addEventListener("click",()=>setAll(false));
+document.getElementById("fltOut").addEventListener("click",uncheckOutliers);
+document.getElementById("reset").addEventListener("click",()=>{DATA=JSON.parse(JSON.stringify(SEED));save();initFilter=true;renderFilter();render();document.getElementById("status").textContent="Data contoh dimuat ("+DATA.dates.length+" hari)";toast("Dikembalikan ke data contoh");});
+document.getElementById("clear").addEventListener("click",()=>{store.del(KEY);DATA=JSON.parse(JSON.stringify(SEED));initFilter=true;renderFilter();render();document.getElementById("status").textContent="Penyimpanan dihapus — kembali ke data contoh";toast("Penyimpanan lokal dihapus");});
+function downloadCSV(){const provs=Object.keys(DATA.panel).sort();let csv="Provinsi,"+DATA.dates.join(",")+"\n";provs.forEach(p=>{csv+=p+","+DATA.panel[p].map(v=>v==null?"":v).join(",")+"\n";});const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="panel_beras_medium.csv";a.click();toast("CSV diunduh");}
+document.getElementById("dlcsv").addEventListener("click",downloadCSV);
+document.getElementById("dlcsv2").addEventListener("click",downloadCSV);
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");curTab=t.dataset.tab;document.querySelectorAll(".tabpanel").forEach(p=>p.classList.remove("active"));document.getElementById("tab-"+curTab).classList.add("active");drawCur();}));
+let tt;function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200);}
+try{katex.render("\\mathrm{CV}=\\frac{s}{\\bar{x}}\\times 100\\%\\qquad s=\\sqrt{\\frac{\\sum_{i=1}^{n}(x_i-\\bar{x})^2}{n-1}}",document.getElementById("formula"),{throwOnError:false});}catch(e){}
+renderFilter();render();
+document.getElementById("status").textContent=store.get(KEY)?"Data tersimpan dimuat ("+DATA.dates.length+" hari)":"Data contoh dimuat ("+DATA.dates.length+" hari)";
 
 /* ===== Super-admin: pengaturan target & visibilitas tab ===== */
 const CV_SET_KEY="cv_settings_v1";
@@ -544,17 +572,7 @@ const CV_TAB_DEFS=[
   {key:"dat",label:"Data Digunakan"},
   {key:"met",label:"Metodologi"}
 ];
-const CV_DEFAULTS = {
-  "targetLo": 17.5,
-  "targetHi": 22.5,
-  "warnHi": 24,
-  "tabs": {
-    "wil": true,
-    "wkt": false,
-    "dat": true,
-    "met": true
-  }
-};
+const CV_DEFAULTS={ targetLo:17.5, targetHi:22.5, warnHi:24, tabs:{wil:true,wkt:false,dat:true,met:true} };
 function cvRole(){try{return (JSON.parse(sessionStorage.getItem("fp_auth")||"null")||{}).role||null}catch(e){return null}}
 function loadSet(){let s={};try{s=JSON.parse(store.get(CV_SET_KEY)||"{}")||{}}catch(e){s={}}
   return {targetLo:+s.targetLo||CV_DEFAULTS.targetLo,targetHi:+s.targetHi||CV_DEFAULTS.targetHi,warnHi:+s.warnHi||CV_DEFAULTS.warnHi,tabs:Object.assign({},CV_DEFAULTS.tabs,(s.tabs||{}))};}
@@ -602,39 +620,12 @@ _q("setSave")&&_q("setSave").addEventListener("click",()=>{
   const tabs={}; document.querySelectorAll('#tabToggles input[data-tabkey]').forEach(cb=>tabs[cb.dataset.tabkey]=cb.checked);
   if(!Object.values(tabs).some(Boolean)){toast("Minimal satu tab harus aktif.");return;}
   CVSET={targetLo:lo,targetHi:hi,warnHi:wh,tabs}; saveSet(CVSET); applySettings(); closeSettings(); toast("Pengaturan disimpan \u2713");});
-_q("setReset")&&_q("setReset").addEventListener("click",()=>{CVSET={targetLo:CV_DEFAULTS.targetLo,targetHi:CV_DEFAULTS.targetHi,warnHi:CV_DEFAULTS.warnHi,tabs:Object.assign({},CV_DEFAULTS.tabs)};fillModal();toast("Direset ke default — klik Simpan untuk menerapkan");});
+_q("setReset")&&_q("setReset").addEventListener("click",()=>{store.del(CV_SET_KEY);CVSET=loadSet();fillModal();applySettings();toast("Override browser dihapus — memakai default file");});
 _q("setExport")&&_q("setExport").addEventListener("click",()=>{
   const snip="const CV_DEFAULTS = "+JSON.stringify(CVSET,null,2)+";";
   navigator.clipboard.writeText(snip).then(()=>toast("Disalin — tempel ke CV_DEFAULTS di cv.html lalu deploy")).catch(()=>toast("Gagal menyalin"));});
 applySettings();
-    document.getElementById("status").textContent="Diperbarui: "+file.name+" ("+neu.dates.length+" hari, "+Object.keys(neu.panel).length+" prov)";toast("Data digabung & tersimpan ✓");
-  }catch(err){toast("Gagal: "+err);console.error(err);}};
-  fr.readAsArrayBuffer(file);
-}
 
-function discToggle(btn,body,hint){const open=body.classList.toggle("open");btn.setAttribute("aria-expanded",open);hint.textContent=open?"klik untuk menyembunyikan":"tersembunyi — klik untuk membuka";}
-document.getElementById("upToggle").addEventListener("click",()=>discToggle(document.getElementById("upToggle"),document.getElementById("upBody"),document.getElementById("upHint")));
-document.getElementById("fltToggle").addEventListener("click",()=>discToggle(document.getElementById("fltToggle"),document.getElementById("fltBody"),document.getElementById("fltHint")));
-const drop=document.getElementById("drop"),fileIn=document.getElementById("file");
-drop.addEventListener("click",()=>fileIn.click());
-fileIn.addEventListener("change",e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
-["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over");}));
-["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over");}));
-drop.addEventListener("drop",e=>{if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
-document.getElementById("tpl").addEventListener("click",downloadTemplate);
-document.getElementById("fltAll").addEventListener("click",()=>setAll(true));
-document.getElementById("fltNone").addEventListener("click",()=>setAll(false));
-document.getElementById("fltOut").addEventListener("click",uncheckOutliers);
-document.getElementById("reset").addEventListener("click",()=>{DATA=JSON.parse(JSON.stringify(SEED));save();initFilter=true;renderFilter();render();document.getElementById("status").textContent="Data contoh dimuat ("+DATA.dates.length+" hari)";toast("Dikembalikan ke data contoh");});
-document.getElementById("clear").addEventListener("click",()=>{store.del(KEY);DATA=JSON.parse(JSON.stringify(SEED));initFilter=true;renderFilter();render();document.getElementById("status").textContent="Penyimpanan dihapus — kembali ke data contoh";toast("Penyimpanan lokal dihapus");});
-function downloadCSV(){const provs=Object.keys(DATA.panel).sort();let csv="Provinsi,"+DATA.dates.join(",")+"\n";provs.forEach(p=>{csv+=p+","+DATA.panel[p].map(v=>v==null?"":v).join(",")+"\n";});const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="panel_beras_medium.csv";a.click();toast("CSV diunduh");}
-document.getElementById("dlcsv").addEventListener("click",downloadCSV);
-document.getElementById("dlcsv2").addEventListener("click",downloadCSV);
-document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");curTab=t.dataset.tab;document.querySelectorAll(".tabpanel").forEach(p=>p.classList.remove("active"));document.getElementById("tab-"+curTab).classList.add("active");drawCur();}));
-let tt;function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200);}
-try{katex.render("\\mathrm{CV}=\\frac{s}{\\bar{x}}\\times 100\\%\\qquad s=\\sqrt{\\frac{\\sum_{i=1}^{n}(x_i-\\bar{x})^2}{n-1}}",document.getElementById("formula"),{throwOnError:false});}catch(e){}
-renderFilter();render();
-document.getElementById("status").textContent=store.get(KEY)?"Data tersimpan dimuat ("+DATA.dates.length+" hari)":"Data contoh dimuat ("+DATA.dates.length+" hari)";
 </script>
 </body>
 </html>
