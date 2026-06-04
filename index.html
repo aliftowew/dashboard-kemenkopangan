@@ -82,6 +82,9 @@ select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,va
 .dash-card:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 1px 2px rgba(0,0,0,.5),0 28px 52px -26px rgba(0,0,0,.9)}
 .dash-card:hover::after{opacity:1}
 .dash-card .body{padding:22px 22px 24px;flex:1;display:flex;flex-direction:column;position:relative}
+.dash-card .icon{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,transparent);border:1px solid color-mix(in srgb,var(--accent) 32%,transparent);margin-bottom:16px;transition:.18s}
+.dash-card:hover .icon{background:color-mix(in srgb,var(--accent) 20%,transparent);transform:scale(1.04)}
+.dash-card .icon svg{width:24px;height:24px}
 .dash-card .eyebrow{color:var(--accent)}
 .dash-card h3{font-size:22px;margin-top:12px;line-height:1.14;letter-spacing:-.01em}
 .dash-card p{color:var(--muted);font-size:14px;line-height:1.5;margin:10px 0 18px}
@@ -170,6 +173,7 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
       <div class="grid">
         <button class="dash-card fade" style="--accent:var(--coral);animation-delay:.05s" data-dash="cv">
           <div class="body">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16.5l4-5.5 3.2 3.4L15 6l5.5 8"/><path d="M3 20.5h18" opacity=".35"/></svg></div>
             <div class="eyebrow">Volatilitas Harga</div>
             <h3>Koefisien Variasi Harga Beras</h3>
             <p>Disparitas antar wilayah & volatilitas antar waktu untuk beras medium, dengan unggah data Excel.</p>
@@ -178,6 +182,7 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
         </button>
         <button class="dash-card fade" style="--accent:var(--teal);animation-delay:.12s" data-dash="peta">
           <div class="body">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v17"/><path d="M5.5 20.5h13" opacity=".5"/><path d="M4 7.5h16"/><path d="M4 7.5L1.6 12.7a2.6 2.6 0 0 0 4.8 0L4 7.5z"/><path d="M20 7.5l-2.4 5.2a2.6 2.6 0 0 0 4.8 0L20 7.5z"/></svg></div>
             <div class="eyebrow">Neraca Regional</div>
             <h3>Neraca Pangan &amp; Pemasok Terdekat</h3>
             <p>Surplus–defisit lima komoditas di 38 provinsi dengan pemetaan transportasi optimal antar wilayah.</p>
@@ -186,6 +191,7 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
         </button>
         <button class="dash-card fade" style="--accent:var(--amber);animation-delay:.19s" data-dash="rice">
           <div class="body">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5.5" r="2.6"/><circle cx="18" cy="18.5" r="2.6"/><path d="M8.6 5.5H14a3 3 0 0 1 0 6H10a3 3 0 0 0 0 6h5.4" stroke-dasharray="0.5 3.2" opacity=".75"/></svg></div>
             <div class="eyebrow">Distribusi</div>
             <h3>Rice Journey · Sawah ke Meja</h3>
             <p>Struktur biaya distribusi beras dari petani ke konsumen, perbandingan zona HET &amp; kalkulator What-If.</p>
