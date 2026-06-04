@@ -35,7 +35,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body {
-    background: var(--cream);
+    background: var(--page-bg);
     color: var(--ink);
     font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
     font-size: 14px;
@@ -69,21 +69,21 @@
   }
   .panel.dark .info-tip { border-color: rgba(244,237,224,0.4); color: rgba(244,237,224,0.6); }
   .info-tip:hover {
-    border-color: var(--ink);
+    border-color: var(--surf-dark);
     color: var(--ink);
     background: var(--gold-soft);
   }
   .info-tip.active {
-    background: var(--ink);
+    background: var(--surf-dark);
     color: var(--cream);
-    border-color: var(--ink);
+    border-color: var(--surf-dark);
   }
   .info-tip-popover {
     position: absolute;
     top: calc(100% + 10px);
     left: 50%;
     transform: translateX(-50%);
-    background: var(--ink);
+    background: var(--surf-dark);
     color: var(--cream);
     padding: 12px 14px;
     border-radius: 4px;
@@ -261,7 +261,7 @@
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: var(--ink);
+    background: var(--surf-dark);
     border: 2px solid var(--paper);
     cursor: pointer;
     box-shadow: 0 1px 4px rgba(0,0,0,0.15);
@@ -272,7 +272,7 @@
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: var(--ink);
+    background: var(--surf-dark);
     border: 2px solid var(--paper);
     cursor: pointer;
   }
@@ -283,7 +283,7 @@
     flex-shrink: 0;
   }
   .calc-output {
-    background: var(--ink);
+    background: var(--surf-dark);
     color: var(--cream);
     border-radius: 6px;
     padding: 22px 22px 16px;
@@ -393,7 +393,7 @@
     right: 20px;
     bottom: 20px;
     z-index: 99;
-    background: var(--ink);
+    background: var(--surf-dark);
     color: var(--cream);
     border: 1.5px solid var(--ink);
     border-radius: 100px;
@@ -523,7 +523,7 @@
   }
 
   .calc-drawer-output {
-    background: var(--ink);
+    background: var(--surf-dark);
     color: var(--cream);
     border-radius: 6px;
     padding: 18px 20px;
@@ -539,7 +539,7 @@
     display: flex;
     gap: 10px;
     flex-shrink: 0;
-    background: var(--cream);
+    background: var(--page-bg);
   }
   .calc-drawer-foot button {
     flex: 1;
@@ -557,16 +557,16 @@
     transition: all 0.15s;
   }
   .calc-drawer-foot button.primary {
-    background: var(--ink);
+    background: var(--surf-dark);
     color: var(--cream);
-    border-color: var(--ink);
+    border-color: var(--surf-dark);
   }
   .calc-drawer-foot button.primary:hover {
     background: var(--rust);
     border-color: var(--rust);
   }
   .calc-drawer-foot button:hover {
-    border-color: var(--ink);
+    border-color: var(--surf-dark);
   }
 
   /* Drawer-specific input row styling - more compact than original */
@@ -584,7 +584,7 @@
   /* Escapes panel overflow:hidden by living in document.body with position:fixed */
   .info-tip-floating {
     position: fixed;
-    background: var(--ink);
+    background: var(--surf-dark);
     color: var(--cream);
     padding: 12px 14px;
     border-radius: 4px;
@@ -697,7 +697,7 @@
     border-radius: 100px; transition: all 0.18s;
     font: inherit; letter-spacing: inherit;
   }
-  .grade-toggle button.active { background: var(--ink); color: var(--cream); }
+  .grade-toggle button.active { background: var(--surf-dark); color: var(--cream); }
   .filters select {
     background: var(--paper);
     border: 1px solid var(--line-strong);
@@ -770,7 +770,7 @@
     flex-direction: column;
     overflow: hidden;
   }
-  .panel.dark { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+  .panel.dark { background: var(--surf-dark); color: var(--cream); border-color: var(--surf-dark); }
   .panel.accent-rust { border-color: var(--rust); border-width: 1.5px; }
   .panel.accent-emerald { border-color: var(--emerald); border-width: 1.5px; }
 
@@ -1599,7 +1599,7 @@
     font-weight: 700;
   }
   .detail-table.pdf-replica tr.stage-header td {
-    background: var(--ink);
+    background: var(--surf-dark);
     color: var(--cream);
     padding: 12px 14px;
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -1975,6 +1975,23 @@
   }catch(e){ location.replace('../index.html'); }
 })();
 </script>
+<style id="darkmode">
+
+:root{
+  --cream:#EAF1F9; --cream-2:#16304A; --paper:#0d1f33;
+  --ink:#E9F0F8; --ink-soft:#c3d2e4; --ink-light:#9fb2cc; --muted:#8298b2;
+  --emerald:#5FB892; --emerald-soft:#4d9a76; --emerald-tint:rgba(95,184,146,.16);
+  --rust:#E89B6A; --rust-deep:#f0a07f; --rust-tint:rgba(232,155,106,.16);
+  --gold:#D8B362; --gold-soft:#E6C46A; --gold-tint:rgba(216,179,98,.16);
+  --indigo:#3f6f9c; --indigo-soft:#5d80a8;
+  --surf-dark:#06101d; --page-bg:#091422;
+}
+body{background:#091422 !important}
+.panel{background:#102338 !important;border-color:#21384F}
+.panel.dark{background:#06101d !important;color:#EAF1F9;border-color:#21384F}
+svg text{fill:#E9F0F8}
+
+</style>
 </head>
 <body>
 
