@@ -544,7 +544,17 @@ const CV_TAB_DEFS=[
   {key:"dat",label:"Data Digunakan"},
   {key:"met",label:"Metodologi"}
 ];
-const CV_DEFAULTS={ targetLo:17, targetHi:22, warnHi:25, tabs:{wil:true,wkt:true,dat:true,met:true} };
+const CV_DEFAULTS = {
+  "targetLo": 17.5,
+  "targetHi": 22.5,
+  "warnHi": 24,
+  "tabs": {
+    "wil": true,
+    "wkt": false,
+    "dat": true,
+    "met": true
+  }
+};
 function cvRole(){try{return (JSON.parse(sessionStorage.getItem("fp_auth")||"null")||{}).role||null}catch(e){return null}}
 function loadSet(){let s={};try{s=JSON.parse(store.get(CV_SET_KEY)||"{}")||{}}catch(e){s={}}
   return {targetLo:+s.targetLo||CV_DEFAULTS.targetLo,targetHi:+s.targetHi||CV_DEFAULTS.targetHi,warnHi:+s.warnHi||CV_DEFAULTS.warnHi,tabs:Object.assign({},CV_DEFAULTS.tabs,(s.tabs||{}))};}
