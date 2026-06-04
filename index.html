@@ -286,7 +286,7 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
 
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;border-top:1px solid var(--line);padding-top:18px">
             <button class="btn solid" id="csSave">Simpan pengaturan</button>
-            <button class="btn" id="csReset">Reset default</button>
+            <button class="btn" id="csReset">↺ Pakai default file</button>
             <button class="btn" id="csBake">⧉ Salin untuk permanen</button>
           </div>
         </div>
@@ -464,7 +464,7 @@ $("#umBack").addEventListener("click", ()=>{ $("#usersPanel").classList.add("hid
 /* ---------- dashboard settings (super admin) ---------- */
 const CV_SET_KEY="cv_settings_v1";
 const CV_DATA_KEY="cv_beras_panel_v3";
-const CV_DEFAULTS={targetLo:17,targetHi:22,warnHi:25,tabs:{wil:true,wkt:true,dat:true,met:true}};
+const CV_DEFAULTS={targetLo:17.5,targetHi:22.5,warnHi:24,tabs:{wil:true,wkt:false,dat:true,met:true}};
 const CV_TABS=[["wil","Koefisien Variasi Antar Wilayah"],["wkt","Koefisien Variasi Antar Waktu"],["dat","Data Digunakan"],["met","Metodologi"]];
 function cvLoadSet(){let s={};try{s=JSON.parse(localStorage.getItem(CV_SET_KEY)||"{}")||{}}catch(e){}
   return {targetLo:+s.targetLo||CV_DEFAULTS.targetLo,targetHi:+s.targetHi||CV_DEFAULTS.targetHi,warnHi:+s.warnHi||CV_DEFAULTS.warnHi,tabs:Object.assign({},CV_DEFAULTS.tabs,s.tabs||{})};}
@@ -505,8 +505,10 @@ $("#csSave").addEventListener("click", ()=>{
   toast("Pengaturan dasbor disimpan ✓");
 });
 $("#csReset").addEventListener("click", ()=>{
-  $("#csTLo").value=CV_DEFAULTS.targetLo; $("#csTHi").value=CV_DEFAULTS.targetHi; $("#csWHi").value=CV_DEFAULTS.warnHi;
-  cvFillTabs(CV_DEFAULTS.tabs); toast("Direset ke default — klik Simpan untuk menerapkan");
+  try{localStorage.removeItem(CV_SET_KEY);}catch(e){}
+  const s=cvLoadSet();
+  $("#csTLo").value=s.targetLo; $("#csTHi").value=s.targetHi; $("#csWHi").value=s.warnHi;
+  cvFillTabs(s.tabs); toast("Override browser dihapus — dasbor memakai default file");
 });
 $("#csBake").addEventListener("click", ()=>{
   const f=cvReadForm();
