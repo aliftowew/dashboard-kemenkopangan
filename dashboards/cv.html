@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Koefisien Variasi Harga Beras — #SemuaBisaDihitung</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#F3EDDF; --surface:#FBF7EE; --surface2:#F7F1E4; --ink:#1C1A15; --muted:#736C5C;
+  --line:#E2D9C6; --line-strong:#CFC4AC; --rust:#B0451E; --rust-soft:#E7B69F;
+  --green:#2C6149; --green-soft:#A9C7B6; --gold:#9C7A22;
+  --shadow:0 1px 2px rgba(28,26,21,.04),0 10px 30px -18px rgba(28,26,21,.30);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialiased}
+body{background-image:radial-gradient(circle at 18% -10%,rgba(176,69,30,.06),transparent 45%),radial-gradient(circle at 100% 0%,rgba(44,97,73,.06),transparent 40%);background-attachment:fixed}
+.wrap{max-width:1080px;margin:0 auto;padding:34px 22px 80px}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.01em;margin:0}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:13.6px;letter-spacing:.22em;text-transform:uppercase;color:var(--rust);font-weight:500}
+.fade{opacity:0;transform:translateY(10px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;border-bottom:1.5px solid var(--ink);padding-bottom:20px;margin-bottom:24px}
+header h1{font-size:clamp(33.0px,4.6vw,54.3px);line-height:1.02;font-weight:680}
+header h1 em{font-style:italic;color:var(--rust)}
+.sub{color:var(--muted);font-size:17.1px;margin-top:9px;max-width:48ch;line-height:1.5}
+.brand{text-align:right;font-family:'JetBrains Mono',monospace;font-size:13.0px;color:var(--muted);letter-spacing:.04em;line-height:1.7}
+.brand b{color:var(--ink)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.pad{padding:22px 24px}
+.stack{margin-top:14px}
+.disc{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;cursor:pointer;font-family:'Fraunces',serif;font-size:20.1px;font-weight:600;color:var(--ink);padding:16px 22px;text-align:left}
+.disc:hover{color:var(--rust)}
+.disc .lft{display:flex;align-items:center;gap:11px}
+.disc .car{display:inline-block;transition:.22s;color:var(--rust);font-family:'JetBrains Mono',monospace}
+.disc[aria-expanded="true"] .car{transform:rotate(90deg)}
+.disc .hint{font-family:'JetBrains Mono',monospace;font-size:13.0px;font-weight:400;color:var(--muted);letter-spacing:.02em}
+.disc .cnt{font-family:'JetBrains Mono',monospace;font-size:14.2px;font-weight:500;color:var(--green);background:var(--surface2);border:1px solid var(--line);padding:2px 9px;border-radius:999px}
+.disc-body{padding:0 22px 22px;display:none}
+.disc-body.open{display:block;animation:rise .4s both}
+.drop{border:1.6px dashed var(--line-strong);border-radius:14px;background:var(--surface2);padding:24px;text-align:center;transition:.18s;cursor:pointer}
+.drop:hover,.drop.over{border-color:var(--rust);background:#FBF1E9;transform:translateY(-1px)}
+.drop .ic{width:36px;height:36px;margin:0 auto 8px;color:var(--rust)}
+.drop b{font-family:'Fraunces',serif;font-size:18.9px}
+.drop small{display:block;color:var(--muted);margin-top:5px;font-size:14.8px}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+.pill{display:inline-flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:14.8px;font-family:'JetBrains Mono',monospace}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.btn{appearance:none;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:14.2px;letter-spacing:.03em;padding:8px 13px;border-radius:9px;cursor:pointer;transition:.15s}
+.btn:hover{border-color:var(--ink);background:var(--surface2)}
+.btn.pri{border-color:var(--rust);color:var(--rust)} .btn.pri:hover{background:#FAEEE7}
+.btn.danger:hover{border-color:var(--rust);color:var(--rust)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px}
+@media(max-width:720px){.kpis{grid-template-columns:1fr}}
+.kpi .pad{padding:20px 22px}
+.kpi .lab{font-family:'JetBrains Mono',monospace;font-size:13.0px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.kpi .val{font-family:'Fraunces',serif;font-size:54.3px;font-weight:640;line-height:1;margin-top:12px;letter-spacing:-.02em}
+.kpi .val small{font-size:23.6px;color:var(--muted);font-weight:500}
+.kpi .cap{font-size:14.8px;color:var(--muted);margin-top:9px;line-height:1.45}
+.kpi.r{border-top:3px solid var(--rust)} .kpi.k{border-top:3px solid var(--gold)} .kpi.n{border-top:3px solid var(--green)}
+.section-h{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin:34px 0 12px;flex-wrap:wrap}
+.section-h h2{font-size:24.8px}
+.section-h .note{color:var(--muted);font-size:15.3px}
+.fnote{color:var(--muted);font-size:14.8px;line-height:1.5;margin:0 0 12px}
+table{width:100%;border-collapse:collapse;font-size:15.9px}
+th,td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+thead th{font-family:'JetBrains Mono',monospace;font-size:12.4px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:1.5px solid var(--line-strong)}
+tbody tr:hover{background:var(--surface2)}
+td.num{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+tr.total td{font-weight:700;border-top:1.5px solid var(--ink);border-bottom:none;background:var(--surface2)}
+tr.total td:first-child{font-family:'Fraunces',serif}
+tr.muted td{color:#a59a82}
+.tag{font-family:'JetBrains Mono',monospace;font-size:11.8px;padding:2px 7px;border-radius:6px;border:1px solid var(--line-strong);color:var(--muted);margin-left:8px}
+.tag.out{color:var(--rust);border-color:var(--rust-soft);background:#FAEEE7}
+.split{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:start}
+@media(max-width:860px){.split{grid-template-columns:1fr}}
+.scroll{max-height:440px;overflow:auto;border-radius:10px}
+.scroll::-webkit-scrollbar{width:9px;height:9px}.scroll::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:9px}
+.dtable td,.dtable th{white-space:nowrap}
+.dtable th:first-child,.dtable td:first-child{position:sticky;left:0;background:var(--surface);z-index:2;border-right:1.5px solid var(--line-strong)}
+.dtable thead th{position:sticky;top:0;background:var(--surface);z-index:1}
+.dtable thead th:first-child{z-index:3}
+.dtable tbody tr:hover td:first-child{background:var(--surface2)}
+.fltbtns{display:flex;gap:8px;margin:10px 0 12px;flex-wrap:wrap}
+.exwrap{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:14.2px;border:1px solid var(--line-strong);background:var(--surface);padding:6px 10px;border-radius:8px;cursor:pointer;user-select:none;transition:.13s}
+.chip input{accent-color:var(--green);margin:0}
+.chip:hover{border-color:var(--ink)}
+.chip.off{opacity:.5;border-style:dashed;border-color:var(--line)}
+.chip.off span{text-decoration:line-through;color:var(--muted)}
+.legend{display:flex;gap:16px;font-size:14.2px;color:var(--muted);margin:2px 0 12px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.tabs{display:flex;gap:4px;border-bottom:1.5px solid var(--ink);margin:32px 0 18px;flex-wrap:wrap}
+.tab{appearance:none;border:none;background:none;font-family:'Fraunces',serif;font-size:20.1px;font-weight:600;color:var(--muted);padding:10px 16px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1.5px;transition:.15s}
+.tab:hover{color:var(--ink)} .tab.active{color:var(--ink);border-bottom-color:var(--rust)}
+.tabpanel{display:none} .tabpanel.active{display:block;animation:rise .45s both}
+.method p{font-size:15.9px;line-height:1.6;color:#33302a;margin:8px 0}
+.method .f{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0;text-align:center}
+footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:14.2px;font-family:'JetBrains Mono',monospace;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#FBF7EE;padding:11px 18px;border-radius:10px;font-size:15.3px;opacity:0;pointer-events:none;transition:.25s;z-index:50;box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:translateX(-50%)}
+svg text{font-family:'JetBrains Mono',monospace}
+</style>
+<script>
+/* === Portal access guard (login gate) === */
+(function(){
+  try{
+    if(!sessionStorage.getItem('fp_auth')){ location.replace('../index.html'); }
+  }catch(e){ location.replace('../index.html'); }
+})();
+</script>
+</head>
+<body>
+<div class="wrap">
+  <header class="fade">
+    <div>
+      <div class="eyebrow">#SemuaBisaDihitung · Panel Harga Pangan</div>
+      <h1 style="margin-top:10px">Koefisien Variasi<br><em>Harga Beras Medium</em></h1>
+      <p class="sub">Disparitas antar wilayah & volatilitas antar waktu, dihitung langsung di peramban dan tersimpan otomatis di perangkat ini.</p>
+    </div>
+    <div class="brand">DASBOR ANALITIK<br><b>Beras Medium</b><br><span id="hdrmeta">—</span></div>
+  </header>
+
+  <!-- COLLAPSIBLE IMPORT -->
+  <div class="card fade" style="animation-delay:.05s">
+    <button class="disc" id="upToggle" aria-expanded="false">
+      <span class="lft"><span class="car">▸</span> Impor / unggah data</span>
+      <span class="hint" id="upHint">tersembunyi — klik untuk membuka</span>
+    </button>
+    <div class="disc-body" id="upBody">
+      <div class="drop" id="drop">
+        <input type="file" id="file" accept=".xlsx,.xls,.csv" hidden>
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <b>Tarik file ke sini atau klik untuk unggah</b>
+        <small>Format SP2KP (.xlsx): kolom Provinsi, Kabupaten Kota, Komoditas, lalu kolom tanggal. Hanya baris "Beras Medium" yang dipakai; data baru digabung otomatis.</small>
+      </div>
+      <div class="bar">
+        <span class="pill"><span class="dot"></span><span id="status">Memuat…</span></span>
+        <button class="btn pri" id="tpl">⤓ Unduh contoh format Excel</button>
+        <button class="btn" id="dlcsv">⤓ Unduh panel (CSV)</button>
+        <button class="btn" id="reset">↺ Data contoh</button>
+        <button class="btn danger" id="clear">⌫ Hapus tersimpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpis">
+    <div class="card kpi r fade" style="animation-delay:.10s"><div class="pad">
+      <div class="lab">CV Spasial · Total</div>
+      <div class="val mono" id="k_sp">—<small>%</small></div>
+      <div class="cap">Disparitas antar provinsi dalam lingkup filter.</div>
+    </div></div>
+    <div class="card kpi k fade" style="animation-delay:.15s"><div class="pad">
+      <div class="lab">CV Temporal · Nasional</div>
+      <div class="val mono" id="k_tmp">—<small>%</small></div>
+      <div class="cap">Volatilitas sepanjang periode, rata-rata provinsi.</div>
+    </div></div>
+    <div class="card kpi n fade" style="animation-delay:.20s"><div class="pad">
+      <div class="lab">Lingkup Provinsi</div>
+      <div class="val mono" id="k_scope">—</div>
+      <div class="cap" id="k_scope_cap">masuk · dikeluarkan</div>
+    </div></div>
+  </div>
+
+  <!-- COLLAPSIBLE FILTER -->
+  <div class="card fade stack" style="animation-delay:.24s;margin-top:26px">
+    <button class="disc" id="fltToggle" aria-expanded="false">
+      <span class="lft"><span class="car">▸</span> Filter provinsi <span class="cnt" id="fltCount">—</span></span>
+      <span class="hint" id="fltHint">tersembunyi — klik untuk membuka</span>
+    </button>
+    <div class="disc-body" id="fltBody">
+      <p class="fnote"><b>Tercentang = masuk perhitungan</b>, tidak tercentang = dikeluarkan. Default semua tercentang. <span class="tag out">out</span> menandai provinsi harga ekstrem (auto-deteksi, sekadar info).</p>
+      <div class="fltbtns">
+        <button class="btn" id="fltAll">✓ Centang semua</button>
+        <button class="btn" id="fltNone">✕ Kosongkan</button>
+        <button class="btn" id="fltOut">− Hapus centang outlier</button>
+      </div>
+      <div class="exwrap" id="exwrap"></div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs fade" style="animation-delay:.28s">
+    <button class="tab active" data-tab="wil">CV Antar Wilayah</button>
+    <button class="tab" data-tab="wkt">CV Antar Waktu</button>
+    <button class="tab" data-tab="dat">Data Digunakan</button>
+    <button class="tab" data-tab="met">Metodologi</button>
+  </div>
+
+  <div class="tabpanel active" id="tab-wil">
+    <div class="split">
+      <div class="card pad">
+        <div class="legend"><span>std ÷ mean lintas provinsi tiap hari → rata-rata per bulan</span></div>
+        <table><thead><tr><th>Bulan</th><th>CV Spasial (%)</th><th>n hari</th></tr></thead><tbody id="sp_body"></tbody></table>
+      </div>
+      <div class="card pad">
+        <div class="legend"><span><i style="background:var(--rust)"></i>CV spasial per bulan</span></div>
+        <div id="sp_chart"></div>
+      </div>
+    </div>
+    <div class="card pad" style="margin-top:18px">
+      <p class="fnote" style="margin:0 0 12px">Rincian perhitungan: tiap hari dihitung rata-rata & simpangan baku harga lintas provinsi (dalam lingkup filter) → CV harian. Baris bulan = rata-rata CV harian, yaitu nilai pada tabel & grafik di atas. Sel kosong/nol tidak ikut dihitung.</p>
+      <div class="scroll"><table><thead><tr><th>Tanggal</th><th>n prov.</th><th>Rata² (Rp/kg)</th><th>Stdev (Rp)</th><th>CV harian (%)</th></tr></thead><tbody id="cal_body"></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="tabpanel" id="tab-wkt">
+    <div class="split">
+      <div class="card pad">
+        <div class="legend"><span><i style="background:var(--gold)"></i>Rata-rata nasional per bulan</span></div>
+        <div id="tmp_chart"></div>
+      </div>
+      <div class="card pad">
+        <div class="legend"><span>std ÷ mean harga tiap provinsi sepanjang bulan</span></div>
+        <div class="scroll"><table><thead id="tmp_head"></thead><tbody id="tmp_body"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabpanel" id="tab-dat">
+    <div class="card pad">
+      <div class="bar" style="margin-top:0;justify-content:space-between">
+        <span class="fnote" style="margin:0" id="data_cap">—</span>
+        <button class="btn" id="dlcsv2">⤓ Unduh panel (CSV)</button>
+      </div>
+      <div class="scroll" style="margin-top:12px"><table class="dtable"><thead id="data_head"></thead><tbody id="data_body"></tbody></table></div>
+    </div>
+  </div>
+
+  <div class="tabpanel" id="tab-met">
+    <div class="card pad method">
+      <div class="f" id="formula"></div>
+      <p><b>CV</b> = simpangan baku sampel dibagi rata-rata, dalam persen. <b>Spasial</b> dihitung lintas provinsi tiap hari lalu dirata-rata per bulan; <b>temporal</b> dihitung dalam tiap provinsi sepanjang bulan lalu dirata-rata nasional. Keduanya hanya memakai provinsi yang <b>tercentang</b> di filter.</p>
+      <p><b>Sel kosong / nol di-exclude</b>, bukan diisi 0 — harga Rp0 mustahil dan akan merusak rata-rata serta simpangan baku. Provinsi yang tidak melapor pada suatu hari otomatis terlewat dari hitungan hari itu.</p>
+      <p><b>Outlier provinsi</b> ditandai otomatis (median provinsi > Q3 + 1,5·IQR) — biasanya dataran tinggi Papua (Rp25–50rb, riil namun mendominasi dispersi). Penandaan ini hanya info; secara default semua provinsi tetap masuk hitungan. Gunakan tombol "Hapus centang outlier" bila ingin mengeluarkannya.</p>
+      <p><b>Agregasi:</b> file SP2KP level kab/kota dirata-rata per hari menjadi harga tingkat provinsi sebelum CV dihitung.</p>
+    </div>
+  </div>
+
+  <footer>
+    <span>SUMBER: SP2KP / data unggahan · CV = STDEV ÷ MEAN</span>
+    <span id="footmeta">Tersimpan lokal di peramban</span>
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SEED = {"dates":["2026-01-02","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-02-02","2026-02-03","2026-02-04","2026-02-05","2026-02-06","2026-02-09","2026-02-10","2026-02-11","2026-02-12","2026-02-13","2026-02-18","2026-02-19","2026-02-20","2026-02-23","2026-02-24","2026-02-25","2026-02-26","2026-02-27","2026-03-02","2026-03-03","2026-03-04","2026-03-05","2026-03-06","2026-03-09","2026-03-10","2026-03-11","2026-03-12","2026-03-13","2026-03-16","2026-03-17","2026-03-18","2026-03-19","2026-03-20","2026-03-24","2026-03-25","2026-03-26","2026-03-27","2026-03-30","2026-03-31","2026-04-01","2026-04-02","2026-04-06","2026-04-07","2026-04-08","2026-04-09","2026-04-10","2026-04-13","2026-04-14","2026-04-15","2026-04-16","2026-04-17","2026-04-20","2026-04-21","2026-04-22","2026-04-23","2026-04-24","2026-04-27","2026-04-28","2026-04-29","2026-04-30","2026-05-04","2026-05-05","2026-05-06","2026-05-07","2026-05-08","2026-05-11","2026-05-12"],"komoditas":"Beras Medium","panel":{"Aceh":[14389,14504,14549,14549,14504,14504,14571,14543,14551,14551,14596,14642,14642,14642,14635,14649,14662,14645,14638,14604,14552,14555,14537,14544,14543,14539,14510,14488,14484,14484,14475,14475,14460,14465,14478,14501,14492,14470,14499,14504,14504,14493,14459,14452,14447,14447,14447,14447,14448,14448,14452,14458,14458,14300,14412,14412,14412,14399,14399,14399,14399,14422,14422,14433,14447,14474,14449,14449,14447,14441,14441,14441,14441,14441,14441,14441,14448,14448,14448,14448,14432,14427,14427,14427,14427,14434,14429],"Bali":[14072,14072,14072,14072,14072,14072,14072,14072,14072,14072,14072,14072,14072,14072,14072,14072,14072,14072,14063,14063,14063,14063,14063,14063,14063,14063,14063,13937,13933,13878,13878,13878,13878,13878,13878,13878,13878,13878,13811,13811,13811,13811,13811,13833,13833,13833,13833,13833,13833,13833,13833,13833,13833,null,13844,13844,13844,13844,13889,13889,13889,13950,13889,13889,13889,13889,13930,13930,13930,13941,13941,13941,13941,13969,13969,13969,14007,14119,14130,13907,13919,13919,13919,13937,13946,13950,13946],"Banten":[12804,12817,12817,12817,12817,12817,12817,12817,12817,12817,12817,12817,12817,12817,12817,12817,12826,12839,12839,12826,12826,12826,12826,12826,12816,12826,12826,12826,12826,12826,12873,12864,12864,12864,12864,12864,12864,12864,13000,12962,12943,12962,12984,12962,12962,12984,12984,12966,12966,12966,12966,12966,12966,null,12966,13003,13003,13003,13003,13003,13007,13068,13072,13072,13082,13082,13136,13136,13136,13116,13074,13070,13070,13070,13070,13070,13070,13070,13076,13078,13141,13153,13153,13153,13153,13153,13153],"Bengkulu":[13810,13810,13810,13810,13810,13810,13810,13797,13797,13797,13797,13797,13797,13797,13797,13797,13756,13756,13656,13656,13656,13656,13627,13627,13627,13627,13627,13627,13627,13627,13627,13627,13595,13595,13595,13595,13595,13595,13595,13595,13595,13595,13595,13646,13646,13670,13733,13733,13707,13709,13703,13703,13703,null,13711,13711,13711,13711,13711,13711,13649,13649,13649,13649,13665,13665,13703,13703,13703,13680,13680,13711,13711,13711,13711,13711,13711,13711,13711,13711,13711,13711,13694,13694,13694,13688,13688],"D.I. Yogyakarta":[13335,13235,13235,13235,13235,13235,13235,13235,13235,13235,13235,13235,13235,13235,13235,13235,13235,13235,13235,13260,13285,13285,13285,13285,13285,13245,13245,13245,13245,13245,13245,13245,13245,13245,13245,13245,13245,13245,13245,13245,13245,13245,13245,13245,13245,13295,13295,13295,13295,13295,13295,13295,13295,null,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295,13295],"D.K.I. Jakarta":[13824,13824,13824,13824,13803,13844,13928,13928,13886,13886,13907,13907,13907,13949,13949,13949,13907,13969,13969,13969,14053,14094,14094,14094,14094,14053,14053,14053,14053,14053,14032,14032,14032,14074,14053,14081,14081,14081,14122,14122,14122,14122,14122,14122,14143,14143,14143,14143,14143,14143,14143,14143,14143,12750,14074,14115,14185,14206,14206,14143,14125,14208,14167,14083,14083,14083,14056,14056,14097,14097,14097,14097,14097,14097,14097,14118,14118,14118,14118,14118,14118,14118,14118,14118,14118,14125,14097],"Gorontalo":[13664,13664,13664,13664,13664,13664,13664,13664,13664,13664,13664,13636,13636,13636,13678,13678,13661,13661,13647,13647,13563,13563,13563,13619,13647,13647,13647,13647,13878,13878,13878,13896,13896,13882,13882,13865,13865,13865,13865,13865,13865,13767,13767,13851,13851,13851,13851,13851,14059,14059,14059,14059,14059,null,14073,14073,14073,14073,14073,14073,14073,14073,14073,14073,14073,14073,14101,14101,14101,13892,13892,13892,13892,13892,13892,13892,13979,13979,13979,13979,13993,14007,14007,14007,14007,14007,14021],"Jambi":[13176,13176,13176,13176,13176,13190,13190,13190,13190,13190,13190,13190,13190,13190,13190,13190,13190,13222,13200,13200,13219,13200,13205,13205,13122,13122,13122,13107,13107,13107,13343,13343,13343,13343,13343,13343,13343,13343,13307,13343,13313,13343,13307,13343,13389,13267,13389,13267,13369,13340,13297,13369,13297,null,13350,13297,13350,13297,13350,13297,13369,13297,13369,13369,13297,13369,13297,13369,13297,13369,13275,13369,13369,13369,13369,13369,13369,13369,13369,13340,13369,13369,13369,13369,13360,13360,13360],"Jawa Barat":[13020,13020,13020,13020,13020,13020,13013,13004,13013,13013,13013,13013,13013,13013,13018,13028,13028,13031,13012,13012,13031,13031,13031,13031,13031,13031,13031,13031,13031,13031,13049,13049,13057,13075,13075,13075,13084,13084,13094,13094,13094,13149,13149,13154,13172,13140,13152,13137,13138,13157,13157,13157,13194,12667,13176,13176,13176,13174,13174,13165,13165,13165,13156,13150,13154,13154,13150,13132,13132,13117,13117,13117,13117,13117,13117,13120,13120,13120,13120,13120,13120,13120,13120,13120,13120,13120,13123],"Jawa Tengah":[13143,13141,13143,13148,13148,13148,13146,13150,13150,13147,13143,13145,13138,13149,13149,13151,13146,13156,13156,13165,13164,13164,13176,13174,13173,13180,13187,13190,13191,13195,13208,13230,13226,13238,13210,13231,13220,13230,13225,13225,13221,13226,13224,13228,13232,13240,13238,13240,13247,13251,13246,13246,13248,13246,13242,13242,13239,13243,13247,13238,13241,13254,13256,13253,13258,13258,13278,13286,13286,13280,13281,13280,13289,13288,13289,13294,13303,13295,13290,13285,13300,13297,13301,13293,13287,13292,13298],"Jawa Timur":[12826,12832,12831,12831,12831,12831,12831,12831,12831,12831,12831,12830,12830,12830,12830,12830,12830,12830,12830,12830,12805,12805,12805,12809,12809,12810,12810,12816,12819,12826,12826,12835,12854,12850,12850,12883,12883,12883,12888,12888,12893,12893,12895,12911,12911,12917,12919,12935,12953,12956,12956,12956,12960,13050,12977,12977,12978,12993,12993,13000,12998,12982,12982,12982,12982,12982,12999,12994,13001,13001,13006,13034,13031,13031,13034,13033,13033,13033,13033,13033,13036,13037,13039,13039,13039,13031,13031],"Kalimantan Barat":[14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14524,14531,14531,14531,14531,14531,14537,14537,14537,14537,14537,14537,14549,14560,14560,14560,14560,14560,14560,14560,14573,14573,null,14560,14560,14560,14560,14560,14560,14560,14560,14560,14560,14560,14560,14560,14560,14560,14560,14560,14682,14682,14682,14682,14682,14682,14682,14682,14682,14682,14697,14697,14697,14697,14697,14697],"Kalimantan Selatan":[13275,13275,13275,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13335,13435,13435,13435,13435,14063,13835,13835,13835,13835,13835,13835,13835,13960,13960,13960,13960,13960,13960,13960,13960,13960,13960,13960,13960,13960,13960,13960,14023,14023,14023,14023,14023,14023,14023,14023,14023,14023,14023],"Kalimantan Tengah":[14065,14065,14065,14075,14075,14075,14075,14075,14075,14075,14075,14075,14075,14075,14075,14075,14087,14202,14202,14202,14202,14202,14192,14346,14346,14346,14346,14346,14346,14346,14412,14412,14497,14497,14497,14497,14416,14416,14449,14416,14449,14336,14369,14369,14219,14149,14149,14149,14149,14149,14149,14149,14149,14000,14149,14149,14149,14149,14149,14149,14149,14149,14249,14249,14249,14249,14276,14276,14276,14276,14276,14276,14326,14326,14326,14324,14324,14324,14324,14324,14324,14324,14324,14424,14424,14424,14424],"Kalimantan Timur":[15414,15414,15411,15411,15326,15326,15326,15326,15326,15326,15326,15344,15344,15328,15289,15339,15339,15339,15339,15339,15472,15539,15548,15548,15548,15604,15659,15659,15659,15659,15659,15659,15659,15570,15570,15648,15648,15648,15648,15611,15459,15459,15459,15469,15469,15457,15457,15457,15467,15467,15467,15467,15467,null,15481,15481,15481,15481,15481,15481,15493,15493,15493,15493,15493,15493,15493,15493,15493,15548,15548,15548,15567,15567,15567,15580,15606,15650,15650,15672,15672,15672,15672,15839,15839,16063,16022],"Kalimantan Utara":[15517,15517,15517,15540,15540,15542,15542,15542,15542,15542,15542,15542,15542,15542,15517,15517,15517,15492,15492,15492,15492,15492,15492,15492,15492,15492,15492,15492,15492,15492,15492,15492,15492,15517,15517,15517,15517,15517,15117,15117,15117,15117,15117,15077,15077,15077,15117,15117,15117,15117,15117,15117,15117,15750,15117,15117,15117,15117,15117,15117,15117,15117,15117,15117,15117,15117,15117,15117,15117,15117,15158,15183,15183,15183,15183,15183,15183,15183,15183,15183,15198,15198,15165,15160,15155,15135,15120],"Kepulauan Bangka Belitung":[14069,14069,14069,14069,14069,14069,14069,14069,14098,14098,14098,14098,14098,14098,14098,14098,14098,14098,14098,14098,14098,14098,14098,14098,14098,14098,14098,14098,14098,14098,14112,14112,14112,13964,13964,13964,13964,13964,13964,13964,13964,13964,13964,13964,13936,13936,13936,13936,13975,13975,13975,13975,13975,null,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975,13975],"Kepulauan Riau":[13282,13282,13393,13393,13526,13710,13710,13710,13710,13710,13710,13710,13710,13710,13764,13764,13764,13764,13764,13764,13764,14097,14131,14131,14297,14214,14214,14208,14197,14197,14181,14181,14181,14164,13747,13747,13481,13481,13481,13481,13377,13777,13777,13777,13762,13762,13762,13762,13762,13762,13525,13525,13525,null,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525,13525],"Lampung":[12991,12997,12997,12997,12997,12997,12997,12997,12997,12997,12997,12997,12997,12997,12997,13010,13010,13010,13010,13010,13010,13010,13010,12997,13012,13032,13065,13065,13058,13058,13063,13063,13068,13073,13073,13073,13073,13073,13073,13073,13073,13077,13077,13077,13082,13086,13086,13086,13086,13086,13086,13086,13084,12650,13084,13084,13084,13084,13054,13021,13021,13061,13061,13061,13061,13059,13059,13059,13051,13051,13051,13051,13062,13059,13059,13059,13063,13063,13063,13063,13063,13063,13063,13063,13063,13063,13066],"Maluku":[16182,16182,16182,16182,16182,16182,16100,16100,16100,16100,16100,16100,16100,16100,16125,16142,16142,16142,16142,16142,16142,16167,16167,16167,16167,16033,16033,16033,16033,16033,16083,16075,15861,15861,15843,15843,15824,15824,15824,15824,15824,15824,15824,15787,15759,15759,15759,15775,15775,15775,15775,15775,15775,null,15775,15775,15775,15775,15775,15769,15781,15781,15781,15781,15781,15781,15818,15818,15809,15796,15827,15827,15827,15840,15840,15840,15840,15840,15840,15858,15858,15895,15895,15895,15895,15895,15895],"Maluku Utara":[16375,16375,16375,16375,16375,16375,16375,16375,16375,16375,16375,16375,16375,16375,16375,16375,16375,16375,16375,16375,16375,16375,16355,16355,16355,16355,16355,16355,16305,16305,16355,16355,16355,16355,16355,16355,16355,16355,16355,16355,16355,16355,16355,16380,16380,16380,16380,16380,16380,16380,16380,16380,16380,15800,16380,16380,16380,16430,16430,16430,16430,16430,16430,16430,16430,16430,16430,16430,16430,16430,16430,16430,16430,16413,16413,16413,16413,16405,16405,16405,16405,16455,16455,16455,16455,16455,16480],"Nusa Tenggara Barat":[13230,13285,13285,13285,13285,13285,13285,13285,13285,13285,13285,13285,13285,13285,13285,13285,13285,13285,13285,13285,13285,13285,13285,13285,13307,13313,13313,13313,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,13294,null,13294,13294,13267,13267,13267,13267,13267,13267,13267,13267,13267,13267,13267,13267,13267,13267,13267,13267,13267,13267,13267,13267,13267,13333,13333,13333,13333,13333,13333,13333,13333,13333,13278],"Nusa Tenggara Timur":[13983,13981,13973,13966,13966,13966,13966,13966,13973,13973,13973,13973,13996,13996,13996,14003,14003,13996,13981,13981,13981,13981,13981,13947,13981,14004,13994,13994,13994,13994,13994,13986,13986,13986,13986,13991,13991,13991,13982,13991,13945,13945,13938,13941,13941,13941,13941,13941,13861,13852,13852,13875,13875,13890,13882,13882,13882,13871,13860,13872,13872,13872,13872,13876,13876,13876,13876,13883,13885,13885,13885,13875,13875,13875,13875,13867,13860,13852,13873,13873,13871,13871,13886,13886,13886,13886,13886],"Papua":[16100,16100,16100,16100,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16133,16100,16100,16100,16100,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,14500,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750,15750],"Papua Barat":[16300,16300,16300,16300,16300,16400,16200,16200,16200,16200,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16500,16000,16000,16000,16000,16000,16000,16000,16000,16000,null,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,15800,15800,15800,15800,15800,15800,15800,15800,15800,15800,15800,15800,15800,15800,15800,16000,16000,16000],"Papua Barat Daya":[14883,14667,14667,14667,14667,14667,14667,14667,14667,14667,14667,15333,15333,15000,15000,15000,15000,15000,14833,14833,14667,14500,14500,14500,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,null,14167,14167,14167,14000,14000,14000,14000,14000,14000,14000,14000,14000,14383,14383,14217,14217,14217,14217,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14167,14333,14333],"Papua Pegunungan":[27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,27000,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,23000,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25600,25600,25600,25600,25600,25600,25600,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750,25750],"Papua Selatan":[15500,15500,15500,15500,15500,15500,15500,15500,15500,15500,15500,15500,15500,15500,15500,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16333,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,null,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000,16000],"Papua Tengah":[26729,26792,26792,26792,26792,26792,25542,25542,25542,25542,25542,25542,25542,25542,25542,25458,25458,25458,25458,25458,25458,25458,26524,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,25458,18000,25458,25458,25458,25458,25458,25458,25458,25458,25521,26146,26146,26146,26146,26146,26146,26146,26146,26146,26146,26146,26208,26208,26208,26208,26208,26208,26208,26208,26208,26208,26208,26208,26208],"Riau":[14050,14050,14050,14050,14050,14050,14050,14050,14050,14050,14050,14050,14050,14050,13914,13914,13914,14050,14050,14050,13925,13925,14079,13925,13842,13842,13842,13842,13842,13842,14114,14117,14068,14096,13821,13808,13821,13808,13821,14001,13821,13831,13821,13821,13821,13821,13821,13821,13821,13821,13821,13821,13821,null,13821,13821,13821,13821,13821,14004,14004,14004,14004,14004,14004,14004,14004,14004,14004,14004,13875,13875,13875,13875,13875,13875,13854,13854,13854,13854,13854,13854,13854,13832,14003,14003,14003],"Sulawesi Barat":[13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13808,13817,13825,13825,13825,13908,13908,13908,13908,13908,13867,13867,13867,13867,13858,13854,13854,13875,13862,13862,13862,13862,13862,13862,13862,13862,13862,13862,null,13862,13862,13862,13862,13862,13862,13890,13862,13862,13879,13879,13882,13893,13893,13951,13951,13951,14040,14051,14054,14054,14054,14131,14136,14136,14136,14125,14125,14125,14125,14133,14200,14208],"Sulawesi Selatan":[13272,13249,13249,13249,13283,13283,13283,13283,13283,13283,13260,13268,13274,13274,13274,13274,13274,13274,13274,13251,13245,13245,13251,13255,13216,13204,13225,13247,13247,13247,13247,13247,13237,13231,13226,13226,13193,13193,13215,13215,13215,13215,13215,13230,13230,13230,13230,13230,13199,13172,13172,13172,13172,null,13179,13179,13179,13179,13179,13174,13174,13189,13189,13200,13207,13203,13207,13207,13207,13207,13218,13218,13218,13218,13218,13218,13218,13218,13222,13222,13222,13222,13222,13222,13211,13211,13211],"Sulawesi Tengah":[13642,13642,13642,13726,13726,13726,13674,13674,13674,13674,13694,13694,13694,13694,13694,13694,13736,13705,13721,13721,13700,13762,13762,13764,13764,13764,13764,13764,13806,13806,13806,13806,13806,13819,13819,13819,13819,13819,13824,13824,13878,13878,13878,13862,13862,13862,13834,13834,13872,13888,13888,13965,13965,null,13984,13978,13978,13978,13978,13978,13978,13958,13958,13958,13958,13958,13978,13978,13978,13978,13978,13975,13975,13975,13975,13975,13975,13975,13975,13975,14014,14014,14014,14014,14014,14022,14022],"Sulawesi Tenggara":[13832,13832,13832,13841,13841,13841,13841,13836,13849,13849,13849,13849,13849,13845,13845,13853,13853,13848,13848,13848,13844,13846,13849,13849,13849,13864,13860,13869,13869,13885,13998,13994,14025,14095,14089,14089,14105,14124,14122,14122,14130,14136,14136,14140,14140,14091,14117,14172,14228,14188,14188,14188,14176,null,14207,14207,14207,14317,14317,14320,14320,14320,14320,14242,14305,14273,14273,14266,14266,14281,14343,14339,14339,14339,14339,14339,14339,14339,14364,14364,14357,14388,14388,14360,14360,14349,14349],"Sulawesi Utara":[14479,14503,14503,14515,14509,14509,14509,14470,14470,14470,14464,14464,14464,14464,14462,14462,14462,14462,14462,14462,14399,14376,14292,14292,14292,14364,14364,14352,14352,14352,14359,14359,14359,14347,14347,14347,14347,14347,14329,14341,14371,14377,14401,14414,14424,14424,14424,14439,14397,14397,14404,14416,14416,14722,14430,14430,14401,14382,14382,14376,14376,14376,14388,14399,14352,14352,14354,14354,14348,14348,14342,14342,14318,14318,14318,14307,14283,14257,14262,14267,14249,14249,14297,14321,14321,14380,14458],"Sumatera Barat":[15884,15884,15884,15903,16042,16069,16069,16069,16069,16060,16060,16060,16060,16060,16060,16014,16014,16014,16014,16014,16014,16014,16023,16023,15931,15946,15946,15946,15946,15946,15922,15922,15922,15922,15922,15922,15902,15907,15890,15890,15890,15885,15885,15885,15903,15903,15899,15899,15899,15899,15876,15861,15858,16500,15872,15872,15872,15872,15872,15872,15872,15872,15872,15872,15887,15887,15902,15902,15902,15902,15902,15928,15913,15910,15903,15903,15905,15905,15905,15905,15920,15910,15903,15903,15896,15881,15888],"Sumatera Selatan":[12908,12908,12967,12937,12937,12937,12937,12937,12937,12937,12908,12908,12908,12908,12908,12914,12918,12942,12952,12972,12950,12898,12898,12898,12883,12883,12883,12883,12883,12883,12883,12884,12884,12885,12885,12885,12890,12885,12885,12885,12885,12885,12944,12944,12915,12915,12917,12917,12917,12917,12917,12917,12917,null,12917,12917,12917,12917,12917,12917,12917,12917,12925,12934,12934,12934,12934,12934,12934,12934,12949,12949,12949,12949,12949,12949,12949,12949,12949,12891,12894,12923,12928,12928,12908,12908,12923],"Sumatera Utara":[14573,14565,14573,14573,14573,14573,14584,14589,14589,14607,14590,14590,14595,14611,14584,14584,14585,14585,14596,14596,14609,14629,14637,14625,14538,14495,14495,14492,14481,14483,14503,14500,14482,14452,14426,14444,14444,14426,14439,14430,14437,14421,14435,14422,14424,14408,14424,14408,14424,14408,14429,14413,14431,null,14414,14420,14419,14412,14412,14418,14422,14417,14414,14380,14397,14416,14435,14429,14439,14434,14439,14439,14447,14465,14465,14403,14416,14410,14396,14396,14406,14452,14452,14445,14445,14464,14453]}};
+const KEY = "cv_beras_panel_v3";
+const MNAME=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const MSHORT=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+const _mem={};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return k in _mem?_mem[k]:null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){_mem[k]=v}},del(k){try{localStorage.removeItem(k)}catch(e){delete _mem[k]}}};
+let DATA=load(); let INCLUDED=new Set(); let R=null; let curTab="wil"; let initFilter=true;
+
+function load(){const raw=store.get(KEY);if(raw){try{const d=JSON.parse(raw);if(d&&d.dates&&d.panel)return d;}catch(e){}}return JSON.parse(JSON.stringify(SEED));}
+function save(){store.set(KEY,JSON.stringify(DATA));}
+function clean(a){return a.filter(v=>v!=null&&!isNaN(v)&&v>0);}
+function mean(a){return a.reduce((s,x)=>s+x,0)/a.length;}
+function stdS(a){if(a.length<2)return NaN;const m=mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)*(x-m),0)/(a.length-1));}
+function cv(a){const c=clean(a);if(c.length<2)return null;const m=mean(c);return m>0?stdS(c)/m*100:null;}
+function median(a){const c=clean(a).slice().sort((x,y)=>x-y);if(!c.length)return null;const n=c.length;return n%2?c[(n-1)/2]:(c[n/2-1]+c[n/2])/2;}
+function quantile(a,q){const c=a.slice().sort((x,y)=>x-y);const pos=(c.length-1)*q,b=Math.floor(pos),r=pos-b;return c[b+1]!==undefined?c[b]+r*(c[b+1]-c[b]):c[b];}
+function monthGroups(dates){const g={};dates.forEach((d,i)=>{const k=d.slice(0,7);(g[k]=g[k]||[]).push(i);});return Object.keys(g).sort().map(k=>({key:k,idx:g[k],label:MNAME[+k.slice(5,7)-1]+" "+k.slice(0,4),short:MSHORT[+k.slice(5,7)-1]}));}
+function detectOutliers(){const provs=Object.keys(DATA.panel);const meds=provs.map(p=>median(DATA.panel[p])).filter(v=>v!=null);if(meds.length<4)return new Set();const q3=quantile(meds,.75),q1=quantile(meds,.25),hi=q3+1.5*(q3-q1);const out=new Set();provs.forEach(p=>{const m=median(DATA.panel[p]);if(m!=null&&m>hi)out.add(p);});return out;}
+
+function compute(){
+  const provs=Object.keys(DATA.panel).sort();
+  const dates=DATA.dates, groups=monthGroups(dates);
+  const incl=provs.filter(p=>INCLUDED.has(p));
+  const dailyDetail=dates.map((d,i)=>{const arr=clean(incl.map(p=>DATA.panel[p][i]));const m=arr.length?mean(arr):null;const s=arr.length>1?stdS(arr):null;return {date:d,n:arr.length,mean:m,std:s,cv:(m!=null&&s!=null&&m>0)?s/m*100:null};});
+  const daily=dailyDetail.map(x=>x.cv);
+  const monthsSp=groups.map(g=>{const a=g.idx.map(i=>daily[i]).filter(v=>v!=null);return {label:g.label,short:g.short,cv:a.length?mean(a):null,n:a.length};});
+  const allD=daily.filter(v=>v!=null);
+  const totSp={cv:allD.length?mean(allD):null,n:allD.length};
+  const tmp=provs.map(p=>({prov:p,inc:INCLUDED.has(p),months:groups.map(g=>cv(g.idx.map(i=>DATA.panel[p][i]))),total:cv(DATA.panel[p])}));
+  const natMonths=groups.map((g,gi)=>{const a=tmp.filter(r=>r.inc).map(r=>r.months[gi]).filter(v=>v!=null);return a.length?mean(a):null;});
+  const nt=tmp.filter(r=>r.inc).map(r=>r.total).filter(v=>v!=null);
+  const natTotal=nt.length?mean(nt):null;
+  return {provs,dates,groups,monthsSp,totSp,tmp,natMonths,natTotal,dailyDetail,nIncl:incl.length,nEx:provs.length-incl.length};
+}
+
+const fmt=(v,d=2)=>v==null||isNaN(v)?"—":v.toLocaleString("id-ID",{minimumFractionDigits:d,maximumFractionDigits:d});
+function render(){
+  R=compute();
+  document.getElementById("k_sp").innerHTML=fmt(R.totSp.cv)+"<small>%</small>";
+  document.getElementById("k_tmp").innerHTML=fmt(R.natTotal)+"<small>%</small>";
+  document.getElementById("k_scope").innerHTML=R.nIncl+'<small> / '+R.nEx+'</small>';
+  document.getElementById("k_scope_cap").textContent=R.nIncl+" masuk · "+R.nEx+" dikeluarkan";
+  document.getElementById("fltCount").textContent=R.nIncl+" dipakai";
+  const meta=R.provs.length+" prov · "+R.dates.length+" hari";
+  document.getElementById("hdrmeta").textContent=meta;
+  document.getElementById("footmeta").textContent="Tersimpan · "+meta;
+  let sb="";
+  R.monthsSp.forEach(m=>{sb+=`<tr><td>${m.label}</td><td class="num">${fmt(m.cv)}</td><td class="num" style="color:var(--muted)">${m.n}</td></tr>`;});
+  sb+=`<tr class="total"><td>TOTAL</td><td class="num">${fmt(R.totSp.cv)}</td><td class="num">${R.totSp.n}</td></tr>`;
+  document.getElementById("sp_body").innerHTML=sb;
+  let th="<tr><th>Provinsi</th>"+R.groups.map(g=>`<th>${g.short}</th>`).join("")+"<th>Total</th></tr>";
+  document.getElementById("tmp_head").innerHTML=th;
+  let tb="";
+  R.tmp.forEach(r=>{tb+=`<tr class="${r.inc?'':'muted'}"><td>${r.prov}${r.inc?'':'<span class="tag">dikeluarkan</span>'}</td>`+r.months.map(v=>`<td class="num">${fmt(v)}</td>`).join("")+`<td class="num"><b>${fmt(r.total)}</b></td></tr>`;});
+  tb+=`<tr class="total"><td>RATA² NASIONAL</td>`+R.natMonths.map(v=>`<td class="num">${fmt(v)}</td>`).join("")+`<td class="num">${fmt(R.natTotal)}</td></tr>`;
+  document.getElementById("tmp_body").innerHTML=tb;
+  // data table
+  let dh="<tr><th>Provinsi</th>"+R.dates.map(d=>`<th>${d.slice(8,10)}/${d.slice(5,7)}</th>`).join("")+"</tr>";
+  document.getElementById("data_head").innerHTML=dh;
+  let db="",filled=0,total=0;
+  R.provs.forEach(p=>{const inc=INCLUDED.has(p);
+    db+=`<tr class="${inc?'':'muted'}"><td>${p}</td>`+DATA.panel[p].map(v=>{total++;if(v!=null){filled++;return `<td class="num">${v.toLocaleString("id-ID")}</td>`;}return '<td class="num" style="color:#c9bfa8">–</td>';}).join("")+`</tr>`;});
+  document.getElementById("data_body").innerHTML=db;
+  document.getElementById("data_cap").innerHTML=`${R.provs.length} provinsi × ${R.dates.length} tanggal · <b>${filled.toLocaleString("id-ID")}/${total.toLocaleString("id-ID")}</b> sel terisi (${(filled/total*100).toFixed(0)}%) · harga agregat Rp/kg tingkat provinsi · baris redup = dikeluarkan dari filter`;
+  // calculation detail (daily spatial)
+  let cb="";
+  R.groups.forEach((g,gi)=>{
+    g.idx.forEach(i=>{const x=R.dailyDetail[i];
+      cb+=`<tr><td>${x.date.slice(8,10)}/${x.date.slice(5,7)}/${x.date.slice(0,4)}</td><td class="num">${x.n}</td><td class="num">${x.mean!=null?Math.round(x.mean).toLocaleString("id-ID"):'–'}</td><td class="num">${x.std!=null?fmt(x.std,1):'–'}</td><td class="num">${fmt(x.cv)}</td></tr>`;});
+    const ms=R.monthsSp[gi];
+    cb+=`<tr class="total"><td>${g.label} — rata² CV harian</td><td class="num">${ms.n}</td><td></td><td></td><td class="num">${fmt(ms.cv)}</td></tr>`;});
+  document.getElementById("cal_body").innerHTML=cb;
+  drawCur();
+}
+function drawCur(){if(!R)return;if(curTab==="wil")drawSpatial(R.monthsSp);else if(curTab==="wkt")drawTemporal(R.groups,R.natMonths);}
+
+function drawSpatial(months){
+  const W=460,H=300,pad={l:38,r:12,t:16,b:42};const iw=W-pad.l-pad.r,ih=H-pad.t-pad.b;
+  const vals=months.map(m=>m.cv).filter(v=>v!=null);const max=Math.max(...vals,1)*1.14;
+  const n=months.length,gw=iw/n,bw=Math.min(34,gw*0.5);
+  let g=`<svg viewBox="0 0 ${W} ${H}" width="100%">`;
+  for(let t=0;t<=4;t++){const y=pad.t+ih-ih*t/4;g+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="var(--line)"/><text x="${pad.l-6}" y="${y+3}" text-anchor="end" font-size="10.6" fill="var(--muted)">${(max*t/4).toFixed(0)}</text>`;}
+  months.forEach((m,i)=>{const cx=pad.l+gw*i+gw/2;
+    if(m.cv!=null){const h=ih*m.cv/max,x=cx-bw/2,y=pad.t+ih-h;
+      g+=`<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="3" fill="var(--rust)" style="transform-origin:${x}px ${pad.t+ih}px;animation:grow .6s ${.05*i}s both cubic-bezier(.2,.8,.2,1)"/>`;
+      g+=`<text x="${cx}" y="${y-5}" text-anchor="middle" font-size="11.2" fill="var(--rust)" font-weight="600">${m.cv.toFixed(2)}</text>`;}
+    g+=`<text x="${cx}" y="${H-24}" text-anchor="middle" font-size="11.2" fill="var(--ink)">${m.short}</text>`;});
+  g+=`<text x="${pad.l-26}" y="${pad.t-3}" font-size="10.6" fill="var(--muted)">CV %</text></svg>`;
+  document.getElementById("sp_chart").innerHTML=g;
+}
+function drawTemporal(groups,nat){
+  const W=460,H=300,pad={l:44,r:14,t:18,b:38};const iw=W-pad.l-pad.r,ih=H-pad.t-pad.b;
+  const vals=nat.filter(v=>v!=null);const max=Math.max(...vals,0.1)*1.25;
+  const n=groups.length,step=n>1?iw/(n-1):0;
+  let g=`<svg viewBox="0 0 ${W} ${H}" width="100%">`;
+  for(let t=0;t<=4;t++){const y=pad.t+ih-ih*t/4;g+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="var(--line)"/><text x="${pad.l-6}" y="${y+3}" text-anchor="end" font-size="10.6" fill="var(--muted)">${(max*t/4).toFixed(2)}</text>`;}
+  const pts=nat.map((v,i)=>v==null?null:[pad.l+step*i,pad.t+ih-ih*v/max]);const seg=pts.filter(p=>p);
+  if(seg.length){let d="M"+seg.map(p=>p[0]+" "+p[1]).join(" L ");
+    g+=`<path d="${d}" fill="none" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:1400;stroke-dashoffset:1400;animation:dash 1.1s .1s forwards"/>`;
+    pts.forEach((p,i)=>{if(!p)return;g+=`<circle cx="${p[0]}" cy="${p[1]}" r="3.6" fill="var(--surface)" stroke="var(--gold)" stroke-width="2"/><text x="${p[0]}" y="${p[1]-9}" text-anchor="middle" font-size="10.0" fill="var(--gold)">${nat[i].toFixed(2)}</text>`;});}
+  groups.forEach((gr,i)=>{g+=`<text x="${pad.l+step*i}" y="${H-20}" text-anchor="middle" font-size="11.2" fill="var(--ink)">${gr.short}</text>`;});
+  g+=`<style>@keyframes dash{to{stroke-dashoffset:0}}</style></svg>`;
+  document.getElementById("tmp_chart").innerHTML=g;
+}
+
+function renderFilter(){
+  const auto=detectOutliers();
+  const provs=Object.keys(DATA.panel).sort();
+  if(initFilter){INCLUDED=new Set(provs);initFilter=false;} // default: all checked
+  const w=document.getElementById("exwrap");w.innerHTML="";
+  provs.forEach(p=>{const on=INCLUDED.has(p),isOut=auto.has(p);const el=document.createElement("label");el.className="chip"+(on?"":" off");
+    el.innerHTML=`<input type="checkbox" ${on?"checked":""}><span>${p}${isOut?' <span class="tag out" style="margin:0 0 0 4px">out</span>':''}</span>`;
+    el.querySelector("input").addEventListener("change",e=>{if(e.target.checked)INCLUDED.add(p);else INCLUDED.delete(p);el.classList.toggle("off",!e.target.checked);render();});
+    w.appendChild(el);});
+}
+function setAll(on){const provs=Object.keys(DATA.panel);INCLUDED=on?new Set(provs):new Set();renderFilter();render();}
+function uncheckOutliers(){const auto=detectOutliers();auto.forEach(p=>INCLUDED.delete(p));renderFilter();render();}
+
+function downloadTemplate(){
+  const aoa=[
+    ["No","Kode Wilayah","Provinsi","Kabupaten Kota","Komoditas","HET/HA","01/06/2026","02/06/2026","03/06/2026","04/06/2026","05/06/2026"],
+    [1,1101,"Aceh","Kab. Aceh Selatan","Beras Medium","14.000",13500,13500,13600,13600,13550],
+    [2,1101,"Aceh","Kab. Aceh Selatan","Beras Premium","15.400",15400,15400,15500,15500,15450],
+    [3,3273,"Jawa Barat","Kota Bandung","Beras Medium","12.500",13100,13150,13100,13200,13180],
+    [4,3273,"Jawa Barat","Kota Bandung","Beras Premium","13.900",15000,15050,15000,15100,15080],
+    [5,3204,"Jawa Barat","Kab. Bandung","Beras Medium","12.500",13000,"",13050,13050,13020],
+    [6,9471,"Papua Tengah","Kab. Puncak Jaya","Beras Medium","14.000",26000,26000,26500,26500,26000]
+  ];
+  const ws=XLSX.utils.aoa_to_sheet(aoa);ws["!cols"]=[{wch:4},{wch:12},{wch:14},{wch:20},{wch:14},{wch:9},{wch:11},{wch:11},{wch:11},{wch:11},{wch:11}];
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"SP2KP");XLSX.writeFile(wb,"contoh_format_impor_SP2KP.xlsx");toast("Contoh format diunduh ✓");
+}
+function excelDateToISO(v){
+  if(typeof v==="number"){const d=new Date(Math.round((v-25569)*86400*1000));return d.toISOString().slice(0,10);}
+  const s=String(v).trim();let m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if(m){let[,dd,mm,yy]=m;if(yy.length===2)yy="20"+yy;return `${yy}-${mm.padStart(2,"0")}-${dd.padStart(2,"0")}`;}
+  m=s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);if(m){let[,yy,mm,dd]=m;return `${yy}-${mm.padStart(2,"0")}-${dd.padStart(2,"0")}`;}
+  return null;
+}
+function parseWorkbook(ab){
+  const wb=XLSX.read(ab,{type:"array"});const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});if(!rows.length)throw "Sheet kosong";
+  let hr=0;for(let i=0;i<Math.min(rows.length,6);i++){if(rows[i].some(c=>/provinsi/i.test(String(c)))){hr=i;break;}}
+  const head=rows[hr].map(c=>String(c==null?"":c).trim());
+  const provI=head.findIndex(h=>/provinsi/i.test(h));const komI=head.findIndex(h=>/komoditas/i.test(h));
+  if(provI<0)throw "Kolom 'Provinsi' tak ditemukan";
+  const dcols=[];head.forEach((h,i)=>{const iso=excelDateToISO(rows[hr][i]);if(i>komI&&i>provI&&iso)dcols.push({i,iso});});
+  if(!dcols.length)throw "Kolom tanggal tak terdeteksi";
+  const agg={};
+  for(let r=hr+1;r<rows.length;r++){const row=rows[r];if(!row)continue;
+    const prov=String(row[provI]==null?"":row[provI]).trim();if(!prov)continue;
+    if(komI>=0){const k=String(row[komI]==null?"":row[komI]).trim().toLowerCase();if(k&&k!=="beras medium")continue;}
+    agg[prov]=agg[prov]||{};
+    dcols.forEach(dc=>{let v=row[dc.i];v=(v==null||v==="")?null:Number(v);if(v!=null&&!isNaN(v)&&v>0){(agg[prov][dc.iso]=agg[prov][dc.iso]||[]).push(v);}});}
+  const provs=Object.keys(agg);if(!provs.length)throw "Tidak ada baris Beras Medium";
+  const isos=[...new Set(dcols.map(d=>d.iso))].sort();const panel={};
+  provs.forEach(p=>{panel[p]=isos.map(iso=>agg[p][iso]?Math.round(agg[p][iso].reduce((s,x)=>s+x,0)/agg[p][iso].length):null);});
+  return {dates:isos,komoditas:"Beras Medium",panel};
+}
+function mergeInto(neu){
+  const dates=[...new Set([...DATA.dates,...neu.dates])].sort();
+  const provs=[...new Set([...Object.keys(DATA.panel),...Object.keys(neu.panel)])];
+  const oldI=Object.fromEntries(DATA.dates.map((d,i)=>[d,i]));const newI=Object.fromEntries(neu.dates.map((d,i)=>[d,i]));
+  const panel={};
+  provs.forEach(p=>{panel[p]=dates.map(d=>{const nv=neu.panel[p]?neu.panel[p][newI[d]]:undefined;if(nv!=null&&nv!==undefined)return nv;const ov=DATA.panel[p]?DATA.panel[p][oldI[d]]:undefined;return(ov==null||ov===undefined)?null:ov;});});
+  DATA={dates,komoditas:"Beras Medium",panel};
+}
+function handleFile(file){
+  const fr=new FileReader();
+  fr.onload=e=>{try{const neu=parseWorkbook(e.target.result);mergeInto(neu);save();initFilter=true;renderFilter();render();
+    document.getElementById("status").textContent="Diperbarui: "+file.name+" ("+neu.dates.length+" tgl, "+Object.keys(neu.panel).length+" prov)";toast("Data digabung & tersimpan ✓");
+  }catch(err){toast("Gagal: "+err);console.error(err);}};
+  fr.readAsArrayBuffer(file);
+}
+
+function discToggle(btn,body,hint){const open=body.classList.toggle("open");btn.setAttribute("aria-expanded",open);hint.textContent=open?"klik untuk menyembunyikan":"tersembunyi — klik untuk membuka";}
+document.getElementById("upToggle").addEventListener("click",()=>discToggle(document.getElementById("upToggle"),document.getElementById("upBody"),document.getElementById("upHint")));
+document.getElementById("fltToggle").addEventListener("click",()=>discToggle(document.getElementById("fltToggle"),document.getElementById("fltBody"),document.getElementById("fltHint")));
+const drop=document.getElementById("drop"),fileIn=document.getElementById("file");
+drop.addEventListener("click",()=>fileIn.click());
+fileIn.addEventListener("change",e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over");}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over");}));
+drop.addEventListener("drop",e=>{if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+document.getElementById("tpl").addEventListener("click",downloadTemplate);
+document.getElementById("fltAll").addEventListener("click",()=>setAll(true));
+document.getElementById("fltNone").addEventListener("click",()=>setAll(false));
+document.getElementById("fltOut").addEventListener("click",uncheckOutliers);
+document.getElementById("reset").addEventListener("click",()=>{DATA=JSON.parse(JSON.stringify(SEED));save();initFilter=true;renderFilter();render();document.getElementById("status").textContent="Data contoh dimuat ("+DATA.dates.length+" tgl)";toast("Dikembalikan ke data contoh");});
+document.getElementById("clear").addEventListener("click",()=>{store.del(KEY);DATA=JSON.parse(JSON.stringify(SEED));initFilter=true;renderFilter();render();document.getElementById("status").textContent="Penyimpanan dihapus — kembali ke data contoh";toast("Penyimpanan lokal dihapus");});
+function downloadCSV(){const provs=Object.keys(DATA.panel).sort();let csv="Provinsi,"+DATA.dates.join(",")+"\n";provs.forEach(p=>{csv+=p+","+DATA.panel[p].map(v=>v==null?"":v).join(",")+"\n";});const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="panel_beras_medium.csv";a.click();toast("CSV diunduh");}
+document.getElementById("dlcsv").addEventListener("click",downloadCSV);
+document.getElementById("dlcsv2").addEventListener("click",downloadCSV);
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");curTab=t.dataset.tab;document.querySelectorAll(".tabpanel").forEach(p=>p.classList.remove("active"));document.getElementById("tab-"+curTab).classList.add("active");drawCur();}));
+let tt;function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200);}
+try{katex.render("\\mathrm{CV}=\\frac{s}{\\bar{x}}\\times 100\\%\\qquad s=\\sqrt{\\frac{\\sum_{i=1}^{n}(x_i-\\bar{x})^2}{n-1}}",document.getElementById("formula"),{throwOnError:false});}catch(e){}
+renderFilter();render();
+document.getElementById("status").textContent=store.get(KEY)?"Data tersimpan dimuat ("+DATA.dates.length+" tgl)":"Data contoh dimuat ("+DATA.dates.length+" tgl)";
+</script>
+</body>
+</html>
