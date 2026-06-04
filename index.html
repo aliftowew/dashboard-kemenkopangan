@@ -140,6 +140,11 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
 .set-block{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:22px 24px;box-shadow:var(--shadow)}
 .set-block h3{font-family:'Sora',sans-serif;font-size:19px;font-weight:600;margin:0}
 .set-lab{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:20px 0 11px;font-weight:600}
+.cs-drop{border:1.6px dashed var(--line-strong);border-radius:12px;background:var(--surface2);padding:22px;text-align:center;cursor:pointer;transition:.15s;margin-top:6px}
+.cs-drop:hover,.cs-drop.over{border-color:var(--gold);background:#16304A;transform:translateY(-1px)}
+.cs-drop svg{width:32px;height:32px;color:var(--gold);margin:0 auto 6px;display:block}
+.cs-drop b{font-family:'Sora',sans-serif;font-size:15px;font-weight:600}
+.cs-drop small{display:block;color:var(--muted);margin-top:5px;font-size:12.5px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -277,11 +282,21 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
           <div class="set-lab">Tampilkan tab untuk admin biasa</div>
           <div class="set-grid" id="csTabs" style="gap:12px"></div>
 
-          <div class="set-lab">Data terbaru</div>
-          <p id="csDataInfo" style="font-size:13.5px;color:#c3d2e4;margin:0;line-height:1.5">—</p>
-          <div id="csDataBtns" style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+          <div class="set-lab">Data Koefisien Variasi</div>
+          <div class="cs-drop" id="csDrop">
+            <input type="file" id="csFile" accept=".xlsx,.xls,.csv" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <b>Tarik file SP2KP ke sini atau klik untuk unggah</b>
+            <small>Format .xlsx: kolom Provinsi, Kabupaten Kota, Komoditas, lalu kolom tanggal. Hanya baris "Beras Medium" yang dipakai; data baru digabung dengan yang lama.</small>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+            <button class="btn" id="csTpl">⤓ Contoh format Excel</button>
+          </div>
+          <p id="csDataInfo" style="font-size:13.5px;color:#c3d2e4;margin:14px 0 0;line-height:1.5">—</p>
+          <div id="csDataBtns" style="display:none;gap:10px;margin-top:12px;flex-wrap:wrap">
             <button class="btn pri" id="csXlsx">⤓ Export Excel (.xlsx)</button>
             <button class="btn" id="csCsv">⤓ Export CSV</button>
+            <button class="btn danger" id="csClear">⌫ Hapus data tersimpan</button>
           </div>
 
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;border-top:1px solid var(--line);padding-top:18px">
@@ -531,6 +546,80 @@ $("#csXlsx").addEventListener("click", ()=>{
   const ws=XLSX.utils.aoa_to_sheet(aoa), wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, (d.komoditas||"Data").slice(0,28));
   XLSX.writeFile(wb, "koefisien_variasi_data_terbaru.xlsx"); toast("Excel diunduh");
+});
+
+/* ---- upload data (super admin) ---- */
+function csXlDate(v){
+  if(typeof v==="number"){const d=new Date(Math.round((v-25569)*86400*1000));return d.toISOString().slice(0,10);}
+  const s=String(v).trim();let m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if(m){let[,dd,mm,yy]=m;if(yy.length===2)yy="20"+yy;return `${yy}-${mm.padStart(2,"0")}-${dd.padStart(2,"0")}`;}
+  m=s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);if(m){let[,yy,mm,dd]=m;return `${yy}-${mm.padStart(2,"0")}-${dd.padStart(2,"0")}`;}
+  return null;
+}
+function csParse(ab){
+  const wb=XLSX.read(ab,{type:"array"});const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});if(!rows.length)throw "Sheet kosong";
+  let hr=0;for(let i=0;i<Math.min(rows.length,6);i++){if(rows[i].some(c=>/provinsi/i.test(String(c)))){hr=i;break;}}
+  const head=rows[hr].map(c=>String(c==null?"":c).trim());
+  const provI=head.findIndex(h=>/provinsi/i.test(h));const komI=head.findIndex(h=>/komoditas/i.test(h));
+  if(provI<0)throw "Kolom 'Provinsi' tak ditemukan";
+  const dcols=[];head.forEach((h,i)=>{const iso=csXlDate(rows[hr][i]);if(i>komI&&i>provI&&iso)dcols.push({i,iso});});
+  if(!dcols.length)throw "Kolom tanggal tak terdeteksi";
+  const agg={};
+  for(let r=hr+1;r<rows.length;r++){const row=rows[r];if(!row)continue;
+    const prov=String(row[provI]==null?"":row[provI]).trim();if(!prov)continue;
+    if(komI>=0){const k=String(row[komI]==null?"":row[komI]).trim().toLowerCase();if(k&&k!=="beras medium")continue;}
+    agg[prov]=agg[prov]||{};
+    dcols.forEach(dc=>{let v=row[dc.i];v=(v==null||v==="")?null:Number(v);if(v!=null&&!isNaN(v)&&v>0){(agg[prov][dc.iso]=agg[prov][dc.iso]||[]).push(v);}});}
+  const provs=Object.keys(agg);if(!provs.length)throw "Tidak ada baris Beras Medium";
+  const isos=[...new Set(dcols.map(d=>d.iso))].sort();const panel={};
+  provs.forEach(p=>{panel[p]=isos.map(iso=>agg[p][iso]?Math.round(agg[p][iso].reduce((s,x)=>s+x,0)/agg[p][iso].length):null);});
+  return {dates:isos,komoditas:"Beras Medium",panel};
+}
+function csMergeSave(neu){
+  let cur=cvGetData(); if(!cur||!cur.dates){cur={dates:[],komoditas:"Beras Medium",panel:{}};}
+  const dates=[...new Set([...cur.dates,...neu.dates])].sort();
+  const provs=[...new Set([...Object.keys(cur.panel),...Object.keys(neu.panel)])];
+  const oldI=Object.fromEntries(cur.dates.map((d,i)=>[d,i]));
+  const newI=Object.fromEntries(neu.dates.map((d,i)=>[d,i]));
+  const panel={};
+  provs.forEach(p=>{panel[p]=dates.map(d=>{const nv=neu.panel[p]?neu.panel[p][newI[d]]:undefined;if(nv!=null&&nv!==undefined)return nv;const ov=cur.panel[p]?cur.panel[p][oldI[d]]:undefined;return(ov==null||ov===undefined)?null:ov;});});
+  try{localStorage.setItem(CV_DATA_KEY,JSON.stringify({dates,komoditas:"Beras Medium",panel}));}catch(e){toast("Gagal menyimpan (data terlalu besar?)");return false;}
+  return {nprov:provs.length,ndate:dates.length};
+}
+function csUpload(file){
+  if(typeof XLSX==="undefined"){toast("Pustaka Excel belum termuat.");return;}
+  const fr=new FileReader();
+  fr.onload=e=>{try{const neu=csParse(e.target.result);const res=csMergeSave(neu);if(res){cvDataInfo();toast("Data digabung & tersimpan ✓ ("+res.nprov+" prov · "+res.ndate+" hari)");}}
+    catch(err){toast("Gagal: "+err);console.error(err);}};
+  fr.readAsArrayBuffer(file);
+}
+function csTemplate(){
+  if(typeof XLSX==="undefined"){toast("Pustaka Excel belum termuat.");return;}
+  const aoa=[
+    ["No","Kode Wilayah","Provinsi","Kabupaten Kota","Komoditas","HET/HA","01/06/2026","02/06/2026","03/06/2026","04/06/2026","05/06/2026"],
+    [1,1101,"Aceh","Kab. Aceh Selatan","Beras Medium","14.000",13500,13500,13600,13600,13550],
+    [2,1101,"Aceh","Kab. Aceh Selatan","Beras Premium","15.400",15400,15400,15500,15500,15450],
+    [3,3273,"Jawa Barat","Kota Bandung","Beras Medium","12.500",13100,13150,13100,13200,13180],
+    [4,3204,"Jawa Barat","Kab. Bandung","Beras Medium","12.500",13000,"",13050,13050,13020],
+    [5,9471,"Papua Tengah","Kab. Puncak Jaya","Beras Medium","14.000",26000,26000,26500,26500,26000]
+  ];
+  const ws=XLSX.utils.aoa_to_sheet(aoa);ws["!cols"]=[{wch:4},{wch:12},{wch:14},{wch:20},{wch:14},{wch:9},{wch:11},{wch:11},{wch:11},{wch:11},{wch:11}];
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"SP2KP");XLSX.writeFile(wb,"contoh_format_impor_SP2KP.xlsx");toast("Contoh format diunduh ✓");
+}
+const _csDrop=$("#csDrop"), _csFile=$("#csFile");
+if(_csDrop&&_csFile){
+  _csDrop.addEventListener("click",()=>_csFile.click());
+  _csFile.addEventListener("change",e=>{if(e.target.files[0])csUpload(e.target.files[0]);_csFile.value="";});
+  ["dragenter","dragover"].forEach(ev=>_csDrop.addEventListener(ev,e=>{e.preventDefault();_csDrop.classList.add("over");}));
+  ["dragleave","drop"].forEach(ev=>_csDrop.addEventListener(ev,e=>{e.preventDefault();_csDrop.classList.remove("over");}));
+  _csDrop.addEventListener("drop",e=>{if(e.dataTransfer.files[0])csUpload(e.dataTransfer.files[0]);});
+}
+$("#csTpl")&&$("#csTpl").addEventListener("click",csTemplate);
+$("#csClear")&&$("#csClear").addEventListener("click",()=>{
+  if(!confirm("Hapus data Koefisien Variasi yang tersimpan? Dasbor akan kembali ke data contoh."))return;
+  try{localStorage.removeItem(CV_DATA_KEY);}catch(e){}
+  cvDataInfo(); toast("Data tersimpan dihapus");
 });
 
 function renderUsers(){
