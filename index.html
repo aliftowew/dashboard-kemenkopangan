@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
   --bg:#091422; --bg2:#0B1A2C; --surface:#102338; --surface2:#16304A;
@@ -125,6 +126,20 @@ textarea{width:100%;min-height:150px;font-family:'JetBrains Mono',monospace;font
 .sect-h h2{font-size:25px}
 .sect-h .note{color:var(--muted);font-size:14px;font-family:'JetBrains Mono',monospace}
 footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:13px;font-family:'JetBrains Mono',monospace;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:560px){.row3{grid-template-columns:1fr}}
+.row3 label{display:block;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);letter-spacing:.02em;line-height:1.4}
+.row3 label input{margin-top:7px}
+.pswitch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:14.5px;color:var(--ink);user-select:none}
+.pswitch input{position:absolute;opacity:0;width:0;height:0}
+.pswitch .ptrack{width:38px;height:21px;border-radius:999px;background:var(--line-strong);position:relative;transition:.18s;flex:none}
+.pswitch .ptrack::after{content:"";position:absolute;top:2.5px;left:2.5px;width:16px;height:16px;border-radius:50%;background:var(--ink);transition:.18s}
+.pswitch input:checked+.ptrack{background:var(--teal)}
+.pswitch input:checked+.ptrack::after{transform:translateX(17px);background:#06140e}
+.set-grid{display:flex;flex-direction:column;gap:13px}
+.set-block{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:22px 24px;box-shadow:var(--shadow)}
+.set-block h3{font-family:'Sora',sans-serif;font-size:19px;font-weight:600;margin:0}
+.set-lab{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:20px 0 11px;font-weight:600}
 </style>
 </head>
 <body>
@@ -158,6 +173,7 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
       <div class="who"><div class="nm" id="pbName">—</div></div>
       <span class="chip" id="pbRole">—</span>
       <button class="btn sm hidden" id="pbUsers">Manajemen User</button>
+      <button class="btn sm hidden" id="pbSettings">Pengaturan Dasbor</button>
       <button class="btn sm" id="pbLogout">Keluar</button>
     </div>
   </div>
@@ -233,6 +249,53 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
         <b>Penting soal multi-perangkat.</b> User yang ditambah di sini tersimpan di browser ini saja. Agar admin di perangkat/komputer lain bisa login, klik <b>Export konfigurasi</b>, salin kodenya, lalu tempelkan menggantikan blok <span class="mono">SEED_USERS</span> di dalam <span class="mono">index.html</span>, dan deploy ulang. Setelah itu daftar user ikut "terbakar" ke dalam web.
       </div>
       <footer><span>Manajemen akses · Portal Pangan</span><span id="footUser2">—</span></footer>
+    </div>
+
+    <!-- DASHBOARD SETTINGS (super admin only) -->
+    <div id="settingsPanel" class="hidden">
+      <div class="sect-h fade">
+        <div>
+          <div class="eyebrow">Super Admin</div>
+          <h2 style="margin-top:6px">Pengaturan Dasbor</h2>
+        </div>
+        <button class="btn sm" id="csBack">← Kembali ke portal</button>
+      </div>
+      <p class="sub" style="color:var(--muted);font-size:14.5px;max-width:62ch;margin:4px 0 0">Atur target & tampilan tab, dan ekspor data terbaru. Pengaturan berlaku saat dasbor dibuka di peramban ini.</p>
+
+      <div class="set-grid" style="margin-top:22px">
+        <div class="set-block fade">
+          <h3>Koefisien Variasi Harga Beras</h3>
+
+          <div class="set-lab">Target Koefisien Variasi (RPJMN 2025–2029)</div>
+          <div class="row3">
+            <label>Batas bawah (%)<input type="number" id="csTLo" step="0.1" min="0"></label>
+            <label>Tercapai · hijau ≤ (%)<input type="number" id="csTHi" step="0.1" min="0"></label>
+            <label>Hati-hati · kuning ≤ (%)<input type="number" id="csWHi" step="0.1" min="0"></label>
+          </div>
+          <p style="color:var(--muted);font-size:12.5px;margin:11px 0 0;line-height:1.5">Hijau bila Koefisien Variasi ≤ <span style="color:#c3d2e4">tercapai</span>; kuning bila ≤ <span style="color:#c3d2e4">hati-hati</span>; merah bila di atasnya.</p>
+
+          <div class="set-lab">Tampilkan tab untuk admin biasa</div>
+          <div class="set-grid" id="csTabs" style="gap:12px"></div>
+
+          <div class="set-lab">Data terbaru</div>
+          <p id="csDataInfo" style="font-size:13.5px;color:#c3d2e4;margin:0;line-height:1.5">—</p>
+          <div id="csDataBtns" style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+            <button class="btn pri" id="csXlsx">⤓ Export Excel (.xlsx)</button>
+            <button class="btn" id="csCsv">⤓ Export CSV</button>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;border-top:1px solid var(--line);padding-top:18px">
+            <button class="btn solid" id="csSave">Simpan pengaturan</button>
+            <button class="btn" id="csReset">Reset default</button>
+            <button class="btn" id="csBake">⧉ Salin untuk permanen</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-box" style="margin-top:18px">
+        <b>Catatan.</b> Pengaturan & data tersimpan di peramban ini (sama seperti daftar user). Untuk permanen di semua perangkat, klik <b>Salin untuk permanen</b> lalu tempel menggantikan blok <span class="mono">CV_DEFAULTS</span> di <span class="mono">dashboards/cv.html</span>, dan deploy ulang. Export data membaca data terbaru yang kamu unggah di dasbor Koefisien Variasi.
+      </div>
+      <footer><span>Pengaturan dasbor · Portal Pangan</span><span id="footUser3">—</span></footer>
     </div>
   </div>
 </div>
@@ -352,7 +415,9 @@ function enterPortal(){
   $("#footUser").textContent = "@"+s.username;
   $("#footUser2").textContent = "@"+s.username;
   $("#pbUsers").classList.toggle("hidden", s.role!=="super");
+  $("#pbSettings").classList.toggle("hidden", s.role!=="super");
   $("#usersPanel").classList.add("hidden");
+  $("#settingsPanel").classList.add("hidden");
   $("#launcher").classList.remove("hidden");
   show("portalView");
 }
@@ -393,8 +458,78 @@ document.querySelectorAll(".dash-card").forEach(c=>c.addEventListener("click",()
 $("#dbBack").addEventListener("click", ()=>{ $("#dashFrame").src="about:blank"; enterPortal(); });
 
 /* ---------- user management ---------- */
-$("#pbUsers").addEventListener("click", ()=>{ $("#launcher").classList.add("hidden"); $("#usersPanel").classList.remove("hidden"); renderUsers(); });
+$("#pbUsers").addEventListener("click", ()=>{ $("#launcher").classList.add("hidden"); $("#settingsPanel").classList.add("hidden"); $("#usersPanel").classList.remove("hidden"); renderUsers(); });
 $("#umBack").addEventListener("click", ()=>{ $("#usersPanel").classList.add("hidden"); $("#launcher").classList.remove("hidden"); });
+
+/* ---------- dashboard settings (super admin) ---------- */
+const CV_SET_KEY="cv_settings_v1";
+const CV_DATA_KEY="cv_beras_panel_v3";
+const CV_DEFAULTS={targetLo:17,targetHi:22,warnHi:25,tabs:{wil:true,wkt:true,dat:true,met:true}};
+const CV_TABS=[["wil","Koefisien Variasi Antar Wilayah"],["wkt","Koefisien Variasi Antar Waktu"],["dat","Data Digunakan"],["met","Metodologi"]];
+function cvLoadSet(){let s={};try{s=JSON.parse(localStorage.getItem(CV_SET_KEY)||"{}")||{}}catch(e){}
+  return {targetLo:+s.targetLo||CV_DEFAULTS.targetLo,targetHi:+s.targetHi||CV_DEFAULTS.targetHi,warnHi:+s.warnHi||CV_DEFAULTS.warnHi,tabs:Object.assign({},CV_DEFAULTS.tabs,s.tabs||{})};}
+function cvSaveSet(s){try{localStorage.setItem(CV_SET_KEY,JSON.stringify(s));}catch(e){}}
+function cvGetData(){try{return JSON.parse(localStorage.getItem(CV_DATA_KEY)||"null")}catch(e){return null}}
+function cvFillTabs(tabs){ $("#csTabs").innerHTML=CV_TABS.map(([k,l])=>`<label class="pswitch"><input type="checkbox" data-k="${k}" ${tabs[k]!==false?"checked":""}><span class="ptrack"></span><span>${l}</span></label>`).join(""); }
+function cvDataInfo(){
+  const d=cvGetData(), el=$("#csDataInfo"), btns=$("#csDataBtns");
+  if(d&&d.panel&&d.dates&&d.dates.length){
+    const np=Object.keys(d.panel).length, nd=d.dates.length;
+    el.innerHTML=`Data tersimpan: <b>${np} provinsi × ${nd} hari</b> · ${d.komoditas||"—"} · ${d.dates[0]} … ${d.dates[nd-1]}`;
+    btns.style.display="flex";
+  } else {
+    el.innerHTML='Belum ada data tersimpan. Buka dasbor <b>Koefisien Variasi</b> lalu unggah data — data tersimpan otomatis dan bisa diekspor dari sini.';
+    btns.style.display="none";
+  }
+}
+function cvReadForm(){
+  const lo=parseFloat($("#csTLo").value), hi=parseFloat($("#csTHi").value), wh=parseFloat($("#csWHi").value);
+  const tabs={}; $("#csTabs").querySelectorAll("input[data-k]").forEach(cb=>tabs[cb.dataset.k]=cb.checked);
+  return {lo,hi,wh,tabs};
+}
+function openSettingsPanel(){
+  const s=cvLoadSet();
+  $("#csTLo").value=s.targetLo; $("#csTHi").value=s.targetHi; $("#csWHi").value=s.warnHi;
+  cvFillTabs(s.tabs); cvDataInfo();
+  const sess=session(); $("#footUser3").textContent = sess?("@"+sess.username):"—";
+  $("#launcher").classList.add("hidden"); $("#usersPanel").classList.add("hidden"); $("#settingsPanel").classList.remove("hidden");
+}
+$("#pbSettings").addEventListener("click", openSettingsPanel);
+$("#csBack").addEventListener("click", ()=>{ $("#settingsPanel").classList.add("hidden"); $("#launcher").classList.remove("hidden"); });
+$("#csSave").addEventListener("click", ()=>{
+  const f=cvReadForm();
+  if(isNaN(f.lo)||isNaN(f.hi)||isNaN(f.wh)){ toast("Isi semua angka target."); return; }
+  if(!(f.lo<=f.hi&&f.hi<=f.wh)){ toast("Pastikan: bawah ≤ tercapai ≤ hati-hati."); return; }
+  if(!Object.values(f.tabs).some(Boolean)){ toast("Minimal satu tab harus aktif."); return; }
+  cvSaveSet({targetLo:f.lo,targetHi:f.hi,warnHi:f.wh,tabs:f.tabs});
+  toast("Pengaturan dasbor disimpan ✓");
+});
+$("#csReset").addEventListener("click", ()=>{
+  $("#csTLo").value=CV_DEFAULTS.targetLo; $("#csTHi").value=CV_DEFAULTS.targetHi; $("#csWHi").value=CV_DEFAULTS.warnHi;
+  cvFillTabs(CV_DEFAULTS.tabs); toast("Direset ke default — klik Simpan untuk menerapkan");
+});
+$("#csBake").addEventListener("click", ()=>{
+  const f=cvReadForm();
+  const obj={targetLo:f.lo||CV_DEFAULTS.targetLo,targetHi:f.hi||CV_DEFAULTS.targetHi,warnHi:f.wh||CV_DEFAULTS.warnHi,tabs:f.tabs};
+  navigator.clipboard.writeText("const CV_DEFAULTS = "+JSON.stringify(obj,null,2)+";").then(()=>toast("Disalin — tempel ke CV_DEFAULTS di dashboards/cv.html")).catch(()=>toast("Gagal menyalin"));
+});
+$("#csCsv").addEventListener("click", ()=>{
+  const d=cvGetData(); if(!d){ toast("Belum ada data."); return; }
+  const provs=Object.keys(d.panel).sort();
+  let csv="Provinsi,"+d.dates.join(",")+"\n";
+  provs.forEach(p=>{ csv+=p+","+d.panel[p].map(v=>v==null?"":v).join(",")+"\n"; });
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download="koefisien_variasi_data_terbaru.csv"; a.click(); toast("CSV diunduh");
+});
+$("#csXlsx").addEventListener("click", ()=>{
+  const d=cvGetData(); if(!d){ toast("Belum ada data."); return; }
+  if(typeof XLSX==="undefined"){ toast("Pustaka Excel belum termuat — coba lagi."); return; }
+  const provs=Object.keys(d.panel).sort();
+  const aoa=[["Provinsi",...d.dates]];
+  provs.forEach(p=>aoa.push([p,...d.panel[p].map(v=>v==null?"":v)]));
+  const ws=XLSX.utils.aoa_to_sheet(aoa), wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, (d.komoditas||"Data").slice(0,28));
+  XLSX.writeFile(wb, "koefisien_variasi_data_terbaru.xlsx"); toast("Excel diunduh");
+});
 
 function renderUsers(){
   const tb = $("#umBody"); tb.innerHTML="";
