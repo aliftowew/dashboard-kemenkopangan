@@ -9,11 +9,11 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 :root{
-  --cream:#FBF7EF; --paper:#F4ECDC; --card:#FFFDF8; --ink:#211C16; --ink2:#5A5046;
-  --line:#E3D7C2; --line2:#D2C4A8;
-  --surplus:#2E7D52; --surplus-soft:#DFEDE2; --surplus-deep:#1F5A3A;
-  --deficit:#C0492F; --deficit-soft:#F4DED7; --deficit-deep:#8F3221;
-  --gold:#C28A2B; --ink-blue:#2C4A63; --flow:#1d3c54;
+  --cream:#091422; --paper:#0d1f33; --card:#102338; --ink:#E9F0F8; --ink2:#90A4BF;
+  --line:#21384F; --line2:#33506E;
+  --surplus:#2E7D52; --surplus-soft:rgba(95,184,146,.16); --surplus-deep:#7fd3a6;
+  --deficit:#C0492F; --deficit-soft:rgba(232,155,106,.16); --deficit-deep:#f0a07f;
+  --gold:#D8B362; --ink-blue:#3f6f9c; --flow:#5FB892;
   --shadow:0 1px 2px rgba(33,28,22,.05),0 8px 28px -12px rgba(33,28,22,.18);
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -54,8 +54,8 @@ h1 em{font-style:italic;color:var(--deficit)}
 .legend{position:absolute;left:14px;bottom:14px;z-index:600;background:rgba(255,253,248,.95);border:1px solid var(--line2);border-radius:5px;padding:11px 13px;font-size:11.5px;box-shadow:var(--shadow)}
 .legend .row{display:flex;align-items:center;gap:8px;margin:3px 0;color:var(--ink2)}
 .legend .grad{width:90px;height:11px;border-radius:3px}
-.legend .gp{background:linear-gradient(90deg,#DFEDE2,#2E7D52,#1F5A3A)}
-.legend .gd{background:linear-gradient(90deg,#F4DED7,#C0492F,#8F3221)}
+.legend .gp{background:linear-gradient(90deg,rgba(95,184,146,.16),#2E7D52,#7fd3a6)}
+.legend .gd{background:linear-gradient(90deg,rgba(232,155,106,.16),#C0492F,#f0a07f)}
 .legend .ln{width:20px;height:0;border-top:2.5px dashed var(--flow)}
 .legend b{color:var(--ink);font-weight:600}
 .detail{padding:16px 18px}
@@ -82,7 +82,7 @@ h1 em{font-style:italic;color:var(--deficit)}
 .src .qty{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:14px;text-align:right;white-space:nowrap}
 .src .qty small{display:block;font-weight:400;font-size:10px;color:var(--ink2)}
 .callout{margin-top:16px;background:var(--surplus-soft);border:1px solid #BcdAc6;border-radius:5px;padding:12px 14px;font-size:13px;color:var(--surplus-deep)}
-.callout.warn{background:var(--deficit-soft);border-color:#E6C3B8;color:var(--deficit-deep)}
+.callout.warn{background:var(--deficit-soft);border-color:rgba(232,155,106,.16);color:var(--deficit-deep)}
 .callout b{font-weight:700}.callout .k{font-family:'JetBrains Mono',monospace;font-weight:700}
 .surplus-detail{margin-top:16px;font-size:13.5px;color:var(--ink2);border-top:1px solid var(--line);padding-top:14px}
 .surplus-detail b{color:var(--surplus-deep)}
@@ -117,8 +117,8 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-fa
   border-bottom:1px solid var(--line);margin:0 -22px 0;padding:12px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .tabbar .tlab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2)}
 .tabbar .tabs{margin-top:0}
-#map{background:#E4EBEE}
-.leaflet-container{background:#E4EBEE}
+#map{background:rgba(63,111,156,.18)}
+.leaflet-container{background:rgba(63,111,156,.18)}
 .sea-grad{}
 
 .rank-row{position:relative}
@@ -147,6 +147,17 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-fa
   }catch(e){ location.replace('../index.html'); }
 })();
 </script>
+<style id="darkmode">
+
+.leaflet-container{background:#0a1a2c!important}
+.leaflet-bar a,.leaflet-bar a:link{background:#102338!important;color:#E9F0F8!important;border-bottom:1px solid #21384F!important}
+.leaflet-bar a:hover{background:#16304A!important}
+.leaflet-control-attribution{background:rgba(9,20,34,.78)!important;color:#7e93ad!important}
+.leaflet-control-attribution a{color:#9fb2cc!important}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#102338!important;color:#E9F0F8!important;box-shadow:0 8px 28px rgba(0,0,0,.6)!important}
+svg text{fill:#E9F0F8}
+
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -263,13 +274,13 @@ function initMap(){
   layerLines=L.layerGroup().addTo(map);
 }
 function styleFeat(f){const x=A.bmap[f.properties.pid],maxAbs=A._maxAbs,sel=selected===f.properties.pid;
-  return{fillColor:fillFor(x,maxAbs),fillOpacity:sel?.97:.88,color:sel?'#211C16':'#FBF7EF',weight:sel?2.6:.9};}
+  return{fillColor:fillFor(x,maxAbs),fillOpacity:sel?.97:.88,color:sel?'#E9C46A':'rgba(233,240,248,.22)',weight:sel?2.6:.9};}
 function drawMap(){
   A._maxAbs=Math.max(...A.b.map(x=>Math.abs(x.bal)));
   if(geoLayer)geoLayer.remove();
   geoLayer=L.geoJSON(GEO,{style:styleFeat,onEachFeature:(f,layer)=>{
     const x=A.bmap[f.properties.pid],pos=x.bal>=0;
-    layer.bindTooltip(`<span style="font-family:Fraunces,serif;font-weight:600">${x.name}</span><br><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:${pos?'#1F5A3A':'#8F3221'}">Neraca ${fmtS(x.bal)} t</span>`,{sticky:true});
+    layer.bindTooltip(`<span style="font-family:Fraunces,serif;font-weight:600">${x.name}</span><br><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:${pos?'#7fd3a6':'#f0a07f'}">Neraca ${fmtS(x.bal)} t</span>`,{sticky:true});
     layer.on('click',()=>select(f.properties.pid));
     layer.on('mouseover',function(){if(selected!==f.properties.pid)this.setStyle({weight:1.6,color:'#211C16'});});
     layer.on('mouseout',function(){if(selected!==f.properties.pid)this.setStyle({weight:.7,color:'#fff'});});
@@ -286,12 +297,12 @@ function drawFlows(id){
   let edges=[];
   if(!pos){A.alloc[id].sources.forEach(s=>edges.push({from:s.src,to:id,qty:s.qty}));}
   else{(A.recip[id]||[]).forEach(r=>edges.push({from:id,to:r.to,qty:r.qty}));}
-  if(!edges.length){L.circleMarker(ll(id),{radius:8,color:'#1F5A3A',weight:2,fillColor:'#2E7D52',fillOpacity:.5}).addTo(layerLines);return;}
+  if(!edges.length){L.circleMarker(ll(id),{radius:8,color:'#7fd3a6',weight:2,fillColor:'#2E7D52',fillOpacity:.5}).addTo(layerLines);return;}
   const maxQ=Math.max(...edges.map(e=>e.qty));
   edges.forEach(e=>{const w=Math.max(1.5,Math.min(7,Math.sqrt(e.qty/maxQ)*7));
     L.polyline([ll(e.from),ll(e.to)],{color:'#1d3c54',weight:w,opacity:.5,className:'flowline'}).addTo(layerLines);});
-  edges.forEach(e=>L.circleMarker(ll(e.from),{radius:4.5,color:'#1F5A3A',weight:1.5,fillColor:'#2E7D52',fillOpacity:.9}).addTo(layerLines));
-  L.circleMarker(ll(id),{radius:7.5,color:pos?'#1F5A3A':'#8F3221',weight:2.6,fillColor:pos?'#2E7D52':'#C0492F',fillOpacity:.95}).addTo(layerLines);
+  edges.forEach(e=>L.circleMarker(ll(e.from),{radius:4.5,color:'#7fd3a6',weight:1.5,fillColor:'#2E7D52',fillOpacity:.9}).addTo(layerLines));
+  L.circleMarker(ll(id),{radius:7.5,color:pos?'#7fd3a6':'#f0a07f',weight:2.6,fillColor:pos?'#2E7D52':'#C0492F',fillOpacity:.95}).addTo(layerLines);
   // import arrow from offshore (sea) — represents foreign import
   const impQ=(!pos)?(A.imports[id]||0):0;
   if(impQ>0.5){
