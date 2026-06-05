@@ -211,6 +211,7 @@ svg text{fill:#E9F0F8}
   <p>Untuk tiap komoditas: <code>neraca = produksi − kebutuhan</code>. Provinsi neraca positif jadi <b>pemasok</b>, negatif jadi <b>peminta</b>. Alokasi diselesaikan sebagai masalah <em>optimal transport</em> (program linear): mencari kombinasi pengiriman yang <b>meminimalkan total ton·km nasional</b>, dengan kendala tiap pemasok tak melebihi surplusnya dan tiap peminta menerima sesuai kebutuhannya (atau sebanyak yang tersedia bila pasok nasional kurang).</p>
   <p>Ini menggantikan pendekatan <em>greedy</em> sebelumnya yang memproses defisit terbesar lebih dulu — yang bisa menguras surplus sebuah provinsi sebelum tetangga terdekatnya sempat meminta, lalu memaksa tetangga itu memasok dari jauh (persis kasus Kalsel→Kalteng pada beras). Optimal transport menghilangkan artefak itu. Penghematan total jarak·tonase vs greedy: <b>beras −4,6%</b>, <b>daging sapi −44%</b>, <b>ayam −9,2%</b>, <b>telur −14,6%</b>.</p>
   <p>Sisa kebutuhan yang tak bisa ditutup surplus domestik dihitung sebagai <b>impor</b>: untuk komoditas yang surplus nasionalnya negatif (mis. daging sapi/kerbau, ±390 rb ton atau ~48% kebutuhan), impor mengisi kekurangan setelah pasok domestik dialokasikan optimal. Komoditas dengan surplus nasional positif (beras, ayam, telur) tidak butuh impor bila didistribusi ulang. Konsekuensi penting: karena yang diminimalkan adalah <b>total</b> se-Indonesia, sesekali sebuah provinsi tidak dipasok oleh surplus terdekatnya — bila surplus itu lebih bernilai memasok daerah terpencil (mis. Papua/Maluku) yang tak punya alternatif dekat. Itu disengaja dan tetap optimal nasional. Catatan: jarak memakai garis lurus antar-titik tengah provinsi, belum rute laut/darat & biaya logistik riil.</p>
+  <p><b>Pembaruan rute nyata.</b> Garis lurus antar-titik tengah provinsi di atas adalah <em>abstraksi model</em> alokasi optimal (ton·km great-circle), <b>bukan rute fisik</b>. Rute pelayaran sebenarnya kini ditampilkan sebagai lapisan <b>Jaringan Tol Laut</b> — 41 trayek (H/S/T) sesuai <b>SK Dirjen Hubla KP-DJPL 590 Tahun 2025</b> (TA 2026), lengkap dengan pelabuhan singgah dan animasi kapal per trayek. Lapisan <b>Cadangan Beras Pemerintah</b> (CBPP provinsi & CPPD kab/kota, sumber Bapanas CPP 03 Juni 2026) dapat diaktifkan dari kontrol di kanan-atas peta; angkanya juga muncul saat sebuah provinsi diklik. Catatan: koordinat pelabuhan kecil bersifat perkiraan dan mudah disunting.</p>
 </div>
 
 <footer><span>NERACA PANGAN REGIONAL · basis 2025</span><span id="footSrc"></span></footer>
@@ -361,7 +362,7 @@ function select(id){
       pulls.slice(0,8).forEach((p,i)=>html+=`<div class="src"><div class="rank" style="background:var(--surplus)">${i+1}</div><div class="info"><div class="nm">${byId[p.to].name}</div><div class="meta2">${p.km.toLocaleString('id-ID')} km · ${byId[p.to].island}</div></div><div class="qty">${fmt(p.qty)}<small>ton</small></div></div>`);}
   }
   document.getElementById('detail').innerHTML=html;
-  geoLayer.setStyle(styleFeat);drawFlows(id);highlightRanks(id);
+  geoLayer.setStyle(styleFeat);drawFlows(id);highlightRanks(id);if(window.afterSelect)window.afterSelect(id);
 }
 
 
@@ -414,6 +415,354 @@ function refresh(){
   drawTabs();drawKPI();drawMap();drawRanks();drawTable();
 }
 initMap();refresh();
+</script>
+<style id="tladdon-style">
+.map-ctrl{background:rgba(13,28,48,.94);border:1px solid var(--line2);border-radius:7px;padding:10px 11px;font-size:11.5px;width:214px;box-shadow:var(--shadow);color:var(--ink)}
+.map-ctrl .mc-h{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);margin-bottom:7px}
+.map-ctrl label{display:flex;align-items:center;gap:7px;margin:4px 0;cursor:pointer;line-height:1.3}
+.map-ctrl input[type=checkbox]{accent-color:var(--gold);width:13px;height:13px}
+.map-ctrl .mc-leg{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 2px;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--ink2)}
+.map-ctrl .mc-leg span{display:flex;align-items:center;gap:4px}
+.map-ctrl .mc-leg i{width:14px;height:3px;border-radius:2px;display:inline-block}
+.map-ctrl .mc-sep{height:1px;background:var(--line);margin:9px 0}
+.map-ctrl select{width:100%;background:var(--card);color:var(--ink);border:1px solid var(--line2);border-radius:5px;padding:5px;font-size:11px;font-family:inherit}
+.map-ctrl #trayekStop{width:100%;margin-top:6px;background:rgba(224,106,106,.16);color:#f0a07f;border:1px solid rgba(224,106,106,.4);border-radius:5px;padding:5px;cursor:pointer;font-size:11px;font-family:inherit}
+.map-ctrl .mc-note{margin-top:8px;font-size:10px;line-height:1.55;color:var(--ink2);font-family:'JetBrains Mono',monospace;max-height:140px;overflow:auto}
+.ship{font-size:18px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7));animation:bob 1.5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.port-lab{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;color:#E6C46A;white-space:nowrap;transform:translate(7px,-5px);text-shadow:0 1px 3px #000,0 0 5px #000}
+.tl-line{cursor:pointer}
+.tl-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;align-items:center}
+.tl-chip{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;background:rgba(111,168,220,.14);color:#9cc3e8;border:1px solid rgba(111,168,220,.4);border-radius:5px;padding:3px 8px;cursor:pointer}
+.tl-chip:hover{background:rgba(111,168,220,.32)}
+.cbp-block{margin-top:16px;background:rgba(216,179,98,.06);border:1px solid var(--line);border-radius:8px;padding:13px}
+.cbp-row{display:flex;justify-content:space-between;align-items:baseline;margin:5px 0}
+.cbp-row span{color:var(--ink2);font-size:12px}
+.cbp-row b{font-size:14px}
+.cbp-note{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--ink2);margin-top:9px;line-height:1.55}
+</style>
+<script>
+/* ====== ADDON: Tol Laut trayek + pelabuhan + animasi kapal + Cadangan Pemerintah (CBP)
+   Sumber: SK Dirjen Hubla KP-DJPL 590/2025 (trayek TA 2026) & Bapanas CPP 03 Juni 2026.
+   CATATAN: koordinat pelabuhan = perkiraan (hub besar akurat; pelabuhan kecil pedalaman
+   Papua/Maluku didekatkan ke wilayahnya). Mudah disunting di objek PORTS di bawah. ====== */
+(function(){
+  // --- koordinat pelabuhan [lat, lon] ---
+  const PORTS = {
+    "Tanjung Priok":[-6.10,106.88],"Teluk Bayur":[-1.00,100.37],"Gn. Sitoli":[1.28,97.62],
+    "Sinabang":[2.48,96.38],"Pulau Baai":[-3.93,102.30],"Malahayati":[5.60,95.41],
+    "Letung":[2.96,105.77],"Tarempa":[3.22,106.22],"Selat Lampa":[3.62,108.18],
+    "Serasan":[2.51,109.05],"Midai":[2.99,107.78],"Tanjung Perak":[-7.20,112.73],
+    "Kupang":[-10.23,123.55],"Rote":[-10.73,123.07],"Sabu":[-10.49,121.83],
+    "Larantuka":[-8.34,122.98],"Lembata (Lewoleba)":[-8.36,123.42],"Kalabahi":[-8.22,124.52],
+    "Ende (Ippi/Maumbawa)":[-8.85,121.66],"Reo":[-8.30,120.45],"Badas":[-8.46,117.42],"Bima":[-8.45,118.72],
+    "Makassar":[-5.11,119.41],"Bitung":[1.44,125.19],"Tahuna":[3.61,125.49],
+    "Lirung/Melonguane":[4.03,126.79],"Sikeli":[-5.45,121.62],"Raha":[-4.84,122.72],
+    "Ereke":[-4.61,123.06],"Wanci":[-5.31,123.58],"Bungku":[-2.57,121.97],"Banggai":[-1.57,123.51],
+    "Kolonedale":[-2.00,121.34],"Pagimana":[-0.92,122.62],"Bunta":[-0.71,121.30],
+    "Ampana (Mantangisi)":[-0.87,121.58],"Parigi":[-0.81,120.18],
+    "Tarakan":[3.31,117.63],"Nunukan":[4.13,117.66],
+    "Namrole":[-3.84,126.71],"Namlea":[-3.24,127.10],"Bula":[-3.11,130.50],"Piru":[-3.06,128.18],
+    "Saumlaki":[-7.98,131.30],"Dobo":[-5.76,134.22],"Elat":[-5.66,132.95],"Tepa":[-7.83,129.50],
+    "Larat":[-7.13,131.78],"Kisar":[-8.07,127.18],"Leti":[-8.21,127.68],"Moa":[-8.16,127.92],
+    "Ilwaki (Wetar)":[-7.93,126.45],"Tual":[-5.64,132.75],
+    "Bobong (Taliabu)":[-1.62,124.50],"Malbufa (Sula)":[-1.88,125.80],"Morotai":[2.05,128.40],
+    "Galela":[1.83,127.82],"Maba":[0.57,128.30],"Weda":[0.34,127.87],"Tidore":[0.69,127.40],
+    "Jailolo":[1.08,127.48],"Babang":[-0.63,127.50],"Pulau Obi":[-1.50,127.70],
+    "Saketa":[0.33,127.78],"Tapeleo (Patani)":[0.32,128.70],
+    "Sorong":[-0.88,131.29],"Oransbari":[-1.36,134.28],"Waren":[-2.04,134.50],"Sarmi":[-1.87,138.75],
+    "Fak-fak":[-2.92,132.30],"Kaimana":[-3.66,133.75],"Manokwari":[-0.86,134.06],"Numfor":[-1.03,134.90],
+    "Wasior":[-2.71,134.51],"Biak":[-1.17,136.06],"Serui":[-1.88,136.23],"Nabire":[-3.36,135.50],
+    "Merauke":[-8.50,140.40],"Agats":[-5.55,138.13],"Pomako":[-4.79,136.78],"Timika (Pomako)":[-4.79,136.78],
+    "Kimaam":[-7.97,138.30],"Bade (mapi)":[-7.18,139.58],"Senggo":[-5.95,139.36],
+    "Gantentiri (Bovendigul)":[-6.10,140.30],"Moor":[-7.60,139.00],"Warse":[-5.40,138.20],
+    "Yosakor":[-5.30,138.40],"Ayam":[-5.50,138.00],"Katew":[-5.45,138.25],"Yurfi":[-5.60,138.30],
+    "Komor":[-5.70,138.40],"Atsy":[-5.40,138.30],"Eci":[-5.35,138.45],"Ewer":[-5.55,138.10],
+    "Sawaerma":[-5.60,138.00],"Mamugu":[-5.90,137.90],"Teba":[-2.00,138.20],"Bagusa":[-2.05,138.40],
+    "Trimuris":[-2.10,138.50],"Kasonaweja":[-1.93,138.40],"Brumsi":[-1.60,136.20]
+  };
+  // pelabuhan pangkal/hub (ditandai besar + label)
+  const HUBS = new Set(["Tanjung Priok","Tanjung Perak","Makassar","Bitung","Sorong",
+    "Teluk Bayur","Kupang","Biak","Merauke","Timika (Pomako)","Pomako"]);
+
+  // --- pemetaan pelabuhan -> id provinsi (sesuai DATA.provinces) ---
+  const PORT_PROV = {
+    "Tanjung Priok":"DKI JAKARTA","Tanjung Perak":"JAWA TIMUR","Teluk Bayur":"SUMATERA BARAT",
+    "Gn. Sitoli":"SUMATERA UTARA","Sinabang":"ACEH","Pulau Baai":"BENGKULU","Malahayati":"ACEH",
+    "Letung":"KEP RIAU","Tarempa":"KEP RIAU","Selat Lampa":"KEP RIAU","Serasan":"KEP RIAU","Midai":"KEP RIAU",
+    "Makassar":"SULAWESI SELATAN","Bitung":"SULAWESI UTARA","Tahuna":"SULAWESI UTARA",
+    "Lirung/Melonguane":"SULAWESI UTARA","Sikeli":"SULAWESI TENGGARA","Raha":"SULAWESI TENGGARA",
+    "Ereke":"SULAWESI TENGGARA","Wanci":"SULAWESI TENGGARA","Bungku":"SULAWESI TENGAH",
+    "Banggai":"SULAWESI TENGAH","Kolonedale":"SULAWESI TENGAH","Pagimana":"SULAWESI TENGAH",
+    "Bunta":"SULAWESI TENGAH","Ampana (Mantangisi)":"SULAWESI TENGAH","Parigi":"SULAWESI TENGAH",
+    "Kupang":"NUSA TENGGARA TIMUR","Rote":"NUSA TENGGARA TIMUR","Sabu":"NUSA TENGGARA TIMUR",
+    "Larantuka":"NUSA TENGGARA TIMUR","Lembata (Lewoleba)":"NUSA TENGGARA TIMUR","Kalabahi":"NUSA TENGGARA TIMUR",
+    "Ende (Ippi/Maumbawa)":"NUSA TENGGARA TIMUR","Reo":"NUSA TENGGARA TIMUR",
+    "Badas":"NUSA TENGGARA BARAT","Bima":"NUSA TENGGARA BARAT",
+    "Tarakan":"KALIMANTAN UTARA","Nunukan":"KALIMANTAN UTARA",
+    "Namrole":"MALUKU","Namlea":"MALUKU","Bula":"MALUKU","Piru":"MALUKU","Saumlaki":"MALUKU",
+    "Dobo":"MALUKU","Elat":"MALUKU","Tepa":"MALUKU","Larat":"MALUKU","Kisar":"MALUKU","Leti":"MALUKU",
+    "Moa":"MALUKU","Ilwaki (Wetar)":"MALUKU","Tual":"MALUKU",
+    "Bobong (Taliabu)":"MALUKU UTARA","Malbufa (Sula)":"MALUKU UTARA","Morotai":"MALUKU UTARA",
+    "Galela":"MALUKU UTARA","Maba":"MALUKU UTARA","Weda":"MALUKU UTARA","Tidore":"MALUKU UTARA",
+    "Jailolo":"MALUKU UTARA","Babang":"MALUKU UTARA","Pulau Obi":"MALUKU UTARA",
+    "Saketa":"MALUKU UTARA","Tapeleo (Patani)":"MALUKU UTARA",
+    "Sorong":"PAPUA BARAT DAYA","Oransbari":"PAPUA BARAT","Fak-fak":"PAPUA BARAT","Kaimana":"PAPUA BARAT",
+    "Manokwari":"PAPUA BARAT","Numfor":"PAPUA BARAT","Wasior":"PAPUA BARAT",
+    "Sarmi":"PAPUA","Biak":"PAPUA","Serui":"PAPUA","Teba":"PAPUA","Bagusa":"PAPUA","Trimuris":"PAPUA",
+    "Kasonaweja":"PAPUA","Brumsi":"PAPUA",
+    "Nabire":"PAPUA TENGAH","Pomako":"PAPUA TENGAH","Timika (Pomako)":"PAPUA TENGAH",
+    "Merauke":"PAPUA SELATAN","Agats":"PAPUA SELATAN","Kimaam":"PAPUA SELATAN","Bade (mapi)":"PAPUA SELATAN",
+    "Senggo":"PAPUA SELATAN","Gantentiri (Bovendigul)":"PAPUA SELATAN","Moor":"PAPUA SELATAN",
+    "Warse":"PAPUA SELATAN","Yosakor":"PAPUA SELATAN","Ayam":"PAPUA SELATAN","Katew":"PAPUA SELATAN",
+    "Yurfi":"PAPUA SELATAN","Komor":"PAPUA SELATAN","Atsy":"PAPUA SELATAN","Eci":"PAPUA SELATAN",
+    "Ewer":"PAPUA SELATAN","Sawaerma":"PAPUA SELATAN","Mamugu":"PAPUA SELATAN"
+  };
+
+  // --- 41 trayek (urutan pelabuhan = loop) ---
+  const TRAYEK = [
+    {code:"H-1",pangkal:"Tanjung Priok",nm:1124,ket:"Teluk Bayur: transhipment & muat",seq:["Tanjung Priok","Teluk Bayur","Tanjung Priok"]},
+    {code:"H-2",pangkal:"Tanjung Perak",nm:2408,ket:"Makassar: transhipment & muat",seq:["Tanjung Perak","Makassar","Tahuna","Makassar","Tanjung Perak"]},
+    {code:"H-3",pangkal:"Tanjung Perak",nm:2444,ket:"Makassar: transhipment & muat",seq:["Tanjung Perak","Makassar","Kolonedale","Bobong (Taliabu)","Malbufa (Sula)","Makassar","Tanjung Perak"]},
+    {code:"H-4",pangkal:"Tanjung Perak",nm:1421,ket:"Kupang: transhipment & muat",seq:["Tanjung Perak","Kupang","Ende (Ippi/Maumbawa)","Tanjung Perak"]},
+    {code:"H-5",pangkal:"Tanjung Perak",nm:2718,ket:"Sorong: transhipment & muat",seq:["Tanjung Perak","Sorong","Tanjung Perak"]},
+    {code:"S-1",pangkal:"Teluk Bayur",nm:1165,ket:"Spoke H-1",seq:["Teluk Bayur","Gn. Sitoli","Sinabang","Pulau Baai","Teluk Bayur"]},
+    {code:"S-2",pangkal:"Bitung",nm:438,ket:"Spoke H-2",seq:["Bitung","Tahuna","Lirung/Melonguane","Bitung"]},
+    {code:"S-3",pangkal:"Makassar",nm:743,ket:"Spoke H-3",seq:["Makassar","Sikeli","Raha","Ereke","Makassar"]},
+    {code:"S-4A",pangkal:"Kupang",nm:283,ket:"Spoke H-4",seq:["Kupang","Rote","Sabu","Kupang"]},
+    {code:"S-4B",pangkal:"Kupang",nm:988,ket:"Spoke H-4",seq:["Kupang","Larantuka","Lembata (Lewoleba)","Kalabahi","Kupang"]},
+    {code:"S-5",pangkal:"Sorong",nm:1258,ket:"Spoke H-5",seq:["Sorong","Oransbari","Waren","Sarmi","Sorong"]},
+    {code:"T-1",pangkal:"Tanjung Priok",nm:2156,ket:"",seq:["Tanjung Priok","Malahayati","Tanjung Priok"]},
+    {code:"T-2",pangkal:"Tanjung Priok",nm:1757,ket:"",seq:["Tanjung Priok","Letung","Tarempa","Selat Lampa","Serasan","Midai","Tanjung Priok"]},
+    {code:"T-3",pangkal:"Tanjung Perak",nm:1708,ket:"",seq:["Tanjung Perak","Tarakan","Tanjung Perak"]},
+    {code:"T-4",pangkal:"Tanjung Perak",nm:1806,ket:"",seq:["Tanjung Perak","Nunukan","Tanjung Perak"]},
+    {code:"T-5",pangkal:"Tanjung Perak",nm:2140,ket:"",seq:["Tanjung Perak","Makassar","Nunukan","Tarakan","Makassar","Tanjung Perak"]},
+    {code:"T-6",pangkal:"Tanjung Perak",nm:2054,ket:"",seq:["Tanjung Perak","Bungku","Tanjung Perak"]},
+    {code:"T-7",pangkal:"Tanjung Perak",nm:1784,ket:"",seq:["Tanjung Perak","Banggai","Tanjung Perak"]},
+    {code:"T-8",pangkal:"Bitung",nm:730,ket:"",seq:["Bitung","Pagimana","Bunta","Ampana (Mantangisi)","Parigi","Bitung"]},
+    {code:"T-9",pangkal:"Tanjung Perak",nm:1821,ket:"",seq:["Tanjung Perak","Namrole","Wanci","Tanjung Perak"]},
+    {code:"T-10",pangkal:"Tanjung Perak",nm:867,ket:"",seq:["Tanjung Perak","Badas","Bima","Tanjung Perak"]},
+    {code:"T-11",pangkal:"Tanjung Perak",nm:1014,ket:"",seq:["Tanjung Perak","Reo","Tanjung Perak"]},
+    {code:"T-12",pangkal:"Tanjung Perak",nm:1818,ket:"",seq:["Tanjung Perak","Kisar","Leti","Moa","Ilwaki (Wetar)","Tanjung Perak"]},
+    {code:"T-13",pangkal:"Tanjung Perak",nm:1984,ket:"",seq:["Tanjung Perak","Namlea","Tanjung Perak"]},
+    {code:"T-14",pangkal:"Tanjung Perak",nm:2677,ket:"",seq:["Tanjung Perak","Saumlaki","Dobo","Tanjung Perak"]},
+    {code:"T-15",pangkal:"Tanjung Perak",nm:2619,ket:"",seq:["Tanjung Perak","Bula","Elat","Tanjung Perak"]},
+    {code:"T-16",pangkal:"Tanjung Perak",nm:2308,ket:"",seq:["Tanjung Perak","Tepa","Larat","Tanjung Perak"]},
+    {code:"T-17",pangkal:"Tanjung Perak",nm:2845,ket:"Makassar: muat & penerima muatan balik",seq:["Tanjung Perak","Makassar","Morotai","Galela","Maba","Weda","Tanjung Perak"]},
+    {code:"T-18",pangkal:"Tanjung Perak",nm:2336,ket:"",seq:["Tanjung Perak","Tidore","Jailolo","Tanjung Perak"]},
+    {code:"T-19",pangkal:"Tanjung Perak",nm:2172,ket:"",seq:["Tanjung Perak","Babang","Tanjung Perak"]},
+    {code:"T-20",pangkal:"Tanjung Perak",nm:2218,ket:"",seq:["Tanjung Perak","Pulau Obi","Saketa","Tanjung Perak"]},
+    {code:"T-21",pangkal:"Tanjung Perak",nm:2536,ket:"",seq:["Tanjung Perak","Tapeleo (Patani)","Piru","Tanjung Perak"]},
+    {code:"T-22",pangkal:"Tanjung Perak",nm:2801,ket:"Bongkar di Tual untuk distribusi Kec. P. Kur & Tayando Tam",seq:["Tanjung Perak","Fak-fak","Kaimana","Tual","Tanjung Perak"]},
+    {code:"T-23",pangkal:"Tanjung Perak",nm:3631,ket:"",seq:["Tanjung Perak","Merauke","Agats","Pomako","Tanjung Perak"]},
+    {code:"T-24",pangkal:"Tanjung Perak",nm:3782,ket:"",seq:["Tanjung Perak","Nabire","Serui","Biak","Wasior","Tanjung Perak"]},
+    {code:"T-25",pangkal:"Biak",nm:252,ket:"",seq:["Biak","Manokwari","Numfor","Biak"]},
+    {code:"T-26",pangkal:"Biak",nm:492,ket:"",seq:["Biak","Teba","Bagusa","Trimuris","Kasonaweja","Teba","Biak","Brumsi","Biak"]},
+    {code:"T-27",pangkal:"Timika (Pomako)",nm:614,ket:"",seq:["Timika (Pomako)","Agats","Warse","Yosakor","Agats","Ayam","Katew","Agats","Yurfi","Komor","Agats","Timika (Pomako)"]},
+    {code:"T-28",pangkal:"Timika (Pomako)",nm:1220,ket:"",seq:["Timika (Pomako)","Atsy","Eci","Atsy","Ewer","Agats","Sawaerma","Mamugu","Timika (Pomako)"]},
+    {code:"T-29",pangkal:"Merauke",nm:1038,ket:"",seq:["Merauke","Kimaam","Moor","Bade (mapi)","Gantentiri (Bovendigul)","Merauke"]},
+    {code:"T-30",pangkal:"Merauke",nm:1084,ket:"",seq:["Merauke","Atsy","Agats","Atsy","Senggo","Atsy","Merauke"]}
+  ];
+
+  // --- Cadangan Beras Pemerintah (ton) ; sumber Bapanas CPP 03/06/2026 ---
+  const CBPP = { // CBP Provinsi (CBPP) Minggu ke-IV Mei 2026
+    "ACEH":60.10,"SUMATERA UTARA":29.59,"SUMATERA BARAT":99.42,"RIAU":85.10,"KEP RIAU":40.57,
+    "JAMBI":36.14,"SUMATERA SELATAN":6,"KEP BANGKA BELITUNG":76.18,"BENGKULU":51.40,"LAMPUNG":74.66,
+    "DKI JAKARTA":0,"BANTEN":443.52,"JAWA BARAT":2626.94,"JAWA TENGAH":263.71,"DI YOGYAKARTA":302.87,
+    "JAWA TIMUR":825.36,"BALI":379.01,"NUSA TENGGARA BARAT":80.50,"NUSA TENGGARA TIMUR":32.54,
+    "KALIMANTAN BARAT":225.49,"KALIMANTAN TENGAH":160.25,"KALIMANTAN SELATAN":520.43,"KALIMANTAN TIMUR":401.96,
+    "KALIMANTAN UTARA":81.03,"SULAWESI UTARA":76.28,"SULAWESI TENGAH":1.01,"SULAWESI SELATAN":109.37,
+    "SULAWESI TENGGARA":192.16,"GORONTALO":0,"SULAWESI BARAT":89.57,"MALUKU":54.64,"MALUKU UTARA":5.90,
+    "PAPUA":2.54,"PAPUA BARAT":29.88,"PAPUA BARAT DAYA":0,"PAPUA PEGUNUNGAN":0,"PAPUA TENGAH":0,"PAPUA SELATAN":0
+  };
+  const CPPD = { // CPPD Kab/Kota April 2026
+    "ACEH":209.71,"SUMATERA UTARA":176.63,"SUMATERA BARAT":601.75,"RIAU":186.15,"KEP RIAU":110.31,
+    "JAMBI":320.87,"SUMATERA SELATAN":750.51,"KEP BANGKA BELITUNG":194.79,"BENGKULU":126.33,"LAMPUNG":587.71,
+    "DKI JAKARTA":0,"BANTEN":1847.25,"JAWA BARAT":2492.58,"JAWA TENGAH":607.58,"DI YOGYAKARTA":400.52,
+    "JAWA TIMUR":623.30,"BALI":310.17,"NUSA TENGGARA BARAT":221.94,"NUSA TENGGARA TIMUR":47.95,
+    "KALIMANTAN BARAT":438.40,"KALIMANTAN TENGAH":233.87,"KALIMANTAN SELATAN":889.33,"KALIMANTAN TIMUR":810.20,
+    "KALIMANTAN UTARA":60.39,"SULAWESI UTARA":140.48,"SULAWESI TENGAH":83.27,"SULAWESI SELATAN":586.51,
+    "SULAWESI TENGGARA":120.47,"GORONTALO":29.12,"SULAWESI BARAT":148.09,"MALUKU":0,"MALUKU UTARA":24.57,
+    "PAPUA":1.75,"PAPUA BARAT":135.30,"PAPUA BARAT DAYA":0,"PAPUA PEGUNUNGAN":0,"PAPUA TENGAH":0,"PAPUA SELATAN":0
+  };
+  const NAT = {cbppTotal:7464.12, cppdTotal:13516.8, bulogRibuTon:5350, cbpRibuTon:5339, pct:206, needRibuTonBln:2592};
+
+  // --- precompute ---
+  const grpColor = c => c[0]==='H' ? '#D8B362' : (c[0]==='S' ? '#5FB892' : '#6FA8DC');
+  const trayekAt = n => TRAYEK.filter(t=>t.seq.includes(n)).map(t=>t.code);
+  const TRAYEK_BY_PROV = {};
+  TRAYEK.forEach(t=>{
+    const provs = new Set(t.seq.map(n=>PORT_PROV[n]).filter(Boolean));
+    provs.forEach(pv=>{ (TRAYEK_BY_PROV[pv] = TRAYEK_BY_PROV[pv]||[]).push(t.code); });
+  });
+  const pathOf = t => t.seq.map(n=>PORTS[n]).filter(Boolean);
+  const cent = id => (typeof CENT!=='undefined' && CENT[id]) ? CENT[id] : [byId[id].lat, byId[id].lon];
+  const fmtTon = v => v===undefined ? '—' : Number(v).toLocaleString('id-ID',{maximumFractionDigits:2});
+  function eqd(a,b){const ml=(a[0]+b[0])/2*Math.PI/180;const dx=(b[1]-a[1])*Math.cos(ml);const dy=(b[0]-a[0]);return Math.hypot(dx,dy);}
+
+  // --- layers ---
+  const tlNet = L.layerGroup(), tlPorts = L.layerGroup(), cbpLayer = L.layerGroup(), shipLayer = L.layerGroup();
+  const polyByCode = {};
+
+  function drawNetwork(){
+    tlNet.clearLayers(); Object.keys(polyByCode).forEach(k=>delete polyByCode[k]);
+    TRAYEK.forEach(t=>{
+      const pts = pathOf(t); if(pts.length<2) return;
+      const pl = L.polyline(pts,{color:grpColor(t.code),weight:1.6,opacity:.5,className:'tl-line'});
+      pl.bindTooltip(`<b>${t.code}</b> · ${t.pangkal}<br>${t.nm.toLocaleString('id-ID')} nm`,{sticky:true});
+      pl.on('click',()=>playTrayek(t.code));
+      pl.addTo(tlNet); polyByCode[t.code]=pl;
+    });
+  }
+  function drawPorts(){
+    tlPorts.clearLayers();
+    Object.keys(PORTS).forEach(n=>{
+      if(n==="Timika (Pomako)") return; // alias dari Pomako, hindari dobel marker
+      const c = PORTS[n], hub = HUBS.has(n);
+      const m = L.circleMarker(c,{radius:hub?6:3.2,color:'#0d1f33',weight:1,
+        fillColor:hub?'#E6C46A':'#b9cee6',fillOpacity:.95,className:hub?'':'tl-port'});
+      const codes = trayekAt(n);
+      m.bindTooltip(`<b>${n}</b><br><span style="color:#9cc3e8">${codes.join(', ')||'—'}</span>`,{sticky:true});
+      m.addTo(tlPorts);
+      if(hub){ L.marker(c,{icon:L.divIcon({className:'',html:`<div class="port-lab">${n}</div>`,iconSize:[0,0]}),
+        interactive:false}).addTo(tlPorts); }
+    });
+  }
+  function drawCBP(){
+    cbpLayer.clearLayers();
+    P.forEach(p=>{
+      if(!(p.id in CBPP)) return;
+      const v = CBPP[p.id], c = cent(p.id);
+      const col = v<=0 ? '#E06A6A' : (v<100 ? '#E6C46A' : '#5FB892');
+      const r = Math.min(24, 4+Math.sqrt(v)/2.6);
+      const m = L.circleMarker(c,{radius:r,color:'#0d1f33',weight:1,fillColor:col,fillOpacity:.5,className:'cbp-dot'});
+      m.bindTooltip(`<b>${p.name}</b><br>CBPP beras: <b>${fmtTon(v)} ton</b>`+
+        (CPPD[p.id]!==undefined?`<br>CPPD kab/kota: ${fmtTon(CPPD[p.id])} ton`:''),{sticky:true});
+      m.addTo(cbpLayer);
+    });
+  }
+
+  // --- ship animation ---
+  let shipRAF=null, shipMarker=null, activeCode=null;
+  function resetHighlight(){ Object.values(polyByCode).forEach(pl=>pl.setStyle({weight:1.6,opacity:.5})); }
+  function stopShip(){
+    if(shipRAF){cancelAnimationFrame(shipRAF);shipRAF=null;}
+    shipLayer.clearLayers(); shipMarker=null; activeCode=null;
+    const sb=document.getElementById('trayekStop'); if(sb)sb.style.display='none';
+    const sel=document.getElementById('trayekSel'); if(sel)sel.value='';
+    resetHighlight();
+  }
+  function playTrayek(code){
+    const t = TRAYEK.find(x=>x.code===code); if(!t) return;
+    const pts = pathOf(t); if(pts.length<2) return;
+    if(shipRAF){cancelAnimationFrame(shipRAF);shipRAF=null;}
+    activeCode = code;
+    // pastikan jaringan tampil
+    const tgTL=document.getElementById('tgTL'); if(tgTL && !tgTL.checked){tgTL.checked=true; syncLayers();}
+    resetHighlight(); if(polyByCode[code]) polyByCode[code].setStyle({weight:3.6,opacity:.95});
+    if(!map.hasLayer(shipLayer)) shipLayer.addTo(map);
+    shipLayer.clearLayers();
+    shipMarker = L.marker(pts[0],{icon:L.divIcon({className:'',html:'<div class="ship">🚢</div>',
+      iconSize:[24,24],iconAnchor:[12,12]}),zIndexOffset:1000}).addTo(shipLayer);
+    const segs=[]; let total=0;
+    for(let i=0;i<pts.length-1;i++){const d=eqd(pts[i],pts[i+1]); segs.push(d); total+=d;}
+    if(total<=0) return;
+    const speed = total/16; // ~16 dtk per loop
+    let dist=0, last=performance.now();
+    function tick(now){
+      const dt=Math.min(.05,(now-last)/1000); last=now; dist+=speed*dt; if(dist>total)dist-=total;
+      let dd=dist,i=0; while(i<segs.length && dd>segs[i]){dd-=segs[i];i++;}
+      if(i>=segs.length)i=segs.length-1;
+      const f = segs[i]? dd/segs[i] : 0, a=pts[i], b=pts[i+1]||pts[i];
+      shipMarker.setLatLng([a[0]+(b[0]-a[0])*f, a[1]+(b[1]-a[1])*f]);
+      shipRAF=requestAnimationFrame(tick);
+    }
+    last=performance.now(); shipRAF=requestAnimationFrame(tick);
+    const sb=document.getElementById('trayekStop'); if(sb)sb.style.display='';
+    const sel=document.getElementById('trayekSel'); if(sel)sel.value=code;
+    const note=document.getElementById('tlNote');
+    if(note) note.innerHTML=`<b style="color:#9cc3e8">${t.code}</b> · ${t.pangkal} · ${t.nm.toLocaleString('id-ID')} nm<br>`+
+      `<span style="color:var(--ink2)">${t.seq.join(' → ')}</span>`+(t.ket?`<br><span style="color:var(--ink2)">${t.ket}</span>`:'');
+  }
+  window.playTrayek = playTrayek;
+
+  // --- layer sync ---
+  function natSummary(){
+    return `Total CBPP nasional <b>${NAT.cbppTotal.toLocaleString('id-ID')}</b> ton (33 prov + 5 belum regulasi). `+
+      `Stok BULOG <b>${NAT.bulogRibuTon.toLocaleString('id-ID')} rb</b> ton = <b>${NAT.pct}%</b> kebutuhan bulanan.`;
+  }
+  function syncLayers(){
+    const tgTL=document.getElementById('tgTL'),tgPort=document.getElementById('tgPort'),
+          tgCBP=document.getElementById('tgCBP'),note=document.getElementById('tlNote');
+    tgTL.checked ? tlNet.addTo(map) : map.removeLayer(tlNet);
+    (tgTL.checked && tgPort.checked) ? tlPorts.addTo(map) : map.removeLayer(tlPorts);
+    tgCBP.checked ? cbpLayer.addTo(map) : map.removeLayer(cbpLayer);
+    if(note && !activeCode){ note.innerHTML = tgCBP.checked ? natSummary()
+      : '<span style="color:var(--ink2)">Pilih trayek untuk menjalankan kapal, atau klik garis/pelabuhan di peta.</span>'; }
+  }
+  window._tlSync = syncLayers;
+
+  // --- detail panel augment (dipanggil dari select() lewat window.afterSelect) ---
+  function reserveHTML(id){
+    const v=CBPP[id], cp=CPPD[id]; if(v===undefined && cp===undefined) return '';
+    const maxC=2626.94, pct=Math.min(100,(v||0)/maxC*100);
+    const ok=(v||0)>0;
+    return `<div class="cbp-block"><div class="alloc-h" style="margin-top:0">Cadangan Beras Pemerintah · daerah</div>
+      <div class="cbp-row"><span>CBPP Provinsi · Mei-IV 2026</span><b>${fmtTon(v)} ton</b></div>
+      <div class="barwrap" style="margin:6px 0 2px"><div class="bar"><i style="width:${pct.toFixed(0)}%;background:var(--gold)"></i></div></div>
+      <div class="cbp-row"><span>CPPD Kab/Kota · Apr 2026</span><b>${fmtTon(cp)} ton</b></div>
+      <div class="cbp-note">${ok?'✓ Sudah mengelola CBPP & ada regulasi':'⚠ CBPP nihil / belum ada regulasi'} · Sumber: Bapanas, CPP 03 Juni 2026</div></div>`;
+  }
+  function trayekChipsHTML(id){
+    const codes=(TRAYEK_BY_PROV[id]||[]);
+    if(!codes.length) return `<div class="cbp-note" style="margin-top:14px">Tidak dilalui trayek Tol Laut PSO (umumnya provinsi non-3TP / dilayani lewat pelabuhan hub).</div>`;
+    const shown=codes.slice(0,30), more=codes.length-shown.length;
+    return `<div class="alloc-h" style="margin-top:16px">Trayek Tol Laut yang melayani <span style="color:var(--ink2);font-weight:400">(${codes.length})</span></div>
+      <div class="tl-chips">${shown.map(c=>`<button class="tl-chip" onclick="window.playTrayek('${c}')">${c}</button>`).join('')}${more>0?`<span class="cbp-note" style="align-self:center">+${more} lagi</span>`:''}</div>
+      <div class="cbp-note">Klik kode → animasi kapal menyusuri trayek · SK Dirjen Hubla KP-DJPL 590/2025 (TA 2026)</div>`;
+  }
+  window.afterSelect = function(id){
+    const tgModel=document.getElementById('tgModel');
+    if(tgModel && !tgModel.checked){ clearFlows(); }   // sembunyikan garis model (default)
+    resetHighlight();
+    (TRAYEK_BY_PROV[id]||[]).forEach(c=>{ if(polyByCode[c]) polyByCode[c].setStyle({weight:3,opacity:.85}); });
+    const det=document.getElementById('detail');
+    if(det) det.insertAdjacentHTML('beforeend', reserveHTML(id)+trayekChipsHTML(id));
+  };
+
+  // --- build control (Leaflet, top-right) ---
+  const opts = TRAYEK.map(t=>`<option value="${t.code}">${t.code} — ${t.pangkal} · ${t.nm} nm</option>`).join('');
+  const ctrl = L.control({position:'topright'});
+  ctrl.onAdd = function(){
+    const d = L.DomUtil.create('div','map-ctrl');
+    d.innerHTML = `
+      <div class="mc-h">Lapisan Peta</div>
+      <label><input type="checkbox" id="tgTL" checked> Jaringan Tol Laut</label>
+      <label><input type="checkbox" id="tgPort" checked> Pelabuhan singgah</label>
+      <label><input type="checkbox" id="tgCBP"> Cadangan CBP (beras)</label>
+      <label><input type="checkbox" id="tgModel"> Garis model ton·km</label>
+      <div class="mc-leg"><span><i style="background:#D8B362"></i>Hub (H)</span><span><i style="background:#5FB892"></i>Spoke (S)</span><span><i style="background:#6FA8DC"></i>Perintis (T)</span></div>
+      <div class="mc-sep"></div>
+      <select id="trayekSel"><option value="">▶ Animasikan trayek kapal…</option>${opts}</select>
+      <button id="trayekStop" style="display:none">■ Hentikan kapal</button>
+      <div class="mc-note" id="tlNote"></div>`;
+    L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d);
+    return d;
+  };
+  ctrl.addTo(map);
+
+  // --- wire up ---
+  drawNetwork(); drawPorts(); drawCBP();
+  document.getElementById('tgTL').addEventListener('change',syncLayers);
+  document.getElementById('tgPort').addEventListener('change',syncLayers);
+  document.getElementById('tgCBP').addEventListener('change',syncLayers);
+  document.getElementById('tgModel').addEventListener('change',()=>{ if(selected!=null) select(selected); });
+  document.getElementById('trayekSel').addEventListener('change',function(){ this.value?playTrayek(this.value):stopShip(); });
+  document.getElementById('trayekStop').addEventListener('click',stopShip);
+  document.getElementById('tabs').addEventListener('click',()=>{ stopShip(); });
+  syncLayers();
+})();
+
 </script>
 </body>
 </html>
