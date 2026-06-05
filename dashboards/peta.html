@@ -51,7 +51,7 @@ h1 em{font-style:italic;color:var(--deficit)}
 .phead .hint{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink2)}
 #map{height:600px;width:100%}
 .leaflet-container{font-family:'JetBrains Mono',monospace}
-.legend{position:absolute;left:14px;bottom:14px;z-index:600;background:rgba(255,253,248,.95);border:1px solid var(--line2);border-radius:5px;padding:11px 13px;font-size:11.5px;box-shadow:var(--shadow)}
+.legend{position:absolute;left:14px;bottom:14px;z-index:600;background:rgba(13,28,48,.96);border:1px solid var(--line2);border-radius:5px;padding:11px 13px;font-size:11.5px;box-shadow:var(--shadow)}
 .legend .row{display:flex;align-items:center;gap:8px;margin:3px 0;color:var(--ink2)}
 .legend .grad{width:90px;height:11px;border-radius:3px}
 .legend .gp{background:linear-gradient(90deg,rgba(95,184,146,.16),#2E7D52,#7fd3a6)}
@@ -113,7 +113,7 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-fa
 .leaflet-popup-content-wrapper{border-radius:5px}
 .leaflet-tooltip{font-family:'Plus Jakarta Sans',sans-serif;border-radius:5px;border:1px solid var(--line2)}
 
-.tabbar{position:sticky;top:0;z-index:1200;background:rgba(251,247,239,.92);backdrop-filter:blur(8px);
+.tabbar{position:sticky;top:0;z-index:1200;background:rgba(9,20,34,.92);backdrop-filter:blur(8px);
   border-bottom:1px solid var(--line);margin:0 -22px 0;padding:12px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .tabbar .tlab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2)}
 .tabbar .tabs{margin-top:0}
@@ -350,7 +350,7 @@ function select(id){
       html+=`<div class="src"><div class="rank">${i+1}</div><div class="info"><div class="nm">${src.name}</div><div class="meta2">${s.km.toLocaleString('id-ID')} km · ${src.island} · domestik</div></div><div class="qty">${fmt(s.qty)}<small>ton</small></div></div>`;});
     const imp=A.imports[id]||0;
     if(imp>0.5){const pct=x.demC?imp/x.demC*100:0;
-      html+=`<div class="src" style="background:rgba(194,138,43,.07);margin:0 -6px;padding-left:6px;padding-right:6px;border-radius:6px"><div class="rank" style="background:var(--gold)">⚓</div><div class="info"><div class="nm" style="color:#9A6B1E">Impor (luar negeri)</div><div class="meta2">${pct.toFixed(0)}% dari kebutuhan provinsi · via pelabuhan</div></div><div class="qty" style="color:#9A6B1E">${fmt(imp)}<small>ton</small></div></div>`;}
+      html+=`<div class="src" style="background:rgba(194,138,43,.07);margin:0 -6px;padding-left:6px;padding-right:6px;border-radius:6px"><div class="rank" style="background:var(--gold)">⚓</div><div class="info"><div class="nm" style="color:#E6C46A">Impor (luar negeri)</div><div class="meta2">${pct.toFixed(0)}% dari kebutuhan provinsi · via pelabuhan</div></div><div class="qty" style="color:#E6C46A">${fmt(imp)}<small>ton</small></div></div>`;}
     const near=a.sources[0];
     if(imp>0.5 && (!near||imp>=x.demC*0.5))html+=`<div class="callout warn">Provinsi ini bergantung impor untuk <b>${(imp/x.demC*100).toFixed(0)}%</b> kebutuhannya — surplus domestik di komoditas ini tak cukup.</div>`;
     else if(near)html+=`<div class="callout">Pemasok domestik utama: <b>${byId[near.src].name}</b> (~<span class="k">${near.km.toLocaleString('id-ID')} km</span>). Alokasi domestik meminimalkan <b>total ton·km nasional</b>.</div>`;
@@ -398,7 +398,7 @@ function drawTable(){
     else v=a[sortKey]-b[sortKey];return v*sortDir;});
   document.querySelector('#tbl tbody').innerHTML=rows.map(x=>{const pos=x.bal>=0,a=A.alloc[x.id];
     const src=!pos&&a&&a.sources[0]?`${byId[a.sources[0].src].name} <span style="color:var(--ink2)">(${a.sources[0].km}km)</span>`:'<span style="color:var(--line2)">—</span>';
-    return `<tr style="cursor:pointer" onclick="select('${x.id}')"><td>${x.name}</td><td style="color:var(--ink2)">${x.island}</td><td>${fmt(x.prodC)}</td><td>${fmt(x.demC)}</td><td class="${pos?'num-pos':'num-neg'}">${fmtS(x.bal)}</td><td style="color:${(A.imports[x.id]||0)>0?'#9A6B1E':'var(--line2)'}">${(A.imports[x.id]||0)>0?fmt(A.imports[x.id]):'—'}</td><td><span class="tag ${pos?'s':'d'}">${pos?'Surplus':'Defisit'}</span></td><td style="text-align:left;font-family:'Plus Jakarta Sans'">${src}</td></tr>`;}).join('');
+    return `<tr style="cursor:pointer" onclick="select('${x.id}')"><td>${x.name}</td><td style="color:var(--ink2)">${x.island}</td><td>${fmt(x.prodC)}</td><td>${fmt(x.demC)}</td><td class="${pos?'num-pos':'num-neg'}">${fmtS(x.bal)}</td><td style="color:${(A.imports[x.id]||0)>0?'#E6C46A':'var(--line2)'}">${(A.imports[x.id]||0)>0?fmt(A.imports[x.id]):'—'}</td><td><span class="tag ${pos?'s':'d'}">${pos?'Surplus':'Defisit'}</span></td><td style="text-align:left;font-family:'Plus Jakarta Sans'">${src}</td></tr>`;}).join('');
   document.querySelectorAll('#tbl th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(k===sortKey)sortDir*=-1;else{sortKey=k;sortDir=1;}drawTable();});
 }
 
