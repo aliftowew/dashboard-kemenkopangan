@@ -44,12 +44,12 @@ h1 em{font-style:italic;color:var(--deficit)}
 .kpi .val{font-family:'Fraunces',serif;font-weight:600;font-size:27px;line-height:1.1;margin-top:7px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
 .kpi .val.pos{color:var(--surplus-deep)} .kpi .val.neg{color:var(--deficit-deep)}
 .kpi .note{font-size:12px;color:var(--ink2);margin-top:3px}
-.grid{display:grid;grid-template-columns:1.55fr 1fr;gap:18px;margin-top:18px}
+.grid{display:grid;grid-template-columns:2.5fr 1fr;gap:18px;margin-top:18px}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);overflow:hidden}
 .phead{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .phead h2{font-family:'Fraunces',serif;font-weight:600;font-size:18px;letter-spacing:-.01em}
 .phead .hint{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink2)}
-#map{height:600px;width:100%}
+#map{height:820px;width:100%}
 .leaflet-container{font-family:'JetBrains Mono',monospace}
 .legend{position:absolute;left:14px;bottom:14px;z-index:600;background:rgba(13,28,48,.96);border:1px solid var(--line2);border-radius:5px;padding:11px 13px;font-size:11.5px;box-shadow:var(--shadow)}
 .legend .row{display:flex;align-items:center;gap:8px;margin:3px 0;color:var(--ink2)}
@@ -442,6 +442,7 @@ initMap();refresh();
 .cbp-note{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--ink2);margin-top:9px;line-height:1.55}
 </style>
 <script>
+
 /* ====== ADDON: Tol Laut trayek + pelabuhan + animasi kapal + Cadangan Pemerintah (CBP)
    Sumber: SK Dirjen Hubla KP-DJPL 590/2025 (trayek TA 2026) & Bapanas CPP 03 Juni 2026.
    CATATAN: koordinat pelabuhan = perkiraan (hub besar akurat; pelabuhan kecil pedalaman
@@ -587,179 +588,237 @@ initMap();refresh();
   };
   const NAT = {cbppTotal:7464.12, cppdTotal:13516.8, bulogRibuTon:5350, cbpRibuTon:5339, pct:206, needRibuTonBln:2592};
 
-  // --- precompute ---
+  // ===== precompute & SEA-LANE ROUTING =====
   const grpColor = c => c[0]==='H' ? '#D8B362' : (c[0]==='S' ? '#5FB892' : '#6FA8DC');
   const trayekAt = n => TRAYEK.filter(t=>t.seq.includes(n)).map(t=>t.code);
   const TRAYEK_BY_PROV = {};
-  TRAYEK.forEach(t=>{
-    const provs = new Set(t.seq.map(n=>PORT_PROV[n]).filter(Boolean));
-    provs.forEach(pv=>{ (TRAYEK_BY_PROV[pv] = TRAYEK_BY_PROV[pv]||[]).push(t.code); });
-  });
-  const pathOf = t => t.seq.map(n=>PORTS[n]).filter(Boolean);
+  TRAYEK.forEach(t=>{ new Set(t.seq.map(n=>PORT_PROV[n]).filter(Boolean))
+    .forEach(pv=>{ (TRAYEK_BY_PROV[pv]=TRAYEK_BY_PROV[pv]||[]).push(t.code); }); });
   const cent = id => (typeof CENT!=='undefined' && CENT[id]) ? CENT[id] : [byId[id].lat, byId[id].lon];
   const fmtTon = v => v===undefined ? '—' : Number(v).toLocaleString('id-ID',{maximumFractionDigits:2});
-  function eqd(a,b){const ml=(a[0]+b[0])/2*Math.PI/180;const dx=(b[1]-a[1])*Math.cos(ml);const dy=(b[0]-a[0]);return Math.hypot(dx,dy);}
+  function hav2(a,b){const R=6371,p=Math.PI/180,d1=(b[0]-a[0])*p,d2=(b[1]-a[1])*p;
+    const x=Math.sin(d1/2)**2+Math.cos(a[0]*p)*Math.cos(b[0]*p)*Math.sin(d2/2)**2;return 2*R*Math.asin(Math.sqrt(x));}
 
-  // --- layers ---
-  const tlNet = L.layerGroup(), tlPorts = L.layerGroup(), cbpLayer = L.layerGroup(), shipLayer = L.layerGroup();
-  const polyByCode = {};
+  // titik-laut (perairan terbuka / selat) — KOORDINAT PERKIRAAN, mudah disunting
+  const SEA = {
+    aceh:[5.6,95.2],nsum:[3.5,97.5],wsum:[-1.0,99.3],baai:[-4.2,101.5],sunda:[-6.2,105.3],
+    bangka:[-3.0,106.6],karimata:[-2.2,108.6],anambas:[3.0,106.0],natuna:[3.4,108.0],
+    jktN:[-5.7,107.0],jseaW:[-5.3,108.8],jseaC:[-5.2,111.5],sbyN:[-6.7,112.8],jseaE:[-5.6,115.3],
+    baliS:[-9.0,115.3],lombok:[-8.9,116.4],sumbawaN:[-8.0,117.8],sumbawaS:[-9.0,118.6],sumba:[-9.6,120.2],
+    sawu:[-10.6,122.0],kupangW:[-10.5,123.3],floresS:[-9.0,121.5],floresN:[-7.8,121.5],floresW:[-7.0,119.8],
+    floresE:[-8.2,123.2],alorN:[-8.0,124.6],
+    makassarW:[-5.4,118.9],maksS:[-4.4,118.2],maksC:[-1.6,118.7],maksN:[1.2,118.9],tarakanW:[3.2,117.9],
+    sulsea:[2.8,121.5],sulseaE:[3.2,124.0],sangihe:[3.6,125.3],bitungN:[1.9,125.3],talaud:[4.0,126.7],
+    molucca:[0.2,125.6],tominiE:[0.2,123.4],tominiC:[-0.5,121.6],tolo:[-2.7,123.2],sesulSea:[-5.5,122.5],
+    bandaW:[-5.4,125.3],buruN:[-3.2,126.6],ambon:[-3.6,128.2],seramS:[-3.7,129.8],seramE:[-3.3,131.2],
+    bandaC:[-6.0,128.6],bandaE:[-6.2,131.0],keiW:[-5.6,132.5],tanimbarS:[-8.1,131.4],
+    arafuraW:[-7.2,134.0],arafuraC:[-6.0,136.0],
+    obiW:[-1.6,127.4],ternateW:[0.8,127.1],halmN:[1.6,128.0],morotaiN:[2.4,128.4],halmE:[0.4,129.0],
+    sorongW:[-0.9,130.7],sorongS:[-1.6,131.5],cendW:[-2.2,134.2],cendE:[-2.0,136.2],biakN:[-0.9,136.1],
+    papuaN:[-1.7,138.6],fakfakW:[-3.2,132.3],kaimanaS:[-4.0,133.6],timikaS:[-5.1,136.6],asmatS:[-6.0,138.2],meraukeS:[-8.7,140.1]
+  };
+  const SEA_EDGES = [
+    ["aceh","nsum"],["nsum","wsum"],["wsum","baai"],["baai","sunda"],["wsum","sunda"],
+    ["sunda","jktN"],["sunda","bangka"],["bangka","karimata"],["karimata","jseaW"],["bangka","jktN"],
+    ["jktN","jseaW"],["jseaW","jseaC"],["jseaC","sbyN"],["sbyN","jseaE"],["jseaC","jseaE"],
+    ["anambas","natuna"],["anambas","bangka"],["anambas","karimata"],
+    ["jseaE","baliS"],["baliS","lombok"],["lombok","sumbawaN"],["sumbawaN","sumbawaS"],["sumbawaN","floresW"],
+    ["jseaE","maksS"],["jseaE","floresW"],
+    ["maksS","maksC"],["maksC","maksN"],["maksN","tarakanW"],["maksN","sulsea"],
+    ["sulsea","sulseaE"],["sulseaE","sangihe"],["sulseaE","bitungN"],["sangihe","talaud"],["sulseaE","talaud"],
+    ["maksS","makassarW"],["makassarW","floresW"],["makassarW","maksC"],
+    ["floresW","floresN"],["floresN","floresS"],["floresN","floresE"],["floresS","sumba"],["sumba","sawu"],
+    ["sawu","kupangW"],["floresE","kupangW"],["floresE","alorN"],["alorN","kupangW"],["sumbawaS","sumba"],
+    ["sulsea","tominiE"],["tominiE","tominiC"],["tominiE","molucca"],["bitungN","tominiE"],["bitungN","molucca"],
+    ["molucca","obiW"],["molucca","ternateW"],["molucca","buruN"],["molucca","sulseaE"],
+    ["tolo","bandaW"],["tolo","molucca"],["sesulSea","floresN"],["sesulSea","floresE"],["sesulSea","bandaW"],
+    ["floresE","bandaW"],["floresN","bandaW"],["bandaW","buruN"],["bandaW","bandaC"],["bandaC","bandaE"],
+    ["bandaE","keiW"],["bandaE","tanimbarS"],["keiW","arafuraW"],["tanimbarS","arafuraW"],["bandaC","ambon"],
+    ["buruN","ambon"],["ambon","seramS"],["seramS","seramE"],["seramS","bandaC"],["seramE","obiW"],
+    ["obiW","ternateW"],["ternateW","halmN"],["halmN","morotaiN"],["morotaiN","halmE"],["halmE","seramE"],
+    ["halmE","sorongW"],["obiW","halmE"],
+    ["seramE","sorongS"],["sorongS","sorongW"],["sorongW","cendW"],["cendW","cendE"],["cendE","biakN"],
+    ["biakN","papuaN"],["cendE","papuaN"],
+    ["seramE","fakfakW"],["fakfakW","kaimanaS"],["kaimanaS","arafuraC"],["arafuraC","timikaS"],
+    ["timikaS","asmatS"],["asmatS","meraukeS"],["arafuraC","meraukeS"],["arafuraW","arafuraC"],
+    ["tanimbarS","arafuraC"],["keiW","arafuraC"],["cendW","fakfakW"],["meraukeS","arafuraW"]
+  ];
+  // pelabuhan -> titik-laut masuk (override; sisanya = titik-laut terdekat)
+  const PORT_GATE = {
+    "Tanjung Priok":"jktN","Tanjung Perak":"sbyN","Teluk Bayur":"wsum","Gn. Sitoli":"nsum","Sinabang":"nsum",
+    "Pulau Baai":"baai","Malahayati":"aceh","Letung":"anambas","Tarempa":"anambas","Selat Lampa":"natuna",
+    "Serasan":"natuna","Midai":"natuna",
+    "Makassar":"makassarW","Tahuna":"sangihe","Lirung/Melonguane":"talaud","Bitung":"bitungN",
+    "Pagimana":"tominiC","Bunta":"tominiC","Ampana (Mantangisi)":"tominiC","Parigi":"tominiC",
+    "Bungku":"tolo","Banggai":"tolo","Kolonedale":"tolo","Bobong (Taliabu)":"tolo","Malbufa (Sula)":"molucca",
+    "Sikeli":"sesulSea","Raha":"sesulSea","Ereke":"sesulSea","Wanci":"sesulSea",
+    "Tarakan":"tarakanW","Nunukan":"tarakanW",
+    "Kupang":"kupangW","Rote":"kupangW","Sabu":"sawu","Larantuka":"floresE","Lembata (Lewoleba)":"alorN",
+    "Kalabahi":"alorN","Ende (Ippi/Maumbawa)":"floresS","Reo":"floresN","Badas":"sumbawaN","Bima":"sumbawaS",
+    "Namrole":"buruN","Namlea":"buruN","Bula":"seramE","Piru":"seramS","Tual":"keiW","Saumlaki":"tanimbarS",
+    "Dobo":"arafuraW","Elat":"keiW","Tepa":"bandaE","Larat":"tanimbarS","Kisar":"alorN","Leti":"alorN",
+    "Moa":"alorN","Ilwaki (Wetar)":"alorN",
+    "Morotai":"morotaiN","Galela":"halmN","Maba":"halmE","Weda":"halmE","Tidore":"ternateW","Jailolo":"ternateW",
+    "Babang":"obiW","Pulau Obi":"obiW","Saketa":"halmE","Tapeleo (Patani)":"halmE",
+    "Sorong":"sorongW","Oransbari":"cendW","Waren":"cendW","Sarmi":"papuaN","Fak-fak":"fakfakW",
+    "Kaimana":"kaimanaS","Manokwari":"cendW","Numfor":"cendE","Wasior":"cendW","Biak":"biakN","Serui":"cendE",
+    "Nabire":"cendE","Merauke":"meraukeS","Kimaam":"meraukeS","Agats":"asmatS","Pomako":"timikaS",
+    "Timika (Pomako)":"timikaS","Warse":"asmatS","Yosakor":"asmatS","Ayam":"asmatS","Katew":"asmatS",
+    "Yurfi":"asmatS","Komor":"asmatS","Atsy":"asmatS","Eci":"asmatS","Ewer":"asmatS","Sawaerma":"asmatS",
+    "Mamugu":"asmatS","Senggo":"asmatS","Moor":"meraukeS","Bade (mapi)":"meraukeS","Gantentiri (Bovendigul)":"meraukeS"
+  };
+  function nearestSea(c){let best=null,bd=1e9;for(const k in SEA){const d=hav2(c,SEA[k]);if(d<bd){bd=d;best=k;}}return best;}
+  const gateOf = p => PORT_GATE[p] || nearestSea(PORTS[p]);
 
+  // bangun graph (port + sea) lalu Dijkstra per-leg
+  const GRAPH = (function(){const adj={};const add=(a,b,w)=>{(adj[a]=adj[a]||[]).push([b,w]);(adj[b]=adj[b]||[]).push([a,w]);};
+    SEA_EDGES.forEach(([a,b])=>{if(SEA[a]&&SEA[b])add('S:'+a,'S:'+b,hav2(SEA[a],SEA[b]));});
+    Object.keys(PORTS).forEach(p=>{const g=gateOf(p);if(g&&SEA[g])add('P:'+p,'S:'+g,hav2(PORTS[p],SEA[g]));});
+    return adj;})();
+  function dijkstra(src,dst){
+    const dist={[src]:0},prev={},done={};const pq=[[0,src]];
+    while(pq.length){pq.sort((a,b)=>a[0]-b[0]);const [d,u]=pq.shift();if(done[u])continue;done[u]=1;if(u===dst)break;
+      (GRAPH[u]||[]).forEach(([v,w])=>{const nd=d+w;if(dist[v]===undefined||nd<dist[v]){dist[v]=nd;prev[v]=u;pq.push([nd,v]);}});}
+    if(dist[dst]===undefined)return null;const path=[];let u=dst;while(u!==undefined){path.unshift(u);u=prev[u];}return path;}
+  const legCache={};
+  function routeLeg(a,b){const key=a+'||'+b;if(legCache[key])return legCache[key];
+    const path=dijkstra('P:'+a,'P:'+b);let coords;
+    if(!path)coords=[PORTS[a],PORTS[b]];
+    else coords=path.map(n=>n[1]===':'? (n[0]==='P'?PORTS[n.slice(2)]:SEA[n.slice(2)]) : null).filter(Boolean);
+    legCache[key]=coords;return coords;}
+  const seqCache={};
+  function seqMarks(code){if(seqCache[code])return seqCache[code];
+    const t=TRAYEK.find(x=>x.code===code);const seq=t.seq;const coords=[];const marks=[];
+    seq.forEach((port,i)=>{if(i===0){coords.push(PORTS[port]);marks.push({name:port,idx:0});}
+      else{const r=routeLeg(seq[i-1],port);for(let k=1;k<r.length;k++)coords.push(r[k]);marks.push({name:port,idx:coords.length-1});}});
+    seqCache[code]={coords,marks};return seqCache[code];}
+
+  // ===== layers =====
+  const tlNet=L.layerGroup(),tlPorts=L.layerGroup(),cbpLayer=L.layerGroup(),shipLayer=L.layerGroup();
+  const polyByCode={};
   function drawNetwork(){
-    tlNet.clearLayers(); Object.keys(polyByCode).forEach(k=>delete polyByCode[k]);
-    TRAYEK.forEach(t=>{
-      const pts = pathOf(t); if(pts.length<2) return;
-      const pl = L.polyline(pts,{color:grpColor(t.code),weight:1.6,opacity:.5,className:'tl-line'});
+    tlNet.clearLayers();Object.keys(polyByCode).forEach(k=>delete polyByCode[k]);
+    TRAYEK.forEach(t=>{const pts=seqMarks(t.code).coords;if(pts.length<2)return;
+      const pl=L.polyline(pts,{color:grpColor(t.code),weight:1.6,opacity:.5,className:'tl-line'});
       pl.bindTooltip(`<b>${t.code}</b> · ${t.pangkal}<br>${t.nm.toLocaleString('id-ID')} nm`,{sticky:true});
-      pl.on('click',()=>playTrayek(t.code));
-      pl.addTo(tlNet); polyByCode[t.code]=pl;
-    });
+      pl.on('click',()=>playTrayek(t.code));pl.addTo(tlNet);polyByCode[t.code]=pl;});
   }
   function drawPorts(){
     tlPorts.clearLayers();
-    Object.keys(PORTS).forEach(n=>{
-      if(n==="Timika (Pomako)") return; // alias dari Pomako, hindari dobel marker
-      const c = PORTS[n], hub = HUBS.has(n);
-      const m = L.circleMarker(c,{radius:hub?6:3.2,color:'#0d1f33',weight:1,
-        fillColor:hub?'#E6C46A':'#b9cee6',fillOpacity:.95,className:hub?'':'tl-port'});
-      const codes = trayekAt(n);
-      m.bindTooltip(`<b>${n}</b><br><span style="color:#9cc3e8">${codes.join(', ')||'—'}</span>`,{sticky:true});
+    Object.keys(PORTS).forEach(n=>{if(n==="Timika (Pomako)")return;const c=PORTS[n],hub=HUBS.has(n);
+      const m=L.circleMarker(c,{radius:hub?6:3.2,color:'#0d1f33',weight:1,fillColor:hub?'#E6C46A':'#b9cee6',fillOpacity:.95});
+      m.bindTooltip(`<b>${n}</b><br><span style="color:#9cc3e8">${trayekAt(n).join(', ')||'—'}</span>`,{sticky:true});
       m.addTo(tlPorts);
-      if(hub){ L.marker(c,{icon:L.divIcon({className:'',html:`<div class="port-lab">${n}</div>`,iconSize:[0,0]}),
-        interactive:false}).addTo(tlPorts); }
-    });
+      if(hub)L.marker(c,{icon:L.divIcon({className:'',html:`<div class="port-lab">${n}</div>`,iconSize:[0,0]}),interactive:false}).addTo(tlPorts);});
   }
   function drawCBP(){
     cbpLayer.clearLayers();
-    P.forEach(p=>{
-      if(!(p.id in CBPP)) return;
-      const v = CBPP[p.id], c = cent(p.id);
-      const col = v<=0 ? '#E06A6A' : (v<100 ? '#E6C46A' : '#5FB892');
-      const r = Math.min(24, 4+Math.sqrt(v)/2.6);
-      const m = L.circleMarker(c,{radius:r,color:'#0d1f33',weight:1,fillColor:col,fillOpacity:.5,className:'cbp-dot'});
+    P.forEach(p=>{if(!(p.id in CBPP))return;const v=CBPP[p.id],c=cent(p.id);
+      const col=v<=0?'#E06A6A':(v<100?'#E6C46A':'#5FB892'),r=Math.min(24,4+Math.sqrt(v)/2.6);
+      const m=L.circleMarker(c,{radius:r,color:'#0d1f33',weight:1,fillColor:col,fillOpacity:.5});
       m.bindTooltip(`<b>${p.name}</b><br>CBPP beras: <b>${fmtTon(v)} ton</b>`+
         (CPPD[p.id]!==undefined?`<br>CPPD kab/kota: ${fmtTon(CPPD[p.id])} ton`:''),{sticky:true});
-      m.addTo(cbpLayer);
-    });
+      m.addTo(cbpLayer);});
   }
 
-  // --- ship animation ---
-  let shipRAF=null, shipMarker=null, activeCode=null;
-  function resetHighlight(){ Object.values(polyByCode).forEach(pl=>pl.setStyle({weight:1.6,opacity:.5})); }
-  function stopShip(){
-    if(shipRAF){cancelAnimationFrame(shipRAF);shipRAF=null;}
-    shipLayer.clearLayers(); shipMarker=null; activeCode=null;
-    const sb=document.getElementById('trayekStop'); if(sb)sb.style.display='none';
-    const sel=document.getElementById('trayekSel'); if(sel)sel.value='';
-    resetHighlight();
+  // ===== animasi kapal / pengiriman =====
+  let shipRAF=null,shipMarker=null,activeCode=null;
+  function resetHighlight(){Object.values(polyByCode).forEach(pl=>pl.setStyle({weight:1.6,opacity:.5}));}
+  function stopShip(){if(shipRAF){cancelAnimationFrame(shipRAF);shipRAF=null;}shipLayer.clearLayers();shipMarker=null;activeCode=null;
+    const sb=document.getElementById('trayekStop');if(sb)sb.style.display='none';
+    const sel=document.getElementById('trayekSel');if(sel)sel.value='';resetHighlight();}
+  function animatePath(coords,deliver){
+    shipLayer.clearLayers();if(!map.hasLayer(shipLayer))shipLayer.addTo(map);
+    L.polyline(coords,{color:deliver?'#7fd3a6':'#E6C46A',weight:3.2,opacity:.95,className:'tl-line'}).addTo(shipLayer);
+    shipMarker=L.marker(coords[0],{icon:L.divIcon({className:'',html:'<div class="ship">🚢</div>',iconSize:[24,24],iconAnchor:[12,12]}),zIndexOffset:1000}).addTo(shipLayer);
+    const segs=[];let total=0;for(let i=0;i<coords.length-1;i++){const d=hav2(coords[i],coords[i+1]);segs.push(d);total+=d;}
+    if(total<=0)return;const speed=Math.max(total/22,120);let dist=0,last=performance.now();
+    function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;dist+=speed*dt;if(dist>total)dist-=total;
+      let dd=dist,i=0;while(i<segs.length&&dd>segs[i]){dd-=segs[i];i++;}if(i>=segs.length)i=segs.length-1;
+      const f=segs[i]?dd/segs[i]:0,a=coords[i],b=coords[i+1]||coords[i];
+      shipMarker.setLatLng([a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f]);shipRAF=requestAnimationFrame(tick);}
+    if(shipRAF)cancelAnimationFrame(shipRAF);last=performance.now();shipRAF=requestAnimationFrame(tick);
   }
-  function playTrayek(code){
-    const t = TRAYEK.find(x=>x.code===code); if(!t) return;
-    const pts = pathOf(t); if(pts.length<2) return;
-    if(shipRAF){cancelAnimationFrame(shipRAF);shipRAF=null;}
-    activeCode = code;
-    // pastikan jaringan tampil
-    const tgTL=document.getElementById('tgTL'); if(tgTL && !tgTL.checked){tgTL.checked=true; syncLayers();}
-    resetHighlight(); if(polyByCode[code]) polyByCode[code].setStyle({weight:3.6,opacity:.95});
-    if(!map.hasLayer(shipLayer)) shipLayer.addTo(map);
-    shipLayer.clearLayers();
-    shipMarker = L.marker(pts[0],{icon:L.divIcon({className:'',html:'<div class="ship">🚢</div>',
-      iconSize:[24,24],iconAnchor:[12,12]}),zIndexOffset:1000}).addTo(shipLayer);
-    const segs=[]; let total=0;
-    for(let i=0;i<pts.length-1;i++){const d=eqd(pts[i],pts[i+1]); segs.push(d); total+=d;}
-    if(total<=0) return;
-    const speed = total/16; // ~16 dtk per loop
-    let dist=0, last=performance.now();
-    function tick(now){
-      const dt=Math.min(.05,(now-last)/1000); last=now; dist+=speed*dt; if(dist>total)dist-=total;
-      let dd=dist,i=0; while(i<segs.length && dd>segs[i]){dd-=segs[i];i++;}
-      if(i>=segs.length)i=segs.length-1;
-      const f = segs[i]? dd/segs[i] : 0, a=pts[i], b=pts[i+1]||pts[i];
-      shipMarker.setLatLng([a[0]+(b[0]-a[0])*f, a[1]+(b[1]-a[1])*f]);
-      shipRAF=requestAnimationFrame(tick);
-    }
-    last=performance.now(); shipRAF=requestAnimationFrame(tick);
-    const sb=document.getElementById('trayekStop'); if(sb)sb.style.display='';
-    const sel=document.getElementById('trayekSel'); if(sel)sel.value=code;
+  function playTrayek(code,targetPort){
+    const t=TRAYEK.find(x=>x.code===code);if(!t)return;const sm=seqMarks(code);let coords=sm.coords;if(coords.length<2)return;
+    activeCode=code;const tgTL=document.getElementById('tgTL');if(tgTL&&!tgTL.checked){tgTL.checked=true;syncLayers();}
+    resetHighlight();if(polyByCode[code])polyByCode[code].setStyle({weight:3,opacity:.9});
+    let deliver=false,label;
+    if(targetPort){const m=sm.marks.find(x=>x.name===targetPort);const idx=m?m.idx:coords.length-1;coords=coords.slice(0,idx+1);deliver=true;
+      label=`<b style="color:#7fd3a6">Pengiriman</b> via <b>${code}</b> → ${targetPort}`;}
+    else label=`<b style="color:#9cc3e8">${code}</b> · ${t.pangkal} · ${t.nm.toLocaleString('id-ID')} nm`;
+    animatePath(coords,deliver);
+    const sb=document.getElementById('trayekStop');if(sb)sb.style.display='';
+    const sel=document.getElementById('trayekSel');if(sel)sel.value=code;
     const note=document.getElementById('tlNote');
-    if(note) note.innerHTML=`<b style="color:#9cc3e8">${t.code}</b> · ${t.pangkal} · ${t.nm.toLocaleString('id-ID')} nm<br>`+
-      `<span style="color:var(--ink2)">${t.seq.join(' → ')}</span>`+(t.ket?`<br><span style="color:var(--ink2)">${t.ket}</span>`:'');
+    if(note)note.innerHTML=label+`<br><span style="color:var(--ink2)">${t.seq.join(' → ')}</span>`+(t.ket?`<br><span style="color:var(--ink2)">${t.ket}</span>`:'');
   }
-  window.playTrayek = playTrayek;
+  window.playTrayek=playTrayek;
 
-  // --- layer sync ---
-  function natSummary(){
-    return `Total CBPP nasional <b>${NAT.cbppTotal.toLocaleString('id-ID')}</b> ton (33 prov + 5 belum regulasi). `+
-      `Stok BULOG <b>${NAT.bulogRibuTon.toLocaleString('id-ID')} rb</b> ton = <b>${NAT.pct}%</b> kebutuhan bulanan.`;
-  }
+  // ===== sync layer & ringkasan =====
+  function natSummary(){return `Total CBPP nasional <b>${NAT.cbppTotal.toLocaleString('id-ID')}</b> ton (33 prov + 5 belum regulasi). `+
+    `Stok BULOG <b>${NAT.bulogRibuTon.toLocaleString('id-ID')} rb</b> ton = <b>${NAT.pct}%</b> kebutuhan bulanan.`;}
   function syncLayers(){
-    const tgTL=document.getElementById('tgTL'),tgPort=document.getElementById('tgPort'),
-          tgCBP=document.getElementById('tgCBP'),note=document.getElementById('tlNote');
-    tgTL.checked ? tlNet.addTo(map) : map.removeLayer(tlNet);
-    (tgTL.checked && tgPort.checked) ? tlPorts.addTo(map) : map.removeLayer(tlPorts);
-    tgCBP.checked ? cbpLayer.addTo(map) : map.removeLayer(cbpLayer);
-    if(note && !activeCode){ note.innerHTML = tgCBP.checked ? natSummary()
-      : '<span style="color:var(--ink2)">Pilih trayek untuk menjalankan kapal, atau klik garis/pelabuhan di peta.</span>'; }
-  }
-  window._tlSync = syncLayers;
+    const tgTL=document.getElementById('tgTL'),tgPort=document.getElementById('tgPort'),tgCBP=document.getElementById('tgCBP'),note=document.getElementById('tlNote');
+    tgTL.checked?tlNet.addTo(map):map.removeLayer(tlNet);
+    (tgTL.checked&&tgPort.checked)?tlPorts.addTo(map):map.removeLayer(tlPorts);
+    tgCBP.checked?cbpLayer.addTo(map):map.removeLayer(cbpLayer);
+    if(note&&!activeCode)note.innerHTML=tgCBP.checked?natSummary():'<span style="color:var(--ink2)">Klik provinsi: pengiriman akan menyusuri jalur tol laut nyata. Atau pilih trayek untuk loop penuh.</span>';}
+  window._tlSync=syncLayers;
 
-  // --- detail panel augment (dipanggil dari select() lewat window.afterSelect) ---
-  function reserveHTML(id){
-    const v=CBPP[id], cp=CPPD[id]; if(v===undefined && cp===undefined) return '';
-    const maxC=2626.94, pct=Math.min(100,(v||0)/maxC*100);
-    const ok=(v||0)>0;
+  // ===== augmentasi panel detail =====
+  function reserveHTML(id){const v=CBPP[id],cp=CPPD[id];if(v===undefined&&cp===undefined)return '';
+    const maxC=2626.94,pct=Math.min(100,(v||0)/maxC*100),ok=(v||0)>0;
     return `<div class="cbp-block"><div class="alloc-h" style="margin-top:0">Cadangan Beras Pemerintah · daerah</div>
       <div class="cbp-row"><span>CBPP Provinsi · Mei-IV 2026</span><b>${fmtTon(v)} ton</b></div>
       <div class="barwrap" style="margin:6px 0 2px"><div class="bar"><i style="width:${pct.toFixed(0)}%;background:var(--gold)"></i></div></div>
       <div class="cbp-row"><span>CPPD Kab/Kota · Apr 2026</span><b>${fmtTon(cp)} ton</b></div>
-      <div class="cbp-note">${ok?'✓ Sudah mengelola CBPP & ada regulasi':'⚠ CBPP nihil / belum ada regulasi'} · Sumber: Bapanas, CPP 03 Juni 2026</div></div>`;
-  }
-  function trayekChipsHTML(id){
-    const codes=(TRAYEK_BY_PROV[id]||[]);
-    if(!codes.length) return `<div class="cbp-note" style="margin-top:14px">Tidak dilalui trayek Tol Laut PSO (umumnya provinsi non-3TP / dilayani lewat pelabuhan hub).</div>`;
-    const shown=codes.slice(0,30), more=codes.length-shown.length;
+      <div class="cbp-note">${ok?'✓ Sudah mengelola CBPP & ada regulasi':'⚠ CBPP nihil / belum ada regulasi'} · Sumber: Bapanas, CPP 03 Juni 2026</div></div>`;}
+  function trayekChipsHTML(id){const codes=(TRAYEK_BY_PROV[id]||[]);
+    if(!codes.length)return `<div class="cbp-note" style="margin-top:14px">Tidak dilalui trayek Tol Laut PSO (umumnya dilayani via pelabuhan hub / jalur darat antar-Jawa).</div>`;
+    const shown=codes.slice(0,30),more=codes.length-shown.length;
     return `<div class="alloc-h" style="margin-top:16px">Trayek Tol Laut yang melayani <span style="color:var(--ink2);font-weight:400">(${codes.length})</span></div>
       <div class="tl-chips">${shown.map(c=>`<button class="tl-chip" onclick="window.playTrayek('${c}')">${c}</button>`).join('')}${more>0?`<span class="cbp-note" style="align-self:center">+${more} lagi</span>`:''}</div>
-      <div class="cbp-note">Klik kode → animasi kapal menyusuri trayek · SK Dirjen Hubla KP-DJPL 590/2025 (TA 2026)</div>`;
-  }
-  window.afterSelect = function(id){
-    const tgModel=document.getElementById('tgModel');
-    if(tgModel && !tgModel.checked){ clearFlows(); }   // sembunyikan garis model (default)
-    resetHighlight();
-    (TRAYEK_BY_PROV[id]||[]).forEach(c=>{ if(polyByCode[c]) polyByCode[c].setStyle({weight:3,opacity:.85}); });
-    const det=document.getElementById('detail');
-    if(det) det.insertAdjacentHTML('beforeend', reserveHTML(id)+trayekChipsHTML(id));
+      <div class="cbp-note">Klik kode → animasi kapal loop penuh · SK Dirjen Hubla KP-DJPL 590/2025 (TA 2026)</div>`;}
+  // pilih pelabuhan provinsi (bukan hub) & trayek mainline untuk simulasi pengiriman
+  function provPort(id){const cands=Object.keys(PORT_PROV).filter(n=>PORT_PROV[n]===id && !HUBS.has(n) && PORTS[n]);
+    for(const n of cands){if(TRAYEK.some(t=>t.seq.includes(n)))return n;}return null;}
+  function primaryTrayek(id,port){const codes=TRAYEK_BY_PROV[id]||[];
+    const main=codes.find(c=>{const t=TRAYEK.find(x=>x.code===c);return t&&(t.code[0]==='T'||t.code[0]==='H')&&t.seq.includes(port);});
+    return main || codes.find(c=>TRAYEK.find(x=>x.code===c).seq.includes(port)) || codes[0];}
+  window.afterSelect=function(id){
+    const tgModel=document.getElementById('tgModel');if(tgModel&&!tgModel.checked)clearFlows();
+    resetHighlight();(TRAYEK_BY_PROV[id]||[]).forEach(c=>{if(polyByCode[c])polyByCode[c].setStyle({weight:2.4,opacity:.78});});
+    const det=document.getElementById('detail');if(det)det.insertAdjacentHTML('beforeend',reserveHTML(id)+trayekChipsHTML(id));
+    // simulasi pengiriman lewat jalur tol laut nyata (untuk provinsi yang dilayani)
+    const port=provPort(id);if(port){const code=primaryTrayek(id,port);if(code)playTrayek(code,port);} else {stopShip();}
   };
 
-  // --- build control (Leaflet, top-right) ---
-  const opts = TRAYEK.map(t=>`<option value="${t.code}">${t.code} — ${t.pangkal} · ${t.nm} nm</option>`).join('');
-  const ctrl = L.control({position:'topright'});
-  ctrl.onAdd = function(){
-    const d = L.DomUtil.create('div','map-ctrl');
-    d.innerHTML = `
-      <div class="mc-h">Lapisan Peta</div>
+  // ===== kontrol (Leaflet, kanan-atas) =====
+  const opts=TRAYEK.map(t=>`<option value="${t.code}">${t.code} — ${t.pangkal} · ${t.nm} nm</option>`).join('');
+  const ctrl=L.control({position:'topright'});
+  ctrl.onAdd=function(){const d=L.DomUtil.create('div','map-ctrl');
+    d.innerHTML=`<div class="mc-h">Lapisan Peta</div>
       <label><input type="checkbox" id="tgTL" checked> Jaringan Tol Laut</label>
       <label><input type="checkbox" id="tgPort" checked> Pelabuhan singgah</label>
       <label><input type="checkbox" id="tgCBP"> Cadangan CBP (beras)</label>
       <label><input type="checkbox" id="tgModel"> Garis model ton·km</label>
       <div class="mc-leg"><span><i style="background:#D8B362"></i>Hub (H)</span><span><i style="background:#5FB892"></i>Spoke (S)</span><span><i style="background:#6FA8DC"></i>Perintis (T)</span></div>
       <div class="mc-sep"></div>
-      <select id="trayekSel"><option value="">▶ Animasikan trayek kapal…</option>${opts}</select>
+      <select id="trayekSel"><option value="">▶ Animasikan trayek (loop)…</option>${opts}</select>
       <button id="trayekStop" style="display:none">■ Hentikan kapal</button>
       <div class="mc-note" id="tlNote"></div>`;
-    L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d);
-    return d;
-  };
+    L.DomEvent.disableClickPropagation(d);L.DomEvent.disableScrollPropagation(d);return d;};
   ctrl.addTo(map);
 
-  // --- wire up ---
-  drawNetwork(); drawPorts(); drawCBP();
+  drawNetwork();drawPorts();drawCBP();
   document.getElementById('tgTL').addEventListener('change',syncLayers);
   document.getElementById('tgPort').addEventListener('change',syncLayers);
   document.getElementById('tgCBP').addEventListener('change',syncLayers);
-  document.getElementById('tgModel').addEventListener('change',()=>{ if(selected!=null) select(selected); });
-  document.getElementById('trayekSel').addEventListener('change',function(){ this.value?playTrayek(this.value):stopShip(); });
+  document.getElementById('tgModel').addEventListener('change',()=>{if(selected!=null)select(selected);});
+  document.getElementById('trayekSel').addEventListener('change',function(){this.value?playTrayek(this.value):stopShip();});
   document.getElementById('trayekStop').addEventListener('click',stopShip);
-  document.getElementById('tabs').addEventListener('click',()=>{ stopShip(); });
+  document.getElementById('tabs').addEventListener('click',()=>stopShip());
   syncLayers();
 })();
 
