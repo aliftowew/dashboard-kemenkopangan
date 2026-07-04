@@ -560,6 +560,17 @@ function typeset(){
 document.addEventListener('DOMContentLoaded',typeset);
 window.addEventListener('load',typeset);
 
+// ---------- Diagnostik: error runtime apa pun ditampilkan di layar ----------
+window.addEventListener('error', function(ev){
+  try{
+    var b=document.getElementById('diagbox');
+    if(!b){b=document.createElement('div');b.id='diagbox';
+      b.style.cssText='position:fixed;left:10px;bottom:10px;z-index:99999;background:#4a1b1b;color:#ffc9c9;font:11px/1.5 monospace;padding:8px 11px;border-radius:7px;max-width:82vw;white-space:pre-wrap;box-shadow:0 4px 18px rgba(0,0,0,.5)';
+      (document.body||document.documentElement).appendChild(b);}
+    b.textContent+='\u26a0 '+(ev.message||ev.error)+(ev.lineno?(' [baris '+ev.lineno+']'):'')+'\n';
+  }catch(_){}
+});
+
 // ---------- STATE ----------
 const D = {anggaran:1658000000, unit:80000, localShare:70, laborFrac:25, wage:130000, days:90, mpc:0.50, rounds:4, io:1.85};
 const S = {...D};
@@ -661,12 +672,20 @@ function renderFlows(m){
 let donutCh, roundsCh, matCh;
 const AXIS=getComputedStyle(document.documentElement).getPropertyValue('--ink-2').trim();
 
+function mkChart(id,cfg){
+  try{
+    const el=document.getElementById(id); if(!el) return null;
+    const c=new Chart(el,cfg);
+    if(!c || !c.ctx){ window.__chartErr=window.__chartErr||('konteks canvas "'+id+'" tidak tersedia (canvas diblokir?)'); return null; }
+    return c;
+  }catch(e){ window.__chartErr=window.__chartErr||(e&&e.message)||String(e); return null; }
+}
 function initCharts(m){
   if(typeof Chart==='undefined') return;               // pustaka belum/gagal termuat
   Chart.defaults.font.family="'JetBrains Mono', monospace";
   Chart.defaults.color=AXIS;
   // Donut
-  donutCh = new Chart(document.getElementById('donut'),{
+  donutCh = mkChart('donut',{
     type:'doughnut',
     data:{labels:['Material lokal','Upah lokal','Material atap (luar)','Jasa atap (luar)'],
       datasets:[{data:[m.materialLocal,m.laborLocal,m.leakMat,m.leakJasa],
@@ -675,7 +694,7 @@ function initCharts(m){
       tooltip:{callbacks:{label:c=>' '+c.label+': '+rp(c.raw)}}}}
   });
   // Rounds
-  roundsCh = new Chart(document.getElementById('rounds'),{
+  roundsCh = mkChart('rounds',{
     type:'bar',
     data:{labels:[],datasets:[
       {type:'bar',label:'Belanja per putaran',data:[],backgroundColor:'#D9705F',borderRadius:4,order:2},
@@ -688,7 +707,7 @@ function initCharts(m){
       scales:{y:{grid:{color:'#21384F'},ticks:{callback:v=>rp(v)}},x:{grid:{display:false}}}}
   });
   // Material
-  matCh = new Chart(document.getElementById('material'),{
+  matCh = mkChart('material',{
     type:'bar',
     data:{labels:MAT.map(x=>x.n),datasets:[{label:'Belanja material',data:[],
       backgroundColor:MAT.map((_,i)=>`rgba(217,112,95,${1-i*0.055})`),borderRadius:4}]},
@@ -699,20 +718,25 @@ function initCharts(m){
   });
 }
 function updateCharts(m){
-  if(!donutCh) return;                                   // teks tetap dirender walau grafik gagal
-  donutCh.data.datasets[0].data=[m.materialLocal,m.laborLocal,m.leakMat,m.leakJasa];
-  donutCh.update('none');
   document.getElementById('donut-center').textContent=rp(m.I0);
-
-  const b=S.mpc,R=S.rounds, bars=[], cum=[]; let run=0;
-  for(let r=0;r<=R;r++){const val=m.local*Math.pow(b,r); bars.push(val); run+=val; cum.push(run);}
-  roundsCh.data.labels=bars.map((_,i)=>i===0?'Awal':'Put. '+i);
-  roundsCh.data.datasets[0].data=bars;
-  roundsCh.data.datasets[1].data=cum;
-  roundsCh.update('none');
-
-  matCh.data.datasets[0].data=MAT.map(x=>m.materialLocal*x.w);
-  matCh.update('none');
+  try{
+    if(donutCh){
+      donutCh.data.datasets[0].data=[m.materialLocal,m.laborLocal,m.leakMat,m.leakJasa];
+      donutCh.update('none');
+    }
+    if(roundsCh){
+      const b=S.mpc,R=S.rounds, bars=[], cum=[]; let run=0;
+      for(let r=0;r<=R;r++){const val=m.local*Math.pow(b,r); bars.push(val); run+=val; cum.push(run);}
+      roundsCh.data.labels=bars.map((_,i)=>i===0?'Awal':'Put. '+i);
+      roundsCh.data.datasets[0].data=bars;
+      roundsCh.data.datasets[1].data=cum;
+      roundsCh.update('none');
+    }
+    if(matCh){
+      matCh.data.datasets[0].data=MAT.map(x=>m.materialLocal*x.w);
+      matCh.update('none');
+    }
+  }catch(e){ window.__chartErr=window.__chartErr||(e&&e.message)||String(e); }
 }
 
 // ---------- RENDER ALL ----------
@@ -828,10 +852,13 @@ initCharts(calc(S));
 render();
 // Bila pustaka grafik belum siap saat parse, coba lagi setelah seluruh resource termuat
 window.addEventListener('load',()=>{
-  if(!donutCh){ initCharts(calc(S)); render(); }
-  if(!donutCh){
-    document.querySelectorAll('.chart-box .mheight, .chart-box .mheight-sm').forEach(el=>{
-      el.innerHTML='<div style="display:grid;place-items:center;height:100%;color:var(--muted);font-size:.85rem;text-align:center;padding:20px">Grafik gagal dimuat — pustaka Chart.js tidak tersedia di jaringan ini. Coba muat ulang halaman.</div>';
+  if(!donutCh && !roundsCh && !matCh){ initCharts(calc(S)); render(); }
+  const miss=[['donut',donutCh],['rounds',roundsCh],['material',matCh]].filter(x=>!x[1]);
+  if(miss.length){
+    const why = (typeof Chart==='undefined') ? 'pustaka Chart.js tidak termuat' : (window.__chartErr||'konteks canvas tidak tersedia');
+    miss.forEach(([id])=>{
+      const cv=document.getElementById(id); const el=cv&&cv.parentElement;
+      if(el) el.innerHTML='<div style="display:grid;place-items:center;height:100%;color:var(--muted);font-size:.85rem;text-align:center;padding:20px;line-height:1.7">Grafik tidak dapat digambar di browser ini.<br><b style="color:#f0a07f">Penyebab: '+why+'</b><br>Coba nonaktifkan pemblokir canvas/ekstensi privasi lalu muat ulang.</div>';
     });
   }
 });
