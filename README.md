@@ -1,11 +1,12 @@
 # Portal Pangan — #SemuaBisaDihitung
 
 Dasbor analitik pangan terpadu (Kemenko Pangan RI) dengan gerbang login.
-Menyatukan 3 dasbor: Koefisien Variasi Harga Beras, Neraca Pangan Regional, Rice Journey.
+Menyatukan 4 dasbor: Koefisien Variasi Harga Beras, Neraca Pangan Regional, Rice Journey, Dampak Ekonomi KDMP.
 
 ## Struktur
 - `index.html` — shell: login, portal, manajemen user (super admin)
-- `dashboards/cv.html`, `peta.html`, `rice.html` — dasbor (dengan guard login)
+- `dashboards/cv.html`, `peta.html`, `rice.html`, `kdmp.html` — dasbor (dengan guard login)
+- `dashboards/kdmp.html` — Dampak Ekonomi Pembangunan KDMP (multiplier ekonomi desa)
 - `vercel.json` — konfigurasi deploy
 
 ## Kredensial awal (WAJIB diganti)

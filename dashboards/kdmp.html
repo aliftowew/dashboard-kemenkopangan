@@ -9,10 +9,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<script defer src="vendor/katex/katex.min.js"></script>
+<script defer src="vendor/katex/contrib/auto-render.min.js"></script>
+<script src="vendor/chart.umd.min.js"></script>
 
 <style>
 :root{
@@ -546,6 +546,20 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
 </footer>
 
 <script>
+// ---------- KATEX (didaftarkan paling awal — kebal dari error skrip lain) ----------
+function typeset(){
+  try{
+    if(window.renderMathInElement && !window.__ktx){
+      window.__ktx=true;
+      renderMathInElement(document.body,{delimiters:[
+        {left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}
+      ],throwOnError:false});
+    }
+  }catch(e){}
+}
+document.addEventListener('DOMContentLoaded',typeset);
+window.addEventListener('load',typeset);
+
 // ---------- STATE ----------
 const D = {anggaran:1658000000, unit:80000, localShare:70, laborFrac:25, wage:130000, days:90, mpc:0.50, rounds:4, io:1.85};
 const S = {...D};
@@ -646,10 +660,11 @@ function renderFlows(m){
 // ---------- CHARTS ----------
 let donutCh, roundsCh, matCh;
 const AXIS=getComputedStyle(document.documentElement).getPropertyValue('--ink-2').trim();
-Chart.defaults.font.family="'JetBrains Mono', monospace";
-Chart.defaults.color=AXIS;
 
 function initCharts(m){
+  if(typeof Chart==='undefined') return;               // pustaka belum/gagal termuat
+  Chart.defaults.font.family="'JetBrains Mono', monospace";
+  Chart.defaults.color=AXIS;
   // Donut
   donutCh = new Chart(document.getElementById('donut'),{
     type:'doughnut',
@@ -684,6 +699,7 @@ function initCharts(m){
   });
 }
 function updateCharts(m){
+  if(!donutCh) return;                                   // teks tetap dirender walau grafik gagal
   donutCh.data.datasets[0].data=[m.materialLocal,m.laborLocal,m.leakMat,m.leakJasa];
   donutCh.update('none');
   document.getElementById('donut-center').textContent=rp(m.I0);
@@ -808,17 +824,19 @@ document.getElementById('reset').addEventListener('click',()=>{
 
 // ---------- INIT ----------
 document.getElementById('s-unit').value=unitToSlider(D.unit);
-const m0=calc(S);
-initCharts(m0);
+initCharts(calc(S));
 render();
-
-window.addEventListener('DOMContentLoaded',()=>{
-  if(window.renderMathInElement){
-    renderMathInElement(document.body,{delimiters:[
-      {left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}
-    ],throwOnError:false});
+// Bila pustaka grafik belum siap saat parse, coba lagi setelah seluruh resource termuat
+window.addEventListener('load',()=>{
+  if(!donutCh){ initCharts(calc(S)); render(); }
+  if(!donutCh){
+    document.querySelectorAll('.chart-box .mheight, .chart-box .mheight-sm').forEach(el=>{
+      el.innerHTML='<div style="display:grid;place-items:center;height:100%;color:var(--muted);font-size:.85rem;text-align:center;padding:20px">Grafik gagal dimuat — pustaka Chart.js tidak tersedia di jaringan ini. Coba muat ulang halaman.</div>';
+    });
   }
 });
+
+typeset();
 </script>
 </body>
 </html>
