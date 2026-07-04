@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dampak Ekonomi Pembangunan KDMP — #SemuaBisaDihitung</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<style>
+:root{
+  --paper:#F5F0E6; --paper-2:#EFE7D7; --card:#FBF8F1; --card-2:#F7F1E4;
+  --ink:#211E1A; --ink-2:#4A453E; --muted:#8A8072;
+  --line:#E3D9C6; --line-2:#CDBFA4;
+  --merah:#A6332A; --merah-d:#7E241D; --merah-l:#C9645A; --merah-wash:#F2E1DD;
+  --olive:#6E7A4F; --olive-l:#9AA477; --olive-wash:#E9EBDD;
+  --gold:#B4862E; --gold-l:#D6B05C; --gold-wash:#F1E6CE;
+  --ok:#3E7C59;
+  --shadow:0 1px 2px rgba(33,30,26,.04), 0 8px 24px -18px rgba(33,30,26,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Plus Jakarta Sans",system-ui,sans-serif;
+  font-size:16px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px; margin:0 auto; padding:0 22px}
+.mono{font-family:"JetBrains Mono",monospace; font-variant-numeric:tabular-nums; font-feature-settings:"tnum"}
+.eyebrow{
+  font-size:.72rem; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--merah); font-weight:600;
+}
+h1,h2,h3{font-family:"Fraunces",Georgia,serif; font-weight:600; line-height:1.08; margin:0; letter-spacing:-.01em}
+.section-title{font-size:clamp(1.5rem,3.3vw,2.05rem); margin:0 0 .35rem}
+.section-kicker{color:var(--ink-2); max-width:62ch; margin:.1rem 0 1.6rem; font-size:.98rem}
+section{padding:44px 0; border-top:1px solid var(--line)}
+a{color:var(--merah)}
+
+/* ---------- HERO ---------- */
+.hero{padding:52px 0 40px; border-top:none; background:
+  radial-gradient(1200px 400px at 85% -10%, rgba(217,112,95,.06), transparent 60%);}
+.hero .eyebrow{display:inline-flex; gap:.5rem; align-items:center}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--merah);display:inline-block}
+.hero h1{font-size:clamp(2.05rem,5.4vw,3.5rem); margin:.7rem 0 .5rem; max-width:20ch}
+.hero p.lede{color:var(--ink-2); max-width:64ch; font-size:1.03rem; margin:0 0 1.8rem}
+.hero-stat{
+  display:grid; grid-template-columns:1.35fr 1fr; gap:26px; align-items:end;
+  background:var(--card); border:1px solid var(--line); border-radius:16px;
+  padding:26px 26px 24px; box-shadow:var(--shadow);
+}
+.hero-big .lbl{font-size:.74rem; text-transform:uppercase; letter-spacing:.13em; color:var(--muted); font-weight:600}
+.hero-big .val{font-family:"Fraunces",serif; font-weight:600; font-size:clamp(2.4rem,6.8vw,4.1rem); line-height:1; color:var(--merah); letter-spacing:-.02em; margin:.15rem 0 .1rem}
+.hero-big .sub{font-size:.9rem; color:var(--ink-2)}
+.hero-mini{display:flex; flex-direction:column; gap:14px}
+.mini-row{display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding-bottom:12px; border-bottom:1px dashed var(--line)}
+.mini-row:last-child{border-bottom:none;padding-bottom:0}
+.mini-row .k{font-size:.82rem; color:var(--ink-2)}
+.mini-row .v{font-weight:600; font-size:1.02rem}
+.hero-flow{margin-top:20px}
+
+/* ---------- CONTROLS ---------- */
+.panel{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:8px 24px 22px; box-shadow:var(--shadow)}
+.ctrl-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:20px 40px}
+.ctrl-group{padding-top:16px}
+.ctrl-group>.grp-title{font-size:.72rem; text-transform:uppercase; letter-spacing:.14em; color:var(--merah); font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:8px}
+.ctrl-group>.grp-title::before{content:""; width:14px;height:2px;background:var(--merah);display:inline-block}
+.ctrl{margin:0 0 16px}
+.ctrl:last-child{margin-bottom:2px}
+.ctrl label{display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:.9rem; font-weight:500; margin-bottom:7px}
+.ctrl label .out{font-family:"JetBrains Mono",monospace; font-weight:600; color:var(--ink); background:var(--merah-wash); padding:1px 8px; border-radius:6px; font-size:.86rem; white-space:nowrap}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:5px; border-radius:99px; background:var(--paper-2); outline:none; cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; appearance:none; width:18px;height:18px;border-radius:50%; background:var(--merah); border:3px solid var(--card); box-shadow:0 1px 4px rgba(126,36,29,.4); cursor:pointer; transition:transform .12s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.12)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--merah);border:3px solid var(--card);cursor:pointer}
+.presets{display:flex; flex-wrap:wrap; gap:7px; margin-top:9px}
+.preset{font-family:"Plus Jakarta Sans"; font-size:.76rem; font-weight:600; padding:4px 10px; border-radius:99px; border:1px solid var(--line-2); background:transparent; color:var(--ink-2); cursor:pointer; transition:all .15s}
+.preset:hover{border-color:var(--merah); color:var(--merah)}
+.preset.on{background:var(--merah); border-color:var(--merah); color:#fff}
+.panel-foot{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-top:6px; padding-top:16px; border-top:1px dashed var(--line)}
+.btn-reset{font-family:"Plus Jakarta Sans"; font-size:.82rem; font-weight:600; padding:7px 15px; border-radius:99px; border:1px solid var(--line-2); background:transparent; color:var(--ink-2); cursor:pointer}
+.btn-reset:hover{border-color:var(--merah); color:var(--merah)}
+.hint{font-size:.8rem; color:var(--muted); max-width:52ch}
+
+/* ---------- STAT CARDS ---------- */
+.cards{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
+.card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 20px 18px; box-shadow:var(--shadow); position:relative; overflow:hidden}
+.card::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--merah)}
+.card.olive::before{background:var(--olive)} .card.gold::before{background:var(--gold)} .card.ink::before{background:var(--ink-2)}
+.card .c-lbl{font-size:.76rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); font-weight:600}
+.card .c-val{font-family:"Fraunces",serif; font-weight:600; font-size:1.85rem; line-height:1.05; margin:.28rem 0 .18rem; letter-spacing:-.01em}
+.card .c-sub{font-size:.83rem; color:var(--ink-2); line-height:1.45}
+.card.olive .c-val{color:var(--olive-l)} .card.olive .c-val{color:#5c6642}
+.card.gold .c-val{color:#9a7226}
+.card .c-val{color:var(--merah)} .card.ink .c-val{color:var(--ink)}
+
+/* ---------- FLOW ---------- */
+.flow-wrap{display:grid; grid-template-columns:1.5fr 1fr; gap:34px; align-items:center}
+.flow-stack{display:flex; flex-direction:column; gap:22px}
+.tier .t-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:7px}
+.tier .t-name{font-size:.82rem; font-weight:600; color:var(--ink-2)}
+.tier .t-tot{font-family:"JetBrains Mono",monospace; font-size:.82rem; font-weight:600}
+.bar{display:flex; height:46px; border-radius:9px; overflow:hidden; background:var(--paper-2); border:1px solid var(--line)}
+.seg{display:flex; flex-direction:column; justify-content:center; padding:0 12px; color:#fff; min-width:0; overflow:hidden; transition:width .45s cubic-bezier(.22,.61,.36,1); position:relative}
+.seg .s-t{font-size:.72rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; opacity:.95}
+.seg .s-v{font-family:"JetBrains Mono",monospace; font-size:.74rem; font-weight:600; white-space:nowrap}
+.seg.faded{background:var(--olive-wash)!important; color:var(--olive)!important}
+.legend{display:flex; flex-wrap:wrap; gap:14px; margin-top:6px}
+.lg{display:flex; align-items:center; gap:7px; font-size:.8rem; color:var(--ink-2)}
+.lg i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.donut-box{position:relative}
+.donut-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none}
+.donut-center .dc-l{font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); font-weight:600}
+.donut-center .dc-v{font-family:"Fraunces",serif; font-weight:600; font-size:1.25rem; color:var(--ink)}
+
+/* ---------- 2 col ---------- */
+.two{display:grid; grid-template-columns:1.15fr .85fr; gap:34px; align-items:start}
+.chart-box{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 18px 14px; box-shadow:var(--shadow)}
+.chart-box h4{font-family:"Fraunces",serif; font-weight:600; font-size:1.02rem; margin:2px 4px 12px}
+.mheight{position:relative; height:300px}
+.mheight-sm{position:relative; height:340px}
+.kval{display:flex; align-items:baseline; gap:12px; margin-bottom:14px}
+.kval .n{font-family:"Fraunces",serif; font-weight:600; font-size:2.6rem; color:var(--merah); line-height:1}
+.kval .x{font-size:.85rem; color:var(--ink-2); max-width:34ch}
+.prose p{margin:.6rem 0; font-size:.95rem; color:var(--ink-2)}
+.prose strong{color:var(--ink); font-weight:600}
+.pill-note{background:var(--gold-wash); border:1px solid #E4CE97; border-radius:10px; padding:12px 14px; font-size:.87rem; color:#6b531d; margin-top:10px}
+
+/* ---------- TABLE ---------- */
+.tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow)}
+table{border-collapse:collapse; width:100%; background:var(--card); font-size:.92rem; min-width:560px}
+th,td{padding:13px 16px; text-align:right; border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+thead th{font-size:.74rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:700; background:var(--card-2)}
+tbody tr:last-child td{border-bottom:none}
+td.rowlbl{font-weight:600; color:var(--ink)}
+.col-basis{background:var(--merah-wash)}
+th.col-basis{color:var(--merah)}
+td.num{font-family:"JetBrains Mono",monospace; font-weight:500}
+
+/* ---------- NATIONAL ---------- */
+.natl{display:grid; grid-template-columns:repeat(4,1fr); gap:16px}
+.nbox{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; box-shadow:var(--shadow)}
+.nbox .nb-l{font-size:.74rem; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); font-weight:600}
+.nbox .nb-v{font-family:"Fraunces",serif; font-weight:600; font-size:1.55rem; margin:.25rem 0 .1rem; color:var(--merah)}
+.nbox .nb-s{font-size:.8rem; color:var(--ink-2)}
+.natl-note{margin-top:18px; background:var(--card-2); border:1px solid var(--line); border-radius:12px; padding:16px 18px; font-size:.9rem; color:var(--ink-2)}
+
+/* ---------- METHOD ---------- */
+.method{display:grid; grid-template-columns:1fr 1fr; gap:34px}
+.formula{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:12px 0; box-shadow:var(--shadow)}
+.formula .f-cap{font-size:.8rem; color:var(--muted); font-weight:600; margin-bottom:8px}
+.katex-display{margin:.3em 0!important}
+details.acc{border:1px solid var(--line); border-radius:11px; margin:10px 0; background:var(--card); overflow:hidden}
+details.acc summary{cursor:pointer; padding:14px 16px; font-weight:600; font-size:.95rem; list-style:none; display:flex; justify-content:space-between; align-items:center}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary::after{content:"+"; font-family:"JetBrains Mono"; color:var(--merah); font-size:1.2rem}
+details.acc[open] summary::after{content:"–"}
+details.acc .acc-body{padding:0 16px 16px; font-size:.92rem; color:var(--ink-2)}
+details.acc .acc-body ul{margin:.4rem 0; padding-left:1.1rem}
+details.acc .acc-body li{margin:.35rem 0}
+
+/* ---------- FOOTER ---------- */
+footer{border-top:1px solid var(--line); padding:34px 0 60px; margin-top:20px}
+.foot-brand{font-family:"Fraunces",serif; font-weight:600; font-size:1.15rem}
+.foot-brand .h{color:var(--merah)}
+.foot-txt{font-size:.85rem; color:var(--muted); max-width:74ch; margin-top:8px}
+.src{font-size:.8rem; color:var(--ink-2); margin-top:14px; line-height:1.7}
+.src b{color:var(--ink)}
+
+@media (max-width:860px){
+  .hero-stat{grid-template-columns:1fr; gap:20px}
+  .flow-wrap{grid-template-columns:1fr; gap:26px}
+  .two{grid-template-columns:1fr; gap:24px}
+  .method{grid-template-columns:1fr}
+  .cards{grid-template-columns:1fr 1fr}
+  .natl{grid-template-columns:1fr 1fr}
+  .ctrl-grid{grid-template-columns:1fr; gap:6px}
+}
+@media (max-width:520px){
+  .cards{grid-template-columns:1fr} .natl{grid-template-columns:1fr}
+  .hero-big .val{font-size:2.7rem}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; scroll-behavior:auto}}
+</style>
+<script>
+/* === Portal access guard (login gate) === */
+(function(){
+  try{
+    if(!sessionStorage.getItem('fp_auth')){ location.replace('../index.html'); }
+  }catch(e){ location.replace('../index.html'); }
+})();
+</script>
+<style id="darkmode">
+:root{
+  --paper:#091422; --paper-2:#16304A; --card:#102338; --card-2:#0d1f33;
+  --ink:#E9F0F8; --ink-2:#B7C5D8; --muted:#90A4BF;
+  --line:#21384F; --line-2:#33506E;
+  --merah:#D9705F; --merah-d:#C25546; --merah-l:#E39383; --merah-wash:rgba(217,112,95,.13);
+  --olive:#8FA06A; --olive-l:#B3BF8F; --olive-wash:rgba(143,160,106,.16);
+  --gold:#D8B362; --gold-l:#E6C46A; --gold-wash:rgba(216,179,98,.12);
+  --ok:#5FB892;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 28px -18px rgba(0,0,0,.7);
+}
+.hero{background:radial-gradient(1200px 400px at 85% -10%, rgba(217,112,95,.08), transparent 60%)}
+.card.olive .c-val{color:#B3BF8F}
+.card.gold .c-val{color:#E6C46A}
+.pill-note{border-color:rgba(216,179,98,.42); color:#E6C46A}
+input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
+.seg .s-t,.seg .s-v{text-shadow:0 1px 2px rgba(0,0,0,.35)}
+</style>
+</head>
+<body>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot"></span> Kemenko Pangan RI · Tindak Lanjut Rakortas KDMP · Arahan Menko Dagri</span>
+    <h1>Perputaran Ekonomi Pembangunan Koperasi Desa Merah Putih</h1>
+    <p class="lede">Estimasi seberapa besar anggaran pembangunan gerai &amp; gudang KDMP berputar di ekonomi desa — belanja material di toko lokal, upah tukang &amp; kuli warga setempat — beserta efek penggandanya (<em>multiplier</em>). Semua parameter bisa digeser. <strong>Semua bisa dihitung.</strong></p>
+
+    <div class="hero-stat">
+      <div class="hero-big">
+        <div class="lbl">Total Perputaran Ekonomi Desa — cakupan terpilih</div>
+        <div class="val mono" id="hero-total">—</div>
+        <div class="sub" id="hero-total-sub">—</div>
+      </div>
+      <div class="hero-mini">
+        <div class="mini-row"><span class="k">Injeksi pembangunan (anggaran × unit)</span><span class="v mono" id="hero-inject">—</span></div>
+        <div class="mini-row"><span class="k">Terserap di ekonomi lokal desa</span><span class="v mono" id="hero-local">—</span></div>
+        <div class="mini-row"><span class="k">Angka pengganda lokal (multiplier)</span><span class="v mono" id="hero-mult">—</span></div>
+        <div class="mini-row"><span class="k">Estimasi serapan tenaga kerja</span><span class="v mono" id="hero-jobs">—</span></div>
+      </div>
+    </div>
+
+    <div class="hero-flow tier">
+      <div class="t-head"><span class="t-name">Aliran rupiah dari tiap injeksi anggaran</span><span class="t-tot mono" id="flow0-tot">—</span></div>
+      <div class="bar" id="flow0-bar"></div>
+      <div class="legend">
+        <span class="lg"><i style="background:var(--merah)"></i> Material lokal</span>
+        <span class="lg"><i style="background:var(--merah-l)"></i> Upah pekerja lokal</span>
+        <span class="lg"><i style="background:var(--olive)"></i> Rangka atap → distributor/penyedia jasa luar desa</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= KONTROL ================= -->
+<section id="kontrol">
+  <div class="wrap">
+    <h2 class="section-title">Panel Asumsi &amp; Parameter</h2>
+    <p class="section-kicker">Titik awal diisi dengan angka resmi program: biaya bangun 1 gerai+gudang KDMP <b>Rp 1,658 miliar</b> (paparan Agrinas di Raker Komisi VI DPR, 18 Nov 2025) dan asumsi Agrinas <b>70% terserap lokal / 30% rangka atap</b>. Geser untuk menguji skenario lain.</p>
+
+    <div class="panel">
+      <div class="ctrl-grid">
+
+        <div class="ctrl-group">
+          <div class="grp-title">Anggaran &amp; Cakupan</div>
+          <div class="ctrl">
+            <label>Anggaran pembangunan / unit <span class="out" id="o-anggaran"></span></label>
+            <input type="range" id="s-anggaran" min="500000000" max="3000000000" step="1000000" value="1658000000">
+          </div>
+          <div class="ctrl">
+            <label>Jumlah unit KDMP (cakupan analisis) <span class="out" id="o-unit"></span></label>
+            <input type="range" id="s-unit" min="0" max="1000" step="1" value="1000">
+            <div class="presets" id="unit-presets">
+              <button class="preset" data-u="1">1 Desa</button>
+              <button class="preset" data-u="11">1 Kecamatan</button>
+              <button class="preset" data-u="156">1 Kabupaten</button>
+              <button class="preset" data-u="2105">1 Provinsi</button>
+              <button class="preset on" data-u="80000">Nasional</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <div class="grp-title">Penyerapan Lokal</div>
+          <div class="ctrl">
+            <label>Porsi terserap di lokal desa <span class="out" id="o-local"></span></label>
+            <input type="range" id="s-local" min="40" max="90" step="1" value="70">
+          </div>
+          <div class="ctrl">
+            <label>Porsi tenaga kerja (dari belanja lokal) <span class="out" id="o-labor"></span></label>
+            <input type="range" id="s-labor" min="10" max="50" step="1" value="25">
+          </div>
+          <p class="hint">Sisa dari porsi lokal adalah material (pasir, semen, bata, keramik, dst.) yang dibeli di toko sekitar lokasi.</p>
+        </div>
+
+        <div class="ctrl-group">
+          <div class="grp-title">Ketenagakerjaan</div>
+          <div class="ctrl">
+            <label>Rata-rata upah harian pekerja <span class="out" id="o-wage"></span></label>
+            <input type="range" id="s-wage" min="80000" max="250000" step="5000" value="130000">
+          </div>
+          <div class="ctrl">
+            <label>Durasi pembangunan per unit <span class="out" id="o-days"></span></label>
+            <input type="range" id="s-days" min="30" max="180" step="5" value="90">
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <div class="grp-title">Efek Pengganda (Multiplier)</div>
+          <div class="ctrl">
+            <label>Kecenderungan belanja ulang di desa · MPC lokal <span class="out" id="o-mpc"></span></label>
+            <input type="range" id="s-mpc" min="0.10" max="0.80" step="0.01" value="0.50">
+          </div>
+          <div class="ctrl">
+            <label>Jumlah putaran belanja yang dihitung <span class="out" id="o-rounds"></span></label>
+            <input type="range" id="s-rounds" min="1" max="8" step="1" value="4">
+          </div>
+          <div class="ctrl">
+            <label>Multiplier output nasional (I-O konstruksi) <span class="out" id="o-io"></span></label>
+            <input type="range" id="s-io" min="1.50" max="2.20" step="0.05" value="1.85">
+          </div>
+        </div>
+
+      </div>
+      <div class="panel-foot">
+        <span class="hint">Angka bersifat estimasi perencanaan berbasis model, bukan realisasi. Detail asumsi ada di bagian Metodologi.</span>
+        <button class="btn-reset" id="reset">↺ Kembalikan ke angka dasar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RINGKASAN ================= -->
+<section id="ringkasan">
+  <div class="wrap">
+    <h2 class="section-title">Ringkasan Dampak</h2>
+    <p class="section-kicker">Hasil untuk cakupan yang sedang dianalisis. Angka berubah otomatis saat parameter digeser.</p>
+    <div class="cards">
+      <div class="card ink"><div class="c-lbl">Total Injeksi Pembangunan</div><div class="c-val mono" id="r-inject">—</div><div class="c-sub" id="r-inject-s">—</div></div>
+      <div class="card"><div class="c-lbl">Terserap Lokal (Desa)</div><div class="c-val mono" id="r-local">—</div><div class="c-sub" id="r-local-s">—</div></div>
+      <div class="card olive"><div class="c-lbl">Kebocoran — Rangka Atap ke Luar</div><div class="c-val mono" id="r-leak">—</div><div class="c-sub" id="r-leak-s">—</div></div>
+      <div class="card"><div class="c-lbl">Perputaran Ekonomi Desa (dgn Multiplier)</div><div class="c-val mono" id="r-circ">—</div><div class="c-sub" id="r-circ-s">—</div></div>
+      <div class="card gold"><div class="c-lbl">Efek Induksi (Putaran Lanjutan)</div><div class="c-val mono" id="r-induced">—</div><div class="c-sub" id="r-induced-s">—</div></div>
+      <div class="card ink"><div class="c-lbl">Estimasi Serapan Tenaga Kerja</div><div class="c-val mono" id="r-jobs">—</div><div class="c-sub" id="r-jobs-s">—</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ALIRAN DANA ================= -->
+<section id="aliran">
+  <div class="wrap">
+    <h2 class="section-title">Aliran Dana</h2>
+    <p class="section-kicker">Dekomposisi tiap rupiah injeksi: berapa yang mengendap sebagai belanja material di toko lokal, berapa jadi upah warga, dan berapa yang "bocor" keluar desa untuk pekerjaan rangka atap.</p>
+
+    <div class="flow-wrap">
+      <div class="flow-stack">
+        <div class="tier">
+          <div class="t-head"><span class="t-name">1 · Pemisahan injeksi</span><span class="t-tot mono" id="flow1-tot">—</span></div>
+          <div class="bar" id="flow1-bar"></div>
+        </div>
+        <div class="tier">
+          <div class="t-head"><span class="t-name">2 · Komposisi belanja lokal vs kebocoran</span><span class="t-tot mono" id="flow2-tot">—</span></div>
+          <div class="bar" id="flow2-bar"></div>
+          <div class="legend">
+            <span class="lg"><i style="background:var(--merah)"></i> Material lokal</span>
+            <span class="lg"><i style="background:var(--merah-l)"></i> Upah lokal</span>
+            <span class="lg"><i style="background:var(--olive)"></i> Material atap (luar)</span>
+            <span class="lg"><i style="background:var(--olive-l)"></i> Jasa atap (luar)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-box">
+        <h4>Struktur Injeksi</h4>
+        <div class="donut-box mheight">
+          <canvas id="donut"></canvas>
+          <div class="donut-center"><span class="dc-l">Injeksi</span><span class="dc-v mono" id="donut-center">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MULTIPLIER ================= -->
+<section id="multiplier">
+  <div class="wrap">
+    <h2 class="section-title">Efek Pengganda · <em>Multiplier</em></h2>
+    <p class="section-kicker">Rupiah yang diterima toko &amp; pekerja lokal dibelanjakan lagi di dalam desa — beli sembako, bayar warung, jasa lain — menciptakan putaran ekonomi berikutnya. Inilah efek pengganda lokal.</p>
+
+    <div class="two">
+      <div class="chart-box">
+        <h4>Kontribusi tiap putaran belanja &amp; akumulasinya</h4>
+        <div class="mheight-sm"><canvas id="rounds"></canvas></div>
+      </div>
+      <div>
+        <div class="kval"><span class="n mono" id="mult-k">—</span><span class="x">rupiah perputaran ekonomi lokal tercipta dari <b>tiap Rp 1</b> yang terserap di desa (batas teoretis: <span class="mono" id="mult-kinf">—</span>×)</span></div>
+        <div class="prose">
+          <p>Model mengikuti prinsip <strong>Local Multiplier (LM3)</strong>: uang yang berputar berkali-kali di dalam ekonomi lokal memberi dampak jauh lebih besar daripada nilai belanja awalnya. Semakin tinggi kecenderungan warga belanja ulang di desa (MPC lokal), semakin besar penggandanya.</p>
+          <p>Dengan MPC lokal <span class="mono" id="mult-mpc">—</span> dan <span class="mono" id="mult-rounds">—</span> putaran yang dihitung, dari belanja lokal awal <span class="mono" id="mult-base">—</span> muncul tambahan <span class="mono" id="mult-add">—</span> melalui putaran lanjutan.</p>
+        </div>
+        <div class="pill-note">Kebocoran ke rangka atap (30%) tidak hilang dari perekonomian — ia berputar di tingkat <b>nasional</b> (produsen baja ringan, distributor, penyedia jasa di Jawa/kota besar). Dampaknya dihitung terpisah di bagian Skala Nasional.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MATERIAL ================= -->
+<section id="material">
+  <div class="wrap">
+    <h2 class="section-title">Rincian Belanja Material Lokal</h2>
+    <p class="section-kicker">Perkiraan alokasi belanja material yang bisa dipasok toko sekitar lokasi KDMP — berdasarkan 12 jenis material dalam inventarisasi Agrinas. Tenaga kerja dihitung terpisah.</p>
+    <div class="chart-box">
+      <div class="mheight-sm" style="height:420px"><canvas id="material"></canvas></div>
+    </div>
+    <p class="hint" style="margin-top:12px">Proporsi antar-material memakai bobot khas RAB bangunan komersial sederhana (dapat berbeda per RAB aktual per desa). Total di sini = porsi material dari belanja lokal, di luar upah tenaga kerja.</p>
+  </div>
+</section>
+
+<!-- ================= SKENARIO ================= -->
+<section id="skenario">
+  <div class="wrap">
+    <h2 class="section-title">Perbandingan Skenario Penyerapan</h2>
+    <p class="section-kicker">Sensitivitas hasil terhadap tingkat penyerapan lokal — dihitung untuk cakupan yang sama dengan parameter lain saat ini.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Indikator</th>
+            <th>Pesimis · 60% lokal</th>
+            <th class="col-basis">Basis · <span id="sc-basis-pct">70</span>% lokal</th>
+            <th>Optimis · 80% lokal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="rowlbl">Terserap ekonomi lokal</td><td class="num" id="sc-pes-local">—</td><td class="num col-basis" id="sc-bas-local">—</td><td class="num" id="sc-opt-local">—</td></tr>
+          <tr><td class="rowlbl">Perputaran ekonomi desa (× multiplier)</td><td class="num" id="sc-pes-circ">—</td><td class="num col-basis" id="sc-bas-circ">—</td><td class="num" id="sc-opt-circ">—</td></tr>
+          <tr><td class="rowlbl">Nilai bocor keluar desa</td><td class="num" id="sc-pes-leak">—</td><td class="num col-basis" id="sc-bas-leak">—</td><td class="num" id="sc-opt-leak">—</td></tr>
+          <tr><td class="rowlbl">Serapan tenaga kerja (orang-hari)</td><td class="num" id="sc-pes-jobs">—</td><td class="num col-basis" id="sc-bas-jobs">—</td><td class="num" id="sc-opt-jobs">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= NASIONAL ================= -->
+<section id="nasional">
+  <div class="wrap">
+    <h2 class="section-title">Dampak Skala Nasional Program</h2>
+    <p class="section-kicker">Selalu dihitung untuk target penuh <b>80.000 unit</b> KDMP (memakai asumsi per-unit saat ini), terlepas dari cakupan yang sedang Anda telaah di atas.</p>
+    <div class="natl">
+      <div class="nbox"><div class="nb-l">Nilai Konstruksi Nasional</div><div class="nb-v mono" id="n-total">—</div><div class="nb-s">80.000 × anggaran/unit</div></div>
+      <div class="nbox"><div class="nb-l">Terserap ke Ekonomi Desa</div><div class="nb-v mono" id="n-local">—</div><div class="nb-s" id="n-local-s">— dari nilai konstruksi</div></div>
+      <div class="nbox"><div class="nb-l">Perputaran Ekonomi Desa</div><div class="nb-v mono" id="n-circ">—</div><div class="nb-s">setelah multiplier lokal</div></div>
+      <div class="nbox"><div class="nb-l">Dampak Output Nasional (I-O)</div><div class="nb-v mono" id="n-io">—</div><div class="nb-s" id="n-io-s">multiplier konstruksi ×—</div></div>
+    </div>
+    <div class="natl-note" id="natl-context">—</div>
+  </div>
+</section>
+
+<!-- ================= METODOLOGI ================= -->
+<section id="metode">
+  <div class="wrap">
+    <h2 class="section-title">Metodologi</h2>
+    <p class="section-kicker">Kerangka terbuka dan sederhana agar mudah ditelusuri. Dua lensa dipakai secara komplementer: perputaran lokal desa (LM3) dan dampak output nasional (Input-Output).</p>
+
+    <div class="method">
+      <div>
+        <div class="prose">
+          <p><strong>1. Injeksi &amp; pemisahan.</strong> Total suntikan dana dari pembangunan adalah anggaran per unit dikali jumlah unit, lalu dipisah menjadi porsi yang terserap lokal (<em>s</em>) dan porsi yang bocor keluar desa untuk rangka atap.</p>
+        </div>
+        <div class="formula"><div class="f-cap">Injeksi dan pemisahan</div>
+          <div>$$I_0 = A \times N \qquad L = s\,I_0 \qquad B = (1-s)\,I_0$$</div>
+        </div>
+
+        <div class="prose">
+          <p><strong>2. Efek pengganda lokal (Keynesian / LM3).</strong> Belanja lokal <em>L</em> diterima toko &amp; pekerja, lalu dibelanjakan ulang di desa sebesar proporsi MPC lokal (β) tiap putaran. Total perputaran adalah deret geometri.</p>
+        </div>
+        <div class="formula"><div class="f-cap">Perputaran ekonomi lokal — R putaran</div>
+          <div>$$\text{Perputaran} = L\sum_{r=0}^{R}\beta^{\,r} = L\cdot\frac{1-\beta^{\,R+1}}{1-\beta}$$</div>
+          <div class="f-cap" style="margin-top:10px">Batas teoretis (putaran tak hingga)</div>
+          <div>$$\lim_{R\to\infty}=\frac{L}{1-\beta},\qquad k=\frac{1}{1-\beta}$$</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="prose">
+          <p><strong>3. Serapan tenaga kerja.</strong> Bagian upah dari belanja lokal dibagi rata-rata upah harian menghasilkan estimasi orang-hari kerja; dibagi durasi bangun memberi setara jumlah pekerja aktif.</p>
+        </div>
+        <div class="formula"><div class="f-cap">Orang-hari &amp; setara pekerja</div>
+          <div>$$\text{Orang-hari}=\frac{L\cdot w}{u}\qquad \text{Pekerja}\approx\frac{\text{Orang-hari}}{d}$$</div>
+        </div>
+
+        <div class="prose">
+          <p><strong>4. Dampak nasional (Input-Output).</strong> Untuk seluruh perekonomian, injeksi dikali multiplier output sektor konstruksi dari Tabel I-O Indonesia. Lensa ini menangkap keterkaitan antar-industri (semen, baja, jasa) termasuk porsi rangka atap yang bocor dari desa.</p>
+        </div>
+        <div class="formula"><div class="f-cap">Dampak output nasional</div>
+          <div>$$\text{Output}_{\text{nas}} = I_0 \times m_{\text{IO}}$$</div>
+        </div>
+
+        <div class="prose" style="margin-top:6px">
+          <p style="font-size:.86rem"><em>Notasi:</em> <span class="mono">A</span> anggaran/unit · <span class="mono">N</span> jumlah unit · <span class="mono">s</span> porsi lokal · <span class="mono">L</span> belanja lokal · <span class="mono">β</span> MPC lokal · <span class="mono">R</span> putaran · <span class="mono">w</span> porsi upah · <span class="mono">u</span> upah harian · <span class="mono">d</span> durasi · <span class="mono">m<sub>IO</sub></span> multiplier I-O.</p>
+        </div>
+      </div>
+    </div>
+
+    <details class="acc">
+      <summary>Asumsi &amp; keterbatasan (baca sebelum dikutip)</summary>
+      <div class="acc-body">
+        <ul>
+          <li>Split <b>70% lokal / 30% rangka atap</b> adalah asumsi Agrinas dari hasil diskusi, bukan hasil audit RAB per desa. Realisasi bergantung ketersediaan material di tiap daerah — di wilayah tertentu semen, keramik, atau besi bisa jadi tetap dipasok dari luar sehingga porsi lokal riil lebih rendah.</li>
+          <li>Multiplier lokal (LM3) memakai satu nilai MPC lokal yang seragam. Di praktik, kecenderungan belanja ulang berbeda antar-desa dan antar-jenis penerima (toko vs pekerja harian).</li>
+          <li>Multiplier output I-O sektor konstruksi memakai kisaran ± 1,7–2,0 (Tabel I-O Indonesia); nilai dasar 1,85. Ini multiplier <em>output/transaksi</em>, bukan nilai tambah (PDB) — angka nilai tambah akan lebih kecil.</li>
+          <li>Bobot 12 jenis material memakai proporsi khas RAB, bukan RAB resmi KDMP (yang saat sumber ini disusun belum dipublikasikan terbuka).</li>
+          <li>Angka adalah <b>estimasi perencanaan</b> untuk memberi gambaran orde besaran, bukan proyeksi realisasi. Tidak memperhitungkan inflasi, kebocoran akibat inefisiensi, atau margin distributor.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details class="acc">
+      <summary>Sumber data &amp; konteks kebijakan</summary>
+      <div class="acc-body">
+        <ul>
+          <li><b>Biaya Rp 1,658 miliar/unit</b> (gerai+gudang 20×30 m): paparan Dirut PT Agrinas Pangan Nusantara, Raker Komisi VI DPR RI, 18 November 2025.</li>
+          <li><b>Target 80.000 unit</b> KDMP nasional, dikejar operasional Maret 2026.</li>
+          <li><b>Plafon dana ≤ Rp 3 miliar/koperasi</b> (± Rp 2,5 M fisik + Rp 500 jt modal/operasional), skema Inpres No. 17/2025 tentang Percepatan Pembangunan Fisik KDMP; pelaksana Agrinas.</li>
+          <li><b>Dana Desa 2026 Rp 60,57 triliun</b>, dengan 58,03% (± Rp 34,57 triliun) diarahkan mendukung KDMP per PMK No. 7/2026.</li>
+          <li>Inventarisasi 13 komponen belanja (12 material + tenaga kerja) &amp; asumsi 70/30: hasil diskusi tim Kemenko Pangan dengan Agrinas.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-brand"><span class="h">#</span>SemuaBisaDihitung</div>
+    <div class="foot-txt">Dashboard analisis perputaran ekonomi pembangunan Koperasi Desa/Kelurahan Merah Putih — disiapkan sebagai bahan tindak lanjut arahan Menko Dagri atas hasil Rakortas KDMP di Kemenko Pangan RI. Seluruh angka bersifat estimasi model dan bergantung penuh pada asumsi yang dapat digeser di atas.</div>
+    <div class="src">
+      <b>Catatan sumber:</b> Biaya per unit &amp; target 80.000 unit — paparan PT Agrinas Pangan Nusantara pada Raker Komisi VI DPR RI (18/11/2025). Skema pendanaan — Inpres No. 17/2025. Alokasi Dana Desa untuk KDMP — PMK No. 7/2026. Kerangka 70/30 &amp; daftar komponen — diskusi Kemenko Pangan × Agrinas.
+    </div>
+  </div>
+</footer>
+
+<script>
+// ---------- STATE ----------
+const D = {anggaran:1658000000, unit:80000, localShare:70, laborFrac:25, wage:130000, days:90, mpc:0.50, rounds:4, io:1.85};
+const S = {...D};
+
+const UNIT_MIN=1, UNIT_MAX=80000, LMIN=Math.log10(UNIT_MIN), LMAX=Math.log10(UNIT_MAX);
+const sliderToUnit = v => Math.round(Math.pow(10, LMIN + (v/1000)*(LMAX-LMIN)));
+const unitToSlider = u => Math.round(((Math.log10(u)-LMIN)/(LMAX-LMIN))*1000);
+
+// leak internal split (of the 30%): 2/3 material, 1/3 jasa
+const LEAK_MAT=2/3;
+
+const MAT = [
+ {n:'Semen', w:0.143},{n:'Bata / Batako / Bata Hebel', w:0.125},{n:'Keramik lantai', w:0.107},
+ {n:'Mekanikal & elektrikal (listrik)', w:0.107},{n:'Pasir', w:0.089},{n:'Kusen & daun pintu/jendela', w:0.089},
+ {n:'Material plumbing (instalasi air)', w:0.080},{n:'Batu belah', w:0.071},{n:'Rangka besi pintu & jendela', w:0.071},
+ {n:'Cat dinding', w:0.054},{n:'Kaca', w:0.036},{n:'Cat besi', w:0.027}
+];
+
+// ---------- FORMAT ----------
+const nf = new Intl.NumberFormat('id-ID');
+function rp(x){
+  const a=Math.abs(x);
+  if(a>=1e12) return 'Rp '+(x/1e12).toFixed(2)+' T';
+  if(a>=1e9)  return 'Rp '+(x/1e9).toFixed(2)+' M';
+  if(a>=1e6)  return 'Rp '+(x/1e6).toFixed(1)+' jt';
+  if(a>=1e3)  return 'Rp '+(x/1e3).toFixed(0)+' rb';
+  return 'Rp '+Math.round(x);
+}
+function num(x){ // compact plain number
+  const a=Math.abs(x);
+  if(a>=1e9) return (x/1e9).toFixed(2)+' M';
+  if(a>=1e6) return (x/1e6).toFixed(2)+' jt';
+  if(a>=1e3) return (x/1e3).toFixed(1)+' rb';
+  return nf.format(Math.round(x));
+}
+function unitLabel(u){
+  if(u>=1000) return nf.format(u)+' unit';
+  return u+' unit';
+}
+
+// ---------- MODEL ----------
+function calc(o){
+  const I0 = o.anggaran*o.unit;
+  const local = I0*o.localShare/100;
+  const leak = I0-local;
+  const laborLocal = local*o.laborFrac/100;
+  const materialLocal = local-laborLocal;
+  const leakMat = leak*LEAK_MAT, leakJasa = leak*(1-LEAK_MAT);
+  const b=o.mpc, R=o.rounds;
+  const kFin = (1-Math.pow(b,R+1))/(1-b);
+  const kInf = 1/(1-b);
+  const circ = local*kFin;
+  const induced = circ-local;
+  const personDays = laborLocal/o.wage;
+  const workersEq = personDays/o.days; // if all units run in parallel over d days
+  const ioImpact = I0*o.io;
+  return {I0,local,leak,laborLocal,materialLocal,leakMat,leakJasa,kFin,kInf,circ,induced,personDays,workersEq,ioImpact};
+}
+
+// ---------- FLOW BARS ----------
+function seg(w,cls,style,t,v){
+  if(w<=0) return '';
+  const showTxt = w>7, showVal = w>14;
+  return `<div class="seg ${cls}" style="width:${w}%;${style}">`+
+         (showTxt?`<span class="s-t">${t}</span>`:'')+
+         (showVal?`<span class="s-v">${v}</span>`:'')+`</div>`;
+}
+function renderFlows(m){
+  const I0=m.I0;
+  const pLocalMat=m.materialLocal/I0*100, pLocalLab=m.laborLocal/I0*100, pLeak=m.leak/I0*100;
+  const pLeakMat=m.leakMat/I0*100, pLeakJasa=m.leakJasa/I0*100;
+
+  // hero + tier1 combined bar: material lokal / upah lokal / rangka atap
+  const bar0 =
+    seg(pLocalMat,'','background:var(--merah)','Material lokal',rp(m.materialLocal))+
+    seg(pLocalLab,'','background:var(--merah-l)','Upah lokal',rp(m.laborLocal))+
+    seg(pLeak,'','background:var(--olive)','Rangka atap → luar',rp(m.leak));
+  document.getElementById('flow0-bar').innerHTML=bar0;
+  document.getElementById('flow0-tot').textContent=rp(I0);
+
+  // tier1: lokal vs kebocoran
+  const bar1 =
+    seg(S.localShare,'','background:var(--merah)','Terserap lokal · '+S.localShare+'%',rp(m.local))+
+    seg(100-S.localShare,'','background:var(--olive)','Rangka atap · '+(100-S.localShare)+'%',rp(m.leak));
+  document.getElementById('flow1-bar').innerHTML=bar1;
+  document.getElementById('flow1-tot').textContent=rp(I0);
+
+  // tier2: 4-way
+  const bar2 =
+    seg(pLocalMat,'','background:var(--merah)','Material lokal',rp(m.materialLocal))+
+    seg(pLocalLab,'','background:var(--merah-l)','Upah lokal',rp(m.laborLocal))+
+    seg(pLeakMat,'','background:var(--olive)','Material atap',rp(m.leakMat))+
+    seg(pLeakJasa,'','background:var(--olive-l)','Jasa atap',rp(m.leakJasa));
+  document.getElementById('flow2-bar').innerHTML=bar2;
+  document.getElementById('flow2-tot').textContent=rp(I0);
+}
+
+// ---------- CHARTS ----------
+let donutCh, roundsCh, matCh;
+const AXIS=getComputedStyle(document.documentElement).getPropertyValue('--ink-2').trim();
+Chart.defaults.font.family="'JetBrains Mono', monospace";
+Chart.defaults.color=AXIS;
+
+function initCharts(m){
+  // Donut
+  donutCh = new Chart(document.getElementById('donut'),{
+    type:'doughnut',
+    data:{labels:['Material lokal','Upah lokal','Material atap (luar)','Jasa atap (luar)'],
+      datasets:[{data:[m.materialLocal,m.laborLocal,m.leakMat,m.leakJasa],
+        backgroundColor:['#D9705F','#E39383','#8FA06A','#B3BF8F'],borderColor:'#102338',borderWidth:2}]},
+    options:{cutout:'64%',plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>' '+c.label+': '+rp(c.raw)}}}}
+  });
+  // Rounds
+  roundsCh = new Chart(document.getElementById('rounds'),{
+    type:'bar',
+    data:{labels:[],datasets:[
+      {type:'bar',label:'Belanja per putaran',data:[],backgroundColor:'#D9705F',borderRadius:4,order:2},
+      {type:'line',label:'Akumulasi perputaran',data:[],borderColor:'#E9F0F8',backgroundColor:'#E9F0F8',
+        borderWidth:2,tension:.25,pointRadius:3,pointBackgroundColor:'#E6C46A',yAxisID:'y',order:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{boxWidth:12,font:{family:"'Plus Jakarta Sans'",size:12}}},
+        tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+rp(c.raw)}}},
+      scales:{y:{grid:{color:'#21384F'},ticks:{callback:v=>rp(v)}},x:{grid:{display:false}}}}
+  });
+  // Material
+  matCh = new Chart(document.getElementById('material'),{
+    type:'bar',
+    data:{labels:MAT.map(x=>x.n),datasets:[{label:'Belanja material',data:[],
+      backgroundColor:MAT.map((_,i)=>`rgba(217,112,95,${1-i*0.055})`),borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+rp(c.raw)}}},
+      scales:{x:{grid:{color:'#21384F'},ticks:{callback:v=>rp(v)}},
+        y:{grid:{display:false},ticks:{font:{family:"'Plus Jakarta Sans'",size:11.5}}}}}
+  });
+}
+function updateCharts(m){
+  donutCh.data.datasets[0].data=[m.materialLocal,m.laborLocal,m.leakMat,m.leakJasa];
+  donutCh.update('none');
+  document.getElementById('donut-center').textContent=rp(m.I0);
+
+  const b=S.mpc,R=S.rounds, bars=[], cum=[]; let run=0;
+  for(let r=0;r<=R;r++){const val=m.local*Math.pow(b,r); bars.push(val); run+=val; cum.push(run);}
+  roundsCh.data.labels=bars.map((_,i)=>i===0?'Awal':'Put. '+i);
+  roundsCh.data.datasets[0].data=bars;
+  roundsCh.data.datasets[1].data=cum;
+  roundsCh.update('none');
+
+  matCh.data.datasets[0].data=MAT.map(x=>m.materialLocal*x.w);
+  matCh.update('none');
+}
+
+// ---------- RENDER ALL ----------
+function setTxt(id,t){const e=document.getElementById(id); if(e)e.textContent=t;}
+function render(){
+  const m=calc(S);
+
+  // outputs on sliders
+  setTxt('o-anggaran',rp(S.anggaran));
+  setTxt('o-unit',unitLabel(S.unit));
+  setTxt('o-local',S.localShare+'%');
+  setTxt('o-labor',S.laborFrac+'% dari lokal');
+  setTxt('o-wage',rp(S.wage)+'/hari');
+  setTxt('o-days',S.days+' hari');
+  setTxt('o-mpc',S.mpc.toFixed(2));
+  setTxt('o-rounds',S.rounds+' putaran');
+  setTxt('o-io','×'+S.io.toFixed(2));
+
+  // hero
+  setTxt('hero-total',rp(m.circ));
+  setTxt('hero-total-sub','dari injeksi '+rp(m.I0)+' untuk '+unitLabel(S.unit)+' KDMP');
+  setTxt('hero-inject',rp(m.I0));
+  setTxt('hero-local',rp(m.local));
+  setTxt('hero-mult','×'+m.kFin.toFixed(2));
+  setTxt('hero-jobs',num(m.personDays)+' orang-hari');
+
+  // ringkasan
+  setTxt('r-inject',rp(m.I0)); setTxt('r-inject-s',rp(S.anggaran)+'/unit × '+nf.format(S.unit)+' unit');
+  setTxt('r-local',rp(m.local)); setTxt('r-local-s',S.localShare+'% terserap di toko & warga desa');
+  setTxt('r-leak',rp(m.leak)); setTxt('r-leak-s',(100-S.localShare)+'% — material & jasa rangka atap dari luar');
+  setTxt('r-circ',rp(m.circ)); setTxt('r-circ-s','belanja lokal × pengganda '+m.kFin.toFixed(2));
+  setTxt('r-induced',rp(m.induced)); setTxt('r-induced-s','nilai tambahan dari '+S.rounds+' putaran belanja ulang');
+  setTxt('r-jobs',num(m.personDays)+' orang-hari'); setTxt('r-jobs-s','≈ '+nf.format(Math.round(m.workersEq))+' pekerja aktif selama '+S.days+' hari');
+
+  // multiplier panel
+  setTxt('mult-k',m.kFin.toFixed(2)); setTxt('mult-kinf',m.kInf.toFixed(2));
+  setTxt('mult-mpc',S.mpc.toFixed(2)); setTxt('mult-rounds',S.rounds);
+  setTxt('mult-base',rp(m.local)); setTxt('mult-add',rp(m.induced));
+
+  // skenario (same params, vary localShare 60/basis/80)
+  function sc(share){
+    const mm=calc({...S,localShare:share});
+    return mm;
+  }
+  const pes=sc(60), bas=calc(S), opt=sc(80);
+  setTxt('sc-basis-pct',S.localShare);
+  setTxt('sc-pes-local',rp(pes.local)); setTxt('sc-bas-local',rp(bas.local)); setTxt('sc-opt-local',rp(opt.local));
+  setTxt('sc-pes-circ',rp(pes.circ)); setTxt('sc-bas-circ',rp(bas.circ)); setTxt('sc-opt-circ',rp(opt.circ));
+  setTxt('sc-pes-leak',rp(pes.leak)); setTxt('sc-bas-leak',rp(bas.leak)); setTxt('sc-opt-leak',rp(opt.leak));
+  setTxt('sc-pes-jobs',num(pes.personDays)); setTxt('sc-bas-jobs',num(bas.personDays)); setTxt('sc-opt-jobs',num(opt.personDays));
+
+  // nasional (always 80000)
+  const mn=calc({...S,unit:80000});
+  setTxt('n-total',rp(mn.I0));
+  setTxt('n-local',rp(mn.local)); setTxt('n-local-s',S.localShare+'% dari nilai konstruksi');
+  setTxt('n-circ',rp(mn.circ));
+  setTxt('n-io',rp(mn.ioImpact)); setTxt('n-io-s','multiplier konstruksi ×'+S.io.toFixed(2));
+  const ddNat=34.57e12;
+  const ratio=(mn.local/ddNat*100);
+  setTxt('natl-context',
+    `Sebagai konteks: nilai konstruksi nasional ${rp(mn.I0)} setara ± ${(mn.I0/34.57e12).toFixed(1)}× alokasi Dana Desa 2026 untuk KDMP (± Rp 34,57 T per PMK 7/2026). `+
+    `Dari nilai itu, sekitar ${rp(mn.local)} berputar langsung di ekonomi desa dan berkembang menjadi ± ${rp(mn.circ)} perputaran lokal setelah efek pengganda — belum termasuk dampak keterkaitan industri nasional sebesar ± ${rp(mn.ioImpact)}.`);
+
+  renderFlows(m);
+  updateCharts(m);
+}
+
+// ---------- BINDINGS ----------
+function bind(id,key,parse){
+  const el=document.getElementById(id);
+  el.addEventListener('input',()=>{ S[key]=parse(el.value); if(key==='unit') syncPresets(); render(); });
+}
+bind('s-anggaran','anggaran',v=>+v);
+bind('s-local','localShare',v=>+v);
+bind('s-labor','laborFrac',v=>+v);
+bind('s-wage','wage',v=>+v);
+bind('s-days','days',v=>+v);
+bind('s-mpc','mpc',v=>+v);
+bind('s-rounds','rounds',v=>+v);
+bind('s-io','io',v=>+v);
+document.getElementById('s-unit').addEventListener('input',e=>{ S.unit=sliderToUnit(+e.target.value); syncPresets(); render(); });
+
+function syncPresets(){
+  document.querySelectorAll('#unit-presets .preset').forEach(b=>{
+    b.classList.toggle('on', +b.dataset.u===S.unit);
+  });
+}
+document.querySelectorAll('#unit-presets .preset').forEach(b=>{
+  b.addEventListener('click',()=>{
+    S.unit=+b.dataset.u;
+    document.getElementById('s-unit').value=unitToSlider(S.unit);
+    syncPresets(); render();
+  });
+});
+
+document.getElementById('reset').addEventListener('click',()=>{
+  Object.assign(S,D);
+  document.getElementById('s-anggaran').value=D.anggaran;
+  document.getElementById('s-unit').value=unitToSlider(D.unit);
+  document.getElementById('s-local').value=D.localShare;
+  document.getElementById('s-labor').value=D.laborFrac;
+  document.getElementById('s-wage').value=D.wage;
+  document.getElementById('s-days').value=D.days;
+  document.getElementById('s-mpc').value=D.mpc;
+  document.getElementById('s-rounds').value=D.rounds;
+  document.getElementById('s-io').value=D.io;
+  syncPresets(); render();
+});
+
+// ---------- INIT ----------
+document.getElementById('s-unit').value=unitToSlider(D.unit);
+const m0=calc(S);
+initCharts(m0);
+render();
+
+window.addEventListener('DOMContentLoaded',()=>{
+  if(window.renderMathInElement){
+    renderMathInElement(document.body,{delimiters:[
+      {left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}
+    ],throwOnError:false});
+  }
+});
+</script>
+</body>
+</html>
