@@ -412,7 +412,7 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
     <h2 class="section-title">Rincian Belanja Material Lokal</h2>
     <p class="section-kicker">Perkiraan alokasi belanja material yang bisa dipasok toko sekitar lokasi KDMP — berdasarkan 12 jenis material dalam inventarisasi Agrinas. Tenaga kerja dihitung terpisah.</p>
     <div class="chart-box">
-      <div class="mheight-sm" style="height:420px"><canvas id="material"></canvas></div>
+      <div class="mheight-sm" style="height:420px"><canvas id="materialChart"></canvas></div>
     </div>
     <p class="hint" style="margin-top:12px">Proporsi antar-material memakai bobot khas RAB bangunan komersial sederhana (dapat berbeda per RAB aktual per desa). Total di sini = porsi material dari belanja lokal, di luar upah tenaga kerja.</p>
   </div>
@@ -560,14 +560,14 @@ function typeset(){
 document.addEventListener('DOMContentLoaded',typeset);
 window.addEventListener('load',typeset);
 
-// ---------- Diagnostik: error runtime apa pun ditampilkan di layar ----------
+// diag
 window.addEventListener('error', function(ev){
   try{
     var b=document.getElementById('diagbox');
     if(!b){b=document.createElement('div');b.id='diagbox';
-      b.style.cssText='position:fixed;left:10px;bottom:10px;z-index:99999;background:#4a1b1b;color:#ffc9c9;font:11px/1.5 monospace;padding:8px 11px;border-radius:7px;max-width:82vw;white-space:pre-wrap;box-shadow:0 4px 18px rgba(0,0,0,.5)';
+      b.style.cssText='position:fixed;left:10px;bottom:10px;z-index:99999;background:#4a1b1b;color:#ffc9c9;font:11px/1.5 monospace;padding:8px 11px;border-radius:7px;max-width:82vw;white-space:pre-wrap';
       (document.body||document.documentElement).appendChild(b);}
-    b.textContent+='\u26a0 '+(ev.message||ev.error)+(ev.lineno?(' [baris '+ev.lineno+']'):'')+'\n';
+    b.textContent+='\u26a0 '+(ev.message||ev.error)+'\n';
   }catch(_){}
 });
 
@@ -676,7 +676,7 @@ function mkChart(id,cfg){
   try{
     const el=document.getElementById(id); if(!el) return null;
     const c=new Chart(el,cfg);
-    if(!c || !c.ctx){ window.__chartErr=window.__chartErr||('konteks canvas "'+id+'" tidak tersedia (canvas diblokir?)'); return null; }
+    if(!c || !c.ctx){ window.__chartErr=window.__chartErr||('konteks canvas "'+id+'" tidak tersedia'); return null; }
     return c;
   }catch(e){ window.__chartErr=window.__chartErr||(e&&e.message)||String(e); return null; }
 }
@@ -707,7 +707,7 @@ function initCharts(m){
       scales:{y:{grid:{color:'#21384F'},ticks:{callback:v=>rp(v)}},x:{grid:{display:false}}}}
   });
   // Material
-  matCh = mkChart('material',{
+  matCh = mkChart('materialChart',{
     type:'bar',
     data:{labels:MAT.map(x=>x.n),datasets:[{label:'Belanja material',data:[],
       backgroundColor:MAT.map((_,i)=>`rgba(217,112,95,${1-i*0.055})`),borderRadius:4}]},
@@ -850,17 +850,17 @@ document.getElementById('reset').addEventListener('click',()=>{
 document.getElementById('s-unit').value=unitToSlider(D.unit);
 initCharts(calc(S));
 render();
-// Bila pustaka grafik belum siap saat parse, coba lagi setelah seluruh resource termuat
+// Fallback aman: pesan hanya boleh ditulis ke dalam kotak grafik itu sendiri
 window.addEventListener('load',()=>{
-  if(!donutCh && !roundsCh && !matCh){ initCharts(calc(S)); render(); }
-  const miss=[['donut',donutCh],['rounds',roundsCh],['material',matCh]].filter(x=>!x[1]);
-  if(miss.length){
-    const why = (typeof Chart==='undefined') ? 'pustaka Chart.js tidak termuat' : (window.__chartErr||'konteks canvas tidak tersedia');
-    miss.forEach(([id])=>{
-      const cv=document.getElementById(id); const el=cv&&cv.parentElement;
-      if(el) el.innerHTML='<div style="display:grid;place-items:center;height:100%;color:var(--muted);font-size:.85rem;text-align:center;padding:20px;line-height:1.7">Grafik tidak dapat digambar di browser ini.<br><b style="color:#f0a07f">Penyebab: '+why+'</b><br>Coba nonaktifkan pemblokir canvas/ekstensi privasi lalu muat ulang.</div>';
-    });
-  }
+  if(!donutCh && !roundsCh && !matCh && typeof Chart!=='undefined'){ initCharts(calc(S)); render(); }
+  [['donut',donutCh],['rounds',roundsCh],['materialChart',matCh]].forEach(([id,ch])=>{
+    if(ch) return;
+    const cv=document.getElementById(id); if(!cv || cv.tagName!=='CANVAS') return;
+    const box=cv.closest('.mheight, .mheight-sm, .donut-box');
+    if(!box || box.querySelector('section, main, header, footer')) return;
+    const why=(typeof Chart==='undefined')?'pustaka Chart.js tidak termuat':(window.__chartErr||'konteks canvas tidak tersedia');
+    box.innerHTML='<div style="display:grid;place-items:center;height:100%;color:var(--muted);font-size:.85rem;text-align:center;padding:20px;line-height:1.7">Grafik tidak dapat digambar.<br><b style="color:#f0a07f">Penyebab: '+why+'</b></div>';
+  });
 });
 
 typeset();
