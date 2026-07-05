@@ -453,10 +453,10 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
 <!-- ================= NASIONAL ================= -->
 <section id="nasional">
   <div class="wrap">
-    <h2 class="section-title">Dampak Skala Nasional Program</h2>
-    <p class="section-kicker">Selalu dihitung untuk target penuh <b>80.000 unit</b> KDMP (memakai asumsi per-unit saat ini), terlepas dari cakupan yang sedang Anda telaah di atas.</p>
+    <h2 class="section-title">Dampak Output Perekonomian — Lensa Input-Output</h2>
+    <p class="section-kicker">Dihitung untuk cakupan analisis yang sama dengan panel di atas — saat ini <b id="n-scope">—</b>. Lensa I-O menangkap keterkaitan antar-industri (semen, baja, jasa) dari belanja konstruksi.</p>
     <div class="natl">
-      <div class="nbox"><div class="nb-l">Nilai Konstruksi Nasional</div><div class="nb-v mono" id="n-total">—</div><div class="nb-s">80.000 × anggaran/unit</div></div>
+      <div class="nbox"><div class="nb-l">Nilai Konstruksi Nasional</div><div class="nb-v mono" id="n-total">—</div><div class="nb-s" id="n-total-s">—</div></div>
       <div class="nbox"><div class="nb-l">Terserap ke Ekonomi Desa</div><div class="nb-v mono" id="n-local">—</div><div class="nb-s" id="n-local-s">— dari nilai konstruksi</div></div>
       <div class="nbox"><div class="nb-l">Perputaran Ekonomi Desa</div><div class="nb-v mono" id="n-circ">—</div><div class="nb-s">setelah multiplier lokal</div></div>
       <div class="nbox"><div class="nb-l">Dampak Output Nasional (I-O)</div><div class="nb-v mono" id="n-io">—</div><div class="nb-s" id="n-io-s">multiplier konstruksi ×—</div></div>
@@ -794,16 +794,17 @@ function render(){
   setTxt('sc-pes-leak',rp(pes.leak)); setTxt('sc-bas-leak',rp(bas.leak)); setTxt('sc-opt-leak',rp(opt.leak));
   setTxt('sc-pes-jobs',num(pes.personDays)); setTxt('sc-bas-jobs',num(bas.personDays)); setTxt('sc-opt-jobs',num(opt.personDays));
 
-  // nasional (always 80000)
-  const mn=calc({...S,unit:80000});
-  setTxt('n-total',rp(mn.I0));
+  // lensa I-O: mengikuti cakupan analisis (S.unit)
+  const mn=m;
+  setTxt('n-scope', nf.format(S.unit)+' unit KDMP');
+  setTxt('n-total',rp(mn.I0)); setTxt('n-total-s', nf.format(S.unit)+' unit × anggaran/unit');
   setTxt('n-local',rp(mn.local)); setTxt('n-local-s',S.localShare+'% dari nilai konstruksi');
   setTxt('n-circ',rp(mn.circ));
   setTxt('n-io',rp(mn.ioImpact)); setTxt('n-io-s','multiplier konstruksi ×'+S.io.toFixed(2));
-  const ddNat=34.57e12;
-  const ratio=(mn.local/ddNat*100);
+  const ddNat=34.57e12, rDD=mn.I0/ddNat;
+  const bandingDD = rDD>=1 ? ('± '+rDD.toFixed(1)+'× alokasi') : ('± '+(rDD*100).toFixed(1)+'% dari alokasi');
   setTxt('natl-context',
-    `Sebagai konteks: nilai konstruksi nasional ${rp(mn.I0)} setara ± ${(mn.I0/34.57e12).toFixed(1)}× alokasi Dana Desa 2026 untuk KDMP (± Rp 34,57 T per PMK 7/2026). `+
+    `Sebagai konteks: nilai konstruksi cakupan ini ${rp(mn.I0)} setara ${bandingDD} Dana Desa 2026 untuk KDMP (± Rp 34,57 T per PMK 7/2026). `+
     `Dari nilai itu, sekitar ${rp(mn.local)} berputar langsung di ekonomi desa dan berkembang menjadi ± ${rp(mn.circ)} perputaran lokal setelah efek pengganda — belum termasuk dampak keterkaitan industri nasional sebesar ± ${rp(mn.ioImpact)}.`);
 
   renderFlows(m);
