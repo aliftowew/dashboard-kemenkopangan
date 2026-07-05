@@ -84,6 +84,12 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 .preset{font-family:"Plus Jakarta Sans"; font-size:.76rem; font-weight:600; padding:4px 10px; border-radius:99px; border:1px solid var(--line-2); background:transparent; color:var(--ink-2); cursor:pointer; transition:all .15s}
 .preset:hover{border-color:var(--merah); color:var(--merah)}
 .preset.on{background:var(--merah); border-color:var(--merah); color:#fff}
+.srow{display:flex; gap:10px; align-items:center}
+.srow input[type=range]{flex:1; min-width:0}
+.numin{width:92px; background:#0D1B2E; border:1px solid var(--line-2); color:var(--ink); font-family:"JetBrains Mono",monospace; font-size:.78rem; padding:5px 8px; border-radius:8px; text-align:right}
+.numin:focus{outline:none; border-color:var(--merah)}
+.numin::-webkit-inner-spin-button{opacity:.4}
+.numunit{font-size:.7rem; color:var(--muted); font-family:"JetBrains Mono",monospace; min-width:30px}
 .panel-foot{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-top:6px; padding-top:16px; border-top:1px dashed var(--line)}
 .btn-reset{font-family:"Plus Jakarta Sans"; font-size:.82rem; font-weight:600; padding:7px 15px; border-radius:99px; border:1px solid var(--line-2); background:transparent; color:var(--ink-2); cursor:pointer}
 .btn-reset:hover{border-color:var(--merah); color:var(--merah)}
@@ -267,17 +273,17 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
           <div class="grp-title">Anggaran &amp; Cakupan</div>
           <div class="ctrl">
             <label>Anggaran pembangunan / unit <span class="out" id="o-anggaran"></span></label>
-            <input type="range" id="s-anggaran" min="500000000" max="3000000000" step="1000000" value="1658000000">
+            <div class="srow"><input type="range" id="s-anggaran" min="500000000" max="3000000000" step="1000000" value="1658000000"><input type="number" class="numin" id="n-anggaran" min="500" max="3000" step="1"><span class="numunit">jt</span></div>
           </div>
           <div class="ctrl">
             <label>Jumlah unit KDMP (cakupan analisis) <span class="out" id="o-unit"></span></label>
-            <input type="range" id="s-unit" min="0" max="1000" step="1" value="1000">
+            <div class="srow"><input type="range" id="s-unit" min="0" max="1000" step="1" value="939"><input type="number" class="numin" id="n-unit" min="1" max="80000" step="1"><span class="numunit">unit</span></div>
             <div class="presets" id="unit-presets">
               <button class="preset" data-u="1">1 Desa</button>
               <button class="preset" data-u="11">1 Kecamatan</button>
               <button class="preset" data-u="156">1 Kabupaten</button>
               <button class="preset" data-u="2105">1 Provinsi</button>
-              <button class="preset on" data-u="80000">Nasional</button>
+              <button class="preset" data-u="80000">Nasional</button>
             </div>
           </div>
         </div>
@@ -286,11 +292,11 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
           <div class="grp-title">Penyerapan Lokal</div>
           <div class="ctrl">
             <label>Porsi terserap di lokal desa <span class="out" id="o-local"></span></label>
-            <input type="range" id="s-local" min="40" max="90" step="1" value="70">
+            <div class="srow"><input type="range" id="s-local" min="40" max="90" step="1" value="70"><input type="number" class="numin" id="n-local" min="40" max="90" step="1"><span class="numunit">%</span></div>
           </div>
           <div class="ctrl">
             <label>Porsi tenaga kerja (dari belanja lokal) <span class="out" id="o-labor"></span></label>
-            <input type="range" id="s-labor" min="10" max="50" step="1" value="25">
+            <div class="srow"><input type="range" id="s-labor" min="10" max="50" step="1" value="25"><input type="number" class="numin" id="n-labor" min="10" max="50" step="1"><span class="numunit">%</span></div>
           </div>
           <p class="hint">Sisa dari porsi lokal adalah material (pasir, semen, bata, keramik, dst.) yang dibeli di toko sekitar lokasi.</p>
         </div>
@@ -299,11 +305,11 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
           <div class="grp-title">Ketenagakerjaan</div>
           <div class="ctrl">
             <label>Rata-rata upah harian pekerja <span class="out" id="o-wage"></span></label>
-            <input type="range" id="s-wage" min="80000" max="250000" step="5000" value="130000">
+            <div class="srow"><input type="range" id="s-wage" min="80000" max="250000" step="5000" value="130000"><input type="number" class="numin" id="n-wage" min="80" max="250" step="1"><span class="numunit">rb</span></div>
           </div>
           <div class="ctrl">
             <label>Durasi pembangunan per unit <span class="out" id="o-days"></span></label>
-            <input type="range" id="s-days" min="30" max="180" step="5" value="90">
+            <div class="srow"><input type="range" id="s-days" min="30" max="180" step="5" value="90"><input type="number" class="numin" id="n-days" min="30" max="180" step="1"><span class="numunit">hari</span></div>
           </div>
         </div>
 
@@ -311,15 +317,15 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
           <div class="grp-title">Efek Pengganda (Multiplier)</div>
           <div class="ctrl">
             <label>Kecenderungan belanja ulang di desa · MPC lokal <span class="out" id="o-mpc"></span></label>
-            <input type="range" id="s-mpc" min="0.10" max="0.80" step="0.01" value="0.50">
+            <div class="srow"><input type="range" id="s-mpc" min="0.10" max="0.80" step="0.01" value="0.50"><input type="number" class="numin" id="n-mpc" min="0.10" max="0.80" step="0.01"><span class="numunit"></span></div>
           </div>
           <div class="ctrl">
             <label>Jumlah putaran belanja yang dihitung <span class="out" id="o-rounds"></span></label>
-            <input type="range" id="s-rounds" min="1" max="8" step="1" value="4">
+            <div class="srow"><input type="range" id="s-rounds" min="1" max="8" step="1" value="4"><input type="number" class="numin" id="n-rounds" min="1" max="8" step="1"><span class="numunit">put.</span></div>
           </div>
           <div class="ctrl">
             <label>Multiplier output nasional (I-O konstruksi) <span class="out" id="o-io"></span></label>
-            <input type="range" id="s-io" min="1.50" max="2.20" step="0.05" value="1.85">
+            <div class="srow"><input type="range" id="s-io" min="1.50" max="2.20" step="0.05" value="1.85"><input type="number" class="numin" id="n-io" min="1.50" max="2.20" step="0.05"><span class="numunit">×</span></div>
           </div>
         </div>
 
@@ -572,7 +578,7 @@ window.addEventListener('error', function(ev){
 });
 
 // ---------- STATE ----------
-const D = {anggaran:1658000000, unit:80000, localShare:70, laborFrac:25, wage:130000, days:90, mpc:0.50, rounds:4, io:1.85};
+const D = {anggaran:1658000000, unit:40000, localShare:70, laborFrac:25, wage:130000, days:90, mpc:0.50, rounds:4, io:1.85};
 const S = {...D};
 
 const UNIT_MIN=1, UNIT_MAX=80000, LMIN=Math.log10(UNIT_MIN), LMAX=Math.log10(UNIT_MAX);
@@ -846,8 +852,47 @@ document.getElementById('reset').addEventListener('click',()=>{
   syncPresets(); render();
 });
 
+
+// ---------- INPUT ANGKA (ketik langsung, sinkron dengan slider) ----------
+const NUMS=[
+ {n:'n-anggaran', min:500,  max:3000,  get:()=>Math.round(S.anggaran/1e6), set:v=>{S.anggaran=v*1e6; document.getElementById('s-anggaran').value=S.anggaran;}},
+ {n:'n-unit',     min:1,    max:80000, key:'unit', get:()=>S.unit, set:v=>{S.unit=Math.round(v); document.getElementById('s-unit').value=unitToSlider(S.unit);}},
+ {n:'n-local',    min:40,   max:90,    get:()=>S.localShare, set:v=>{S.localShare=v; document.getElementById('s-local').value=v;}},
+ {n:'n-labor',    min:10,   max:50,    get:()=>S.laborFrac,  set:v=>{S.laborFrac=v;  document.getElementById('s-labor').value=v;}},
+ {n:'n-wage',     min:80,   max:250,   get:()=>Math.round(S.wage/1e3), set:v=>{S.wage=v*1e3; document.getElementById('s-wage').value=S.wage;}},
+ {n:'n-days',     min:30,   max:180,   get:()=>S.days,   set:v=>{S.days=Math.round(v);   document.getElementById('s-days').value=S.days;}},
+ {n:'n-mpc',      min:0.10, max:0.80,  get:()=>S.mpc,    set:v=>{S.mpc=v;    document.getElementById('s-mpc').value=v;}},
+ {n:'n-rounds',   min:1,    max:8,     get:()=>S.rounds, set:v=>{S.rounds=Math.round(v); document.getElementById('s-rounds').value=S.rounds;}},
+ {n:'n-io',       min:1.50, max:2.20,  get:()=>S.io,     set:v=>{S.io=v;     document.getElementById('s-io').value=v;}},
+];
+function syncNums(){
+  NUMS.forEach(c=>{
+    const el=document.getElementById(c.n);
+    if(el && document.activeElement!==el) el.value=c.get();
+  });
+}
+NUMS.forEach(c=>{
+  const el=document.getElementById(c.n); if(!el) return;
+  el.addEventListener('input',()=>{
+    const v=parseFloat(el.value); if(!isFinite(v)) return;
+    c.set(Math.min(c.max, Math.max(c.min, v)));
+    if(c.key==='unit') syncPresets();
+    render();
+  });
+  el.addEventListener('change',()=>{
+    const v=parseFloat(el.value);
+    const cl=isFinite(v)? Math.min(c.max, Math.max(c.min, v)) : c.get();
+    el.value=cl; c.set(cl);
+    if(c.key==='unit') syncPresets();
+    render();
+  });
+});
+const __render=render;
+render=function(){ __render(); syncNums(); };
+
 // ---------- INIT ----------
 document.getElementById('s-unit').value=unitToSlider(D.unit);
+syncPresets();
 initCharts(calc(S));
 render();
 // Fallback aman: pesan hanya boleh ditulis ke dalam kotak grafik itu sendiri
