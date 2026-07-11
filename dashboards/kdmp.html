@@ -188,6 +188,7 @@ footer{border-top:1px solid var(--line); padding:34px 0 60px; margin-top:20px}
   .method{grid-template-columns:1fr}
   .cards{grid-template-columns:1fr 1fr}
   .natl{grid-template-columns:1fr 1fr}
+  .real-grid{grid-template-columns:1fr !important}
   .ctrl-grid{grid-template-columns:1fr; gap:6px}
 }
 @media (max-width:520px){
@@ -292,7 +293,7 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
           <div class="grp-title">Penyerapan Lokal</div>
           <div class="ctrl">
             <label>Porsi terserap di lokal desa <span class="out" id="o-local"></span></label>
-            <div class="srow"><input type="range" id="s-local" min="40" max="90" step="1" value="70"><input type="number" class="numin" id="n-local" min="40" max="90" step="1"><span class="numunit">%</span></div>
+            <div class="srow"><input type="range" id="s-local" min="40" max="90" step="1" value="70"><input type="number" class="numin" id="nn-local" min="40" max="90" step="1"><span class="numunit">%</span></div>
           </div>
           <div class="ctrl">
             <label>Porsi tenaga kerja (dari belanja lokal) <span class="out" id="o-labor"></span></label>
@@ -325,7 +326,7 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
           </div>
           <div class="ctrl">
             <label>Multiplier output nasional (I-O konstruksi) <span class="out" id="o-io"></span></label>
-            <div class="srow"><input type="range" id="s-io" min="1.50" max="2.20" step="0.05" value="1.85"><input type="number" class="numin" id="n-io" min="1.50" max="2.20" step="0.05"><span class="numunit">×</span></div>
+            <div class="srow"><input type="range" id="s-io" min="1.50" max="2.20" step="0.05" value="1.85"><input type="number" class="numin" id="nn-io" min="1.50" max="2.20" step="0.05"><span class="numunit">×</span></div>
           </div>
         </div>
 
@@ -334,6 +335,50 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
         <span class="hint">Angka bersifat estimasi perencanaan berbasis model, bukan realisasi. Detail asumsi ada di bagian Metodologi.</span>
         <button class="btn-reset" id="reset">↺ Kembalikan ke angka dasar</button>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= REALISASI ================= -->
+<section id="realisasi">
+  <div class="wrap">
+    <h2 class="section-title">Realisasi Lapangan — Monitoring Nasional</h2>
+    <p class="section-kicker">Data agregat pengerjaan KDMP dari monitoring komando teritorial TNI × Agrinas, update <b>Sabtu, 11 Juli 2026 pukul 05.30 WIB</b> — dibaca bersama laporan “Menggerakkan Roda Ekonomi Grass-Root” (Ster TNI). <span style="display:inline-block;background:#4a1b1b;color:#f0a07f;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;padding:2px 8px;border-radius:99px;vertical-align:2px">TERBATAS</span></p>
+
+    <div class="natl" style="grid-template-columns:repeat(5,1fr)">
+      <div class="nbox"><div class="nb-l">Target Akhir</div><div class="nb-v mono">80.000</div><div class="nb-s">titik gerai KDMP</div></div>
+      <div class="nbox"><div class="nb-l">Target s.d. Juli</div><div class="nb-v mono">35.524</div><div class="nb-s">kurva rencana per 31 Juli</div></div>
+      <div class="nbox"><div class="nb-l">Pemetaan Lahan</div><div class="nb-v mono">35.870</div><div class="nb-s">lahan terdaftar portal (jenuh)</div></div>
+      <div class="nbox"><div class="nb-l">Giat Bangun</div><div class="nb-v mono">19.658</div><div class="nb-s">sedang dikerjakan (1–99%)</div></div>
+      <div class="nbox"><div class="nb-l">Fisik 100%</div><div class="nb-v mono" style="color:var(--merah)">15.726</div><div class="nb-s">19,7% target akhir · 44,3% target Juli</div></div>
+    </div>
+
+    <div class="real-grid" style="display:grid;grid-template-columns:1.12fr .88fr;gap:16px;margin-top:16px">
+      <div class="chart-box">
+        <h4>Fisik 100% per Kodam — total 15.726 titik</h4>
+        <div class="mheight-sm" style="height:440px"><canvas id="kodamChart"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h4>Distribusi kemajuan titik yang telah mulai dibangun</h4>
+        <div class="mheight-sm" style="height:440px"><canvas id="distChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="nbox" style="margin-top:16px">
+      <div class="nb-l">Aritmetika kejar target — #SemuaBisaDihitung</div>
+      <p style="margin:.55rem 0 .35rem; line-height:1.75; color:var(--ink-2); font-size:.93rem">
+        Milestone rencana per 11 Juli menuntut <b class="mono">31.676</b> titik selesai; realisasi <b class="mono">15.726</b> — defisit <b class="mono" style="color:var(--merah)">15.950 titik</b>.
+        Sisa menuju 35.000 pada 31 Juli = 19.274 titik dalam ±21 hari → butuh <b class="mono">±917 titik/hari</b>, sementara laju aktual terakhir <b class="mono">±122 titik/hari</b> (7,5× lebih lambat).
+        Dengan laju itu, 35.000 baru tercapai ±<b>pertengahan Desember 2026</b>; kandidat pengungkit terdekat adalah 2.472 titik yang sudah di fase 90–99%.
+      </p>
+      <div style="display:flex; flex-wrap:wrap; gap:18px; margin:.7rem 0 .9rem; font-size:.85rem; color:var(--ink-2)">
+        <span>Parameter lapangan (Ster TNI):</span>
+        <span class="mono">upah Rp 198.535/hari</span>
+        <span class="mono">20 pekerja/titik</span>
+        <span class="mono">likuiditas ±Rp 79,4 M/hari ≈ Rp 2 T/bulan</span>
+      </div>
+      <button class="btn-reset" id="calib">📡 Terapkan ke model: 19.658 titik giat bangun · upah Rp 198.535</button>
+      <div style="margin-top:.8rem; font-size:.72rem; color:var(--muted)">Sumber: Grafik monitoring KDKMP TNI–Agrinas (11/7/2026 05.30 WIB); “Menggerakkan Roda Ekonomi Grass-Root” — Ster TNI. Angka realisasi bersifat statis per tanggal update.</div>
     </div>
   </div>
 </section>
@@ -588,6 +633,16 @@ const unitToSlider = u => Math.round(((Math.log10(u)-LMIN)/(LMAX-LMIN))*1000);
 // leak internal split (of the 30%): 2/3 material, 1/3 jasa
 const LEAK_MAT=2/3;
 
+
+// ---------- DATA REALISASI (update 11 Juli 2026, 05.30 WIB) ----------
+const KODAM=[['I/BB',631],['II/SWJ',635],['III/SLW',1627],['IV/DIP',4297],['V/BRW',4036],
+ ['VI/MLW',188],['IX/UDY',376],['XII/TPR',231],['XIII/MDK',140],['XIV/HSN',669],
+ ['XV/PTM',51],['XVII/CEN',2],['XVIII/KSR',29],['XIX/TT',404],['XX/TIB',353],
+ ['XXI/RI',1069],['XXII/TB',204],['XXIII/PW',298],['XXIV/MT',1],['JAYA',49],['IM',432]];
+const DIST=[['0-1%',464],['1-2%',102],['2-5%',247],['5-10%',435],['10-20%',1160],['20-30%',2282],
+ ['30-40%',2349],['40-50%',1858],['50-60%',2051],['60-70%',2241],['70-80%',1952],['80-90%',2045],
+ ['90-99%',2472],['100%',15726]];
+
 const MAT = [
  {n:'Semen', w:0.143},{n:'Bata / Batako / Bata Hebel', w:0.125},{n:'Keramik lantai', w:0.107},
  {n:'Mekanikal & elektrikal (listrik)', w:0.107},{n:'Pasir', w:0.089},{n:'Kusen & daun pintu/jendela', w:0.089},
@@ -675,7 +730,7 @@ function renderFlows(m){
 }
 
 // ---------- CHARTS ----------
-let donutCh, roundsCh, matCh;
+let donutCh, roundsCh, matCh, kodamCh, distCh;
 const AXIS=getComputedStyle(document.documentElement).getPropertyValue('--ink-2').trim();
 
 function mkChart(id,cfg){
@@ -721,6 +776,28 @@ function initCharts(m){
       plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+rp(c.raw)}}},
       scales:{x:{grid:{color:'#21384F'},ticks:{callback:v=>rp(v)}},
         y:{grid:{display:false},ticks:{font:{family:"'Plus Jakarta Sans'",size:11.5}}}}}
+  });
+
+  // Realisasi: fisik 100% per Kodam
+  kodamCh = mkChart('kodamChart',{
+    type:'bar',
+    data:{labels:KODAM.map(k=>k[0]),datasets:[{label:'Fisik 100%',data:KODAM.map(k=>k[1]),
+      backgroundColor:KODAM.map(k=>k[1]>=1000?'#D9705F':'rgba(217,112,95,.45)'),borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+nf.format(c.raw)+' titik'}}},
+      scales:{x:{grid:{color:'#21384F'},ticks:{callback:v=>nf.format(v)}},
+        y:{grid:{display:false},ticks:{font:{family:"'JetBrains Mono'",size:10}}}}}
+  });
+
+  // Realisasi: distribusi kemajuan pengerjaan
+  distCh = mkChart('distChart',{
+    type:'bar',
+    data:{labels:DIST.map(d=>d[0]),datasets:[{label:'Jumlah titik',data:DIST.map(d=>d[1]),
+      backgroundColor:DIST.map(d=>d[0]==='100%'?'#D8B362':(d[0]==='90-99%'?'rgba(216,179,98,.55)':'rgba(122,158,196,.5)')),borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+nf.format(c.raw)+' titik'}}},
+      scales:{x:{grid:{color:'#21384F'},ticks:{callback:v=>nf.format(v)}},
+        y:{grid:{display:false},ticks:{font:{family:"'JetBrains Mono'",size:10.5}}}}}
   });
 }
 function updateCharts(m){
@@ -854,17 +931,25 @@ document.getElementById('reset').addEventListener('click',()=>{
 });
 
 
+document.getElementById('calib').addEventListener('click',()=>{
+  S.unit=19658; S.wage=198535;
+  document.getElementById('s-unit').value=unitToSlider(S.unit);
+  document.getElementById('s-wage').value=Math.min(250000, S.wage);
+  syncPresets(); render();
+  document.getElementById('kontrol').scrollIntoView({behavior:'smooth'});
+});
+
 // ---------- INPUT ANGKA (ketik langsung, sinkron dengan slider) ----------
 const NUMS=[
  {n:'n-anggaran', min:500,  max:3000,  get:()=>Math.round(S.anggaran/1e6), set:v=>{S.anggaran=v*1e6; document.getElementById('s-anggaran').value=S.anggaran;}},
  {n:'n-unit',     min:1,    max:80000, key:'unit', get:()=>S.unit, set:v=>{S.unit=Math.round(v); document.getElementById('s-unit').value=unitToSlider(S.unit);}},
- {n:'n-local',    min:40,   max:90,    get:()=>S.localShare, set:v=>{S.localShare=v; document.getElementById('s-local').value=v;}},
+ {n:'nn-local',    min:40,   max:90,    get:()=>S.localShare, set:v=>{S.localShare=v; document.getElementById('s-local').value=v;}},
  {n:'n-labor',    min:10,   max:50,    get:()=>S.laborFrac,  set:v=>{S.laborFrac=v;  document.getElementById('s-labor').value=v;}},
  {n:'n-wage',     min:80,   max:250,   get:()=>Math.round(S.wage/1e3), set:v=>{S.wage=v*1e3; document.getElementById('s-wage').value=S.wage;}},
  {n:'n-days',     min:30,   max:180,   get:()=>S.days,   set:v=>{S.days=Math.round(v);   document.getElementById('s-days').value=S.days;}},
  {n:'n-mpc',      min:0.10, max:0.80,  get:()=>S.mpc,    set:v=>{S.mpc=v;    document.getElementById('s-mpc').value=v;}},
  {n:'n-rounds',   min:1,    max:8,     get:()=>S.rounds, set:v=>{S.rounds=Math.round(v); document.getElementById('s-rounds').value=S.rounds;}},
- {n:'n-io',       min:1.50, max:2.20,  get:()=>S.io,     set:v=>{S.io=v;     document.getElementById('s-io').value=v;}},
+ {n:'nn-io',       min:1.50, max:2.20,  get:()=>S.io,     set:v=>{S.io=v;     document.getElementById('s-io').value=v;}},
 ];
 function syncNums(){
   NUMS.forEach(c=>{
@@ -899,7 +984,7 @@ render();
 // Fallback aman: pesan hanya boleh ditulis ke dalam kotak grafik itu sendiri
 window.addEventListener('load',()=>{
   if(!donutCh && !roundsCh && !matCh && typeof Chart!=='undefined'){ initCharts(calc(S)); render(); }
-  [['donut',donutCh],['rounds',roundsCh],['materialChart',matCh]].forEach(([id,ch])=>{
+  [['donut',donutCh],['rounds',roundsCh],['materialChart',matCh],['kodamChart',kodamCh],['distChart',distCh]].forEach(([id,ch])=>{
     if(ch) return;
     const cv=document.getElementById(id); if(!cv || cv.tagName!=='CANVAS') return;
     const box=cv.closest('.mheight, .mheight-sm, .donut-box');
