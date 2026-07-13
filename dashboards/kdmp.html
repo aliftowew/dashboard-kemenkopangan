@@ -269,7 +269,7 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
 <section id="kontrol">
   <div class="wrap">
     <h2 class="section-title">Panel Cakupan &amp; Parameter</h2>
-    <p class="section-kicker">Angka dasar memakai <b>data riil lapangan</b> — kompilasi Dampak Ekonomi KDKMP per Kodim (Agrinas × komando teritorial): 27.654 titik terbangun, 485.193 pekerja, 68,8% lokal. Biaya konstruksi <b>Rp 1,658 miliar/unit</b> (paparan Agrinas, Raker Komisi VI DPR, 18 Nov 2025); parameter TNI: <b>upah Rp 198.535/hari</b>, <b>91 hari</b>, <b>18 pekerja/titik</b>. Geser untuk menguji skenario lain.</p>
+    <p class="section-kicker">Angka dasar memakai <b>data riil lapangan</b> — kompilasi Dampak Ekonomi KDKMP per Kodim (Agrinas × komando teritorial): 27.654 titik terbangun, 485.193 pekerja, 68,8% lokal. Biaya konstruksi <b>Rp 1,658 miliar/unit</b> (paparan Agrinas, Raker Komisi VI DPR, 18 Nov 2025). Upah memakai <b>angka riil per wilayah</b> (upah bulanan Excel ÷ hari kerja), durasi <b>91 hari</b>, ± <b>18 pekerja/titik</b>. Geser untuk menguji skenario lain.</p>
 
     <div class="panel">
       <div class="ctrl-grid">
@@ -301,16 +301,20 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
         </div>
 
         <div class="ctrl-group">
-          <div class="grp-title">Ketenagakerjaan — Data Riil</div>
+          <div class="grp-title">Ketenagakerjaan — Upah Riil per Wilayah</div>
           <div class="ctrl">
-            <label>Rata-rata upah harian pekerja <span class="out" id="o-wage"></span></label>
-            <div class="srow"><input type="range" id="s-wage" min="100000" max="300000" step="500" value="198535"><input type="number" class="numin" id="n-wage" min="100000" max="300000" step="500"><span class="numunit">/hr</span></div>
+            <label>Upah harian (riil per wilayah) <span class="out" id="o-wage"></span></label>
+            <p class="hint" id="wage-info" style="margin-top:4px">—</p>
+          </div>
+          <div class="ctrl">
+            <label>Hari kerja per bulan <span class="out" id="o-workdays"></span></label>
+            <div class="srow"><input type="range" id="s-workdays" min="20" max="31" step="1" value="26"><input type="number" class="numin" id="n-workdays" min="20" max="31" step="1"><span class="numunit">hari</span></div>
           </div>
           <div class="ctrl">
             <label>Durasi pembangunan per unit <span class="out" id="o-days"></span></label>
             <div class="srow"><input type="range" id="s-days" min="30" max="180" step="1" value="91"><input type="number" class="numin" id="n-days" min="30" max="180" step="1"><span class="numunit">hari</span></div>
           </div>
-          <p class="hint">Jumlah pekerja tiap cakupan memakai angka riil kompilasi per Kodim (rata-rata 18 pekerja/titik).</p>
+          <p class="hint">Upah harian = upah bulanan riil tiap Kodam (Excel) ÷ hari kerja/bulan. Nilai TK <b>dijumlahkan per Kodam</b>, bukan satu upah rata-rata. Jumlah pekerja memakai angka riil (± 18/titik).</p>
         </div>
 
         <div class="ctrl-group">
@@ -342,13 +346,13 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
 <section id="serapan">
   <div class="wrap">
     <h2 class="section-title">Serapan Tenaga Kerja Riil per Kodam</h2>
-    <p class="section-kicker">Kompilasi data lapangan per Kodim (Agrinas × komando teritorial) — bukan lagi angka pukul rata. Nilai ekonomi tenaga kerja riil dihitung dari <b>pekerja × Rp 198.535/hari × 91 hari</b>.</p>
+    <p class="section-kicker">Kompilasi data lapangan per Kodim (Agrinas × komando teritorial) — bukan lagi angka pukul rata. Nilai ekonomi tenaga kerja riil dihitung <b>per Kodam</b>: pekerja × upah harian tiap wilayah (upah bulanan Excel ÷ hari kerja) × durasi, lalu dijumlahkan.</p>
 
     <div class="natl" style="grid-template-columns:repeat(4,1fr)">
       <div class="nbox"><div class="nb-l">Titik Terbangun (lapor)</div><div class="nb-v mono">27.654</div><div class="nb-s">315 Kodim terisi · 35.972 titik portal</div></div>
       <div class="nbox"><div class="nb-l">Total Pekerja Terserap</div><div class="nb-v mono">485.193</div><div class="nb-s">rata-rata 18 pekerja/titik</div></div>
       <div class="nbox"><div class="nb-l">Pekerja Lokal</div><div class="nb-v mono">333.598</div><div class="nb-s">68,8% dari total pekerja</div></div>
-      <div class="nbox"><div class="nb-l">Nilai Ekonomi TK Riil</div><div class="nb-v mono" style="color:var(--merah)">Rp 8,77 T</div><div class="nb-s">485.193 × Rp 198.535 × 91 hari</div></div>
+      <div class="nbox"><div class="nb-l">Nilai Ekonomi TK Riil</div><div class="nb-v mono" style="color:var(--merah)" id="serap-tk">—</div><div class="nb-s">Σ per Kodam · upah wilayah × durasi</div></div>
     </div>
 
     <div class="chart-box" style="margin-top:16px">
@@ -537,10 +541,10 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
 
       <div>
         <div class="prose">
-          <p><strong>3. Serapan tenaga kerja (data riil).</strong> Jumlah pekerja (<em>P</em>) memakai angka riil kompilasi per Kodim — bukan diturunkan dari porsi belanja. Nilai ekonomi tenaga kerja = pekerja × upah harian × durasi; orang-hari = pekerja × durasi.</p>
+          <p><strong>3. Serapan tenaga kerja (data riil per wilayah).</strong> Dihitung <em>per Kodam k</em> lalu dijumlahkan — bukan satu upah rata-rata. Upah harian tiap wilayah = upah bulanan referensi Excel (<em>u<sub>k</sub></em>) ÷ hari kerja/bulan (<em>h</em>); nilai TK = Σ pekerja<sub>k</sub> × upah harian<sub>k</sub> × durasi.</p>
         </div>
-        <div class="formula"><div class="f-cap">Nilai TK &amp; orang-hari (riil)</div>
-          <div>$$\text{Nilai TK}=P\cdot u\cdot d\qquad \text{Orang-hari}=P\cdot d$$</div>
+        <div class="formula"><div class="f-cap">Nilai TK riil (dijumlahkan per Kodam)</div>
+          <div>$$\text{Nilai TK}=\sum_{k}P_k\cdot\frac{u_k}{h}\cdot d\qquad \text{Orang-hari}=\Big(\textstyle\sum_k P_k\Big)\cdot d$$</div>
         </div>
 
         <div class="prose">
@@ -551,7 +555,7 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
         </div>
 
         <div class="prose" style="margin-top:6px">
-          <p style="font-size:.86rem"><em>Notasi:</em> <span class="mono">A</span> nilai konstruksi/unit · <span class="mono">N</span> titik terbangun (riil) · <span class="mono">s</span> porsi lokal · <span class="mono">L</span> serapan lokal · <span class="mono">B</span> luar lokal (rangka atap) · <span class="mono">β</span> MPC lokal · <span class="mono">R</span> putaran · <span class="mono">P</span> pekerja (riil) · <span class="mono">u</span> upah harian · <span class="mono">d</span> durasi · <span class="mono">m<sub>IO</sub></span> multiplier I-O.</p>
+          <p style="font-size:.86rem"><em>Notasi:</em> <span class="mono">A</span> nilai konstruksi/unit · <span class="mono">N</span> titik terbangun (riil) · <span class="mono">s</span> porsi lokal · <span class="mono">L</span> serapan lokal · <span class="mono">B</span> luar lokal (rangka atap) · <span class="mono">β</span> MPC lokal · <span class="mono">R</span> putaran · <span class="mono">P<sub>k</sub></span> pekerja Kodam k (riil) · <span class="mono">u<sub>k</sub></span> upah bulanan wilayah · <span class="mono">h</span> hari kerja/bulan · <span class="mono">d</span> durasi · <span class="mono">m<sub>IO</sub></span> multiplier I-O.</p>
         </div>
       </div>
     </div>
@@ -561,7 +565,7 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
       <div class="acc-body">
         <ul>
           <li>Porsi lokal kini memakai <b>angka riil kompilasi per Kodim</b> — 68,8% pekerja lokal secara nasional (bukan lagi asumsi 70/30). Porsi tetap dapat digeser (0–100%) untuk skenario, karena ketersediaan material berbeda antar-daerah.</li>
-          <li>Jumlah pekerja (485.193) dan pekerja lokal (333.598) diambil langsung dari kompilasi lapangan; nilai ekonomi TK memakai upah riil Ster TNI Rp 198.535/hari selama 91 hari, seragam antar-daerah.</li>
+          <li>Jumlah pekerja (485.193) dan pekerja lokal (333.598) diambil langsung dari kompilasi lapangan. Nilai ekonomi TK dihitung <b>per Kodam</b> memakai upah bulanan riil tiap wilayah (Excel, Rp 3,75–7,65 jt) dibagi hari kerja/bulan (dasar 26) lalu dikali durasi 91 hari — bukan satu upah rata-rata. Upah harian tertimbang nasional ≈ Rp 177 rb (setara Ster TNI ± Rp 198.535/hari pada wilayah ber-UMR tinggi).</li>
           <li>Multiplier lokal (LM3) memakai satu nilai MPC lokal yang seragam. Di praktik, kecenderungan belanja ulang berbeda antar-desa dan antar-jenis penerima (toko vs pekerja harian).</li>
           <li>Multiplier output I-O sektor konstruksi memakai kisaran ± 1,7–2,0 (Tabel I-O Indonesia); nilai dasar 1,85. Ini multiplier <em>output/transaksi</em>, bukan nilai tambah (PDB) — angka nilai tambah akan lebih kecil.</li>
           <li>Angka adalah <b>estimasi perencanaan</b> untuk memberi gambaran orde besaran, bukan proyeksi realisasi. Tidak memperhitungkan inflasi, kebocoran akibat inefisiensi, atau margin distributor.</li>
@@ -624,7 +628,7 @@ window.addEventListener('error', function(ev){
 });
 
 // ---------- STATE ----------
-const D = {scope:'NASIONAL', anggaran:1658000000, localShare:68.76, wage:198535, days:91, mpc:0.50, rounds:4, io:1.85};
+const D = {scope:'NASIONAL', anggaran:1658000000, localShare:68.76, workdays:26, days:91, mpc:0.50, rounds:4, io:1.85};
 const S = {...D};
 
 // split porsi luar-lokal (rangka atap): 2/3 material, 1/3 jasa
@@ -632,31 +636,32 @@ const LEAK_MAT=2/3;
 
 // ---------- DATA RIIL EKONOMI per Kodam ----------
 // Kompilasi Dampak Ekonomi KDKMP per Kodim (Agrinas × komando teritorial)
-// [nama, status, kodimTotal, kodimTerisi, desaTerbangun, titikPortal, pekerja, pekerjaLokal]
+// [nama, status, kodimTotal, kodimTerisi, desaTerbangun, titikPortal, pekerja, pekerjaLokal, upahBulan]
 const KODAM_EKON=[
-  ['I/BB','LENGKAP',12,12,540,2318,12054,7860],
-  ['II/SWJ','LENGKAP',12,12,2000,2181,30986,16630],
-  ['III/SLW','PARSIAL',25,24,3484,3706,57273,41911],
-  ['IM','PARSIAL',19,5,363,1691,3817,2264],
-  ['IV/DIP','PARSIAL',36,34,6164,6255,104746,71624],
-  ['IX/UDY','LENGKAP',30,30,1978,2412,37759,24968],
-  ['JAYA/JAYAKARTA','LENGKAP',10,9,74,74,1010,586],
-  ['V/BRW','PARSIAL',31,29,3583,6350,79849,62595],
-  ['VI/MLW','PARSIAL',14,11,340,596,3685,1806],
-  ['XII/TPR','LENGKAP',10,10,666,677,9864,5866],
-  ['XIII/MDK','PARSIAL',11,10,505,501,8136,5898],
-  ['XIV/HSN','LENGKAP',26,26,1735,1835,32551,24524],
-  ['XIX/TUANKU TAMBUSAI','LENGKAP',12,12,795,1209,17093,11726],
-  ['XVI/PATTIMURA','LENGKAP',14,14,48,554,621,537],
-  ['XVII/CEN','PARSIAL',15,5,24,30,527,412],
-  ['XVIII/KASUARI','LENGKAP',12,12,155,161,2252,1383],
-  ['XX/TUANKU IMAM BONJOL','LENGKAP',15,15,995,1023,17754,13111],
-  ['XXI/Radin Inten','LENGKAP',15,15,2192,2197,34092,23011],
-  ['XXII/Tambun Bungai','PARSIAL',20,18,850,963,12648,5803],
-  ['XXIII/Palaka Wira','LENGKAP',10,10,1142,1209,18140,10799],
-  ['XXIV/Mandala Trikora','PARSIAL',3,2,21,30,336,284],
+  ['I/BB','LENGKAP',12,12,540,2318,12054,7860,5200000],
+  ['II/SWJ','LENGKAP',12,12,2000,2181,30986,16630,3750000],
+  ['III/SLW','PARSIAL',25,24,3484,3706,57273,41911,5200000],
+  ['IM','PARSIAL',19,5,363,1691,3817,2264,4500000],
+  ['IV/DIP','PARSIAL',36,34,6164,6255,104746,71624,4500000],
+  ['IX/UDY','LENGKAP',30,30,1978,2412,37759,24968,4200000],
+  ['JAYA/JAYAKARTA','LENGKAP',10,9,74,74,1010,586,5200000],
+  ['V/BRW','PARSIAL',31,29,3583,6350,79849,62595,3750000],
+  ['VI/MLW','PARSIAL',14,11,340,596,3685,1806,6000000],
+  ['XII/TPR','LENGKAP',10,10,666,677,9864,5866,4500000],
+  ['XIII/MDK','PARSIAL',11,10,505,501,8136,5898,4550000],
+  ['XIV/HSN','LENGKAP',26,26,1735,1835,32551,24524,3800000],
+  ['XIX/TUANKU TAMBUSAI','LENGKAP',12,12,795,1209,17093,11726,7650000],
+  ['XVI/PATTIMURA','LENGKAP',14,14,48,554,621,537,4900000],
+  ['XVII/CEN','PARSIAL',15,5,24,30,527,412,7500000],
+  ['XVIII/KASUARI','LENGKAP',12,12,155,161,2252,1383,5000000],
+  ['XX/TUANKU IMAM BONJOL','LENGKAP',15,15,995,1023,17754,13111,5600000],
+  ['XXI/Radin Inten','LENGKAP',15,15,2192,2197,34092,23011,5400000],
+  ['XXII/Tambun Bungai','PARSIAL',20,18,850,963,12648,5803,5200000],
+  ['XXIII/Palaka Wira','LENGKAP',10,10,1142,1209,18140,10799,4500000],
+  ['XXIV/Mandala Trikora','PARSIAL',3,2,21,30,336,284,7500000],
 ];
-const NAT = {titik:27654, pekerja:485193, lokal:333598};
+// nilai TK riil nasional (Σ semua Kodam, sesuai hari-kerja & durasi berjalan)
+function natLaborTotal(){ let t=0; KODAM_EKON.forEach(k=>{ t+=k[6]*(k[8]/S.workdays)*S.days; }); return t; }
 
 // ---------- DATA REALISASI FISIK (update 11 Juli 2026, 05.30 WIB) ----------
 const KODAM=[['I/BB',631],['II/SWJ',635],['III/SLW',1627],['IV/DIP',4297],['V/BRW',4036],
@@ -689,23 +694,38 @@ function num(x){ // compact plain number
 }
 
 // ---------- MODEL ----------
-function scopeData(){
-  if(S.scope==='NASIONAL') return {titik:NAT.titik, pekerja:NAT.pekerja, lokal:NAT.lokal, label:'Nasional — 315 Kodim terisi'};
+function scopeRows(){
+  if(S.scope==='NASIONAL') return KODAM_EKON;
   const k=KODAM_EKON.find(x=>x[0]===S.scope);
-  if(!k) return {titik:NAT.titik, pekerja:NAT.pekerja, lokal:NAT.lokal, label:'Nasional'};
-  return {titik:k[4], pekerja:k[6], lokal:k[7], label:'KODAM '+k[0]};
+  return k ? [k] : KODAM_EKON;
 }
-function scopeRealPct(){ const d=scopeData(); return d.pekerja ? d.lokal/d.pekerja*100 : 0; }
+function scopeLabel(){
+  if(S.scope==='NASIONAL') return 'Nasional — 315 Kodim terisi';
+  const k=KODAM_EKON.find(x=>x[0]===S.scope);
+  return k ? 'KODAM '+k[0] : 'Nasional';
+}
+function scopeAgg(){
+  let titik=0,pekerja=0,lokal=0; const rows=scopeRows();
+  rows.forEach(k=>{ titik+=k[4]; pekerja+=k[6]; lokal+=k[7]; });
+  return {titik,pekerja,lokal,rows};
+}
+function scopeRealPct(){ const a=scopeAgg(); return a.pekerja ? a.lokal/a.pekerja*100 : 0; }
 
 function calc(o){
-  const sd=scopeData();
-  const titik=sd.titik, pekerja=sd.pekerja, pekerjaLokal=sd.lokal;
+  const ag=scopeAgg();
+  const titik=ag.titik, pekerja=ag.pekerja, pekerjaLokal=ag.lokal;
   const I0 = o.anggaran*titik;                 // injeksi konstruksi = nilai/unit × titik terbangun (riil)
   const s = o.localShare/100;
   const local = I0*s;                          // terserap lokal
   const luar  = I0-local;                      // terserap di luar lokal (rangka atap)
-  const laborTotal = pekerja*o.wage*o.days;    // nilai ekonomi TK riil (total)
-  const laborLokal = pekerjaLokal*o.wage*o.days; // nilai ekonomi TK riil (lokal)
+  // nilai ekonomi TK riil — dijumlahkan per Kodam pakai upah riil tiap wilayah
+  let laborTotal=0, laborLokal=0;
+  ag.rows.forEach(k=>{
+    const daily = k[8]/o.workdays;             // upah harian wilayah = upah bulanan Excel ÷ hari kerja
+    laborTotal += k[6]*daily*o.days;
+    laborLokal += k[7]*daily*o.days;
+  });
+  const wageAvg = (pekerja && o.days) ? laborTotal/(pekerja*o.days) : 0; // upah harian tertimbang
   const materialLokal = Math.max(0, local-laborLokal);
   const leakMat = luar*LEAK_MAT, leakJasa = luar*(1-LEAK_MAT);
   const b=o.mpc, R=o.rounds;
@@ -715,7 +735,7 @@ function calc(o){
   const induced = circ-local;
   const personDays = pekerja*o.days;
   const ioImpact = I0*o.io;
-  return {titik,pekerja,pekerjaLokal,I0,local,luar,laborTotal,laborLokal,materialLokal,leakMat,leakJasa,kFin,kInf,circ,induced,personDays,ioImpact,label:sd.label};
+  return {titik,pekerja,pekerjaLokal,I0,local,luar,laborTotal,laborLokal,wageAvg,materialLokal,leakMat,leakJasa,kFin,kInf,circ,induced,personDays,ioImpact,label:scopeLabel()};
 }
 
 // ---------- FLOW BARS ----------
@@ -853,36 +873,45 @@ function updateCharts(m){
 function setTxt(id,t){const e=document.getElementById(id); if(e)e.textContent=t;}
 function render(){
   const m=calc(S);
-  const sd=scopeData();
 
   // outputs on sliders
-  setTxt('o-scope', sd.label);
+  setTxt('o-scope', m.label);
   setTxt('o-anggaran',rp(S.anggaran));
   setTxt('o-local',round2(S.localShare)+'%');
   setTxt('o-luar',round2(100-S.localShare)+'%');
-  setTxt('o-wage','Rp '+nf.format(S.wage)+'/hari');
+  setTxt('o-wage','Rp '+nf.format(Math.round(m.wageAvg))+'/hari');
+  setTxt('o-workdays',S.workdays+' hari');
   setTxt('o-days',S.days+' hari');
   setTxt('o-mpc',S.mpc.toFixed(2));
   setTxt('o-rounds',S.rounds+' putaran');
   setTxt('o-io','×'+S.io.toFixed(2));
   setTxt('scope-info', nf.format(m.titik)+' titik terbangun · '+nf.format(m.pekerja)+' pekerja ('+nf.format(m.pekerjaLokal)+' lokal · '+round2(scopeRealPct())+'%)');
+  // info dasar upah (riil per wilayah)
+  if(S.scope==='NASIONAL'){
+    setTxt('wage-info','Rata-rata tertimbang dari upah bulanan riil tiap Kodam (Rp 3,75–7,65 jt) ÷ '+S.workdays+' hari kerja. Nilai TK dijumlahkan per Kodam.');
+  }else{
+    const k=scopeRows()[0];
+    setTxt('wage-info', m.label+': upah Rp '+nf.format(k[8])+'/bulan ÷ '+S.workdays+' = Rp '+nf.format(Math.round(k[8]/S.workdays))+'/hari.');
+  }
 
   // hero
   setTxt('hero-total',rp(m.circ));
-  setTxt('hero-total-sub','dari injeksi '+rp(m.I0)+' · '+sd.label);
+  setTxt('hero-total-sub','dari injeksi '+rp(m.I0)+' · '+m.label);
   setTxt('hero-inject',rp(m.I0));
   setTxt('hero-local',rp(m.local));
   setTxt('hero-mult','×'+m.kFin.toFixed(2));
   setTxt('hero-jobs',nf.format(m.pekerja)+' pekerja');
 
   // ringkasan
-  setTxt('ring-scope', sd.label);
+  setTxt('ring-scope', m.label);
   setTxt('r-inject',rp(m.I0)); setTxt('r-inject-s',rp(S.anggaran)+'/unit × '+nf.format(m.titik)+' titik');
   setTxt('r-local',rp(m.local)); setTxt('r-local-s',round2(S.localShare)+'% terserap di toko & warga desa');
   setTxt('r-leak',rp(m.luar)); setTxt('r-leak-s',round2(100-S.localShare)+'% — rangka atap dari luar desa');
   setTxt('r-circ',rp(m.circ)); setTxt('r-circ-s','serapan lokal × pengganda '+m.kFin.toFixed(2));
   setTxt('r-induced',rp(m.induced)); setTxt('r-induced-s','tambahan dari '+S.rounds+' putaran belanja ulang');
-  setTxt('r-tk',rp(m.laborLokal)); setTxt('r-tk-s',nf.format(m.pekerjaLokal)+' pekerja lokal × Rp '+nf.format(S.wage)+' × '+S.days+' hari');
+  setTxt('r-tk',rp(m.laborLokal)); setTxt('r-tk-s','Σ pekerja lokal per Kodam × upah wilayah ÷ '+S.workdays+' × '+S.days+' hari');
+  // KPI serapan (selalu nasional)
+  setTxt('serap-tk', rp(natLaborTotal()));
 
   // multiplier panel
   setTxt('mult-k',m.kFin.toFixed(2)); setTxt('mult-kinf',m.kInf.toFixed(2));
@@ -898,7 +927,7 @@ function render(){
   setTxt('sc-pes-jobs',rp(pes.materialLokal)); setTxt('sc-bas-jobs',rp(bas.materialLokal)); setTxt('sc-opt-jobs',rp(opt.materialLokal));
 
   // lensa I-O: mengikuti cakupan riil
-  setTxt('n-scope', sd.label+' ('+nf.format(m.titik)+' titik)');
+  setTxt('n-scope', m.label+' ('+nf.format(m.titik)+' titik)');
   setTxt('n-total',rp(m.I0)); setTxt('n-total-s', nf.format(m.titik)+' titik × nilai konstruksi/unit');
   setTxt('n-local',rp(m.local)); setTxt('n-local-s',round2(S.localShare)+'% dari nilai konstruksi');
   setTxt('n-circ',rp(m.circ));
@@ -924,7 +953,7 @@ function bind(id,key,parse){
   el.addEventListener('input',()=>{ S[key]=parse(el.value); render(); });
 }
 bind('s-anggaran','anggaran',v=>+v);
-bind('s-wage','wage',v=>+v);
+bind('s-workdays','workdays',v=>+v);
 bind('s-days','days',v=>+v);
 bind('s-mpc','mpc',v=>+v);
 bind('s-rounds','rounds',v=>+v);
@@ -955,7 +984,7 @@ document.getElementById('reset').addEventListener('click',()=>{
   document.getElementById('s-anggaran').value=D.anggaran;
   document.getElementById('s-local').value=D.localShare;
   document.getElementById('s-luar').value=round2(100-D.localShare);
-  document.getElementById('s-wage').value=D.wage;
+  document.getElementById('s-workdays').value=D.workdays;
   document.getElementById('s-days').value=D.days;
   document.getElementById('s-mpc').value=D.mpc;
   document.getElementById('s-rounds').value=D.rounds;
@@ -968,7 +997,7 @@ const NUMS=[
  {n:'n-anggaran', min:500,  max:3000,  get:()=>Math.round(S.anggaran/1e6), set:v=>{S.anggaran=v*1e6; document.getElementById('s-anggaran').value=S.anggaran;}},
  {n:'nn-local',   min:0,    max:100,   get:()=>round2(S.localShare),       set:v=>{S.localShare=v; document.getElementById('s-local').value=v; document.getElementById('s-luar').value=round2(100-v);}},
  {n:'nn-luar',    min:0,    max:100,   get:()=>round2(100-S.localShare),   set:v=>{S.localShare=100-v; document.getElementById('s-local').value=100-v; document.getElementById('s-luar').value=v;}},
- {n:'n-wage',     min:100000, max:300000, get:()=>S.wage, set:v=>{S.wage=Math.round(v); document.getElementById('s-wage').value=S.wage;}},
+ {n:'n-workdays', min:20,   max:31,    get:()=>S.workdays, set:v=>{S.workdays=Math.round(v); document.getElementById('s-workdays').value=S.workdays;}},
  {n:'n-days',     min:30,   max:180,   get:()=>S.days,   set:v=>{S.days=Math.round(v);   document.getElementById('s-days').value=S.days;}},
  {n:'n-mpc',      min:0.10, max:0.80,  get:()=>S.mpc,    set:v=>{S.mpc=v;    document.getElementById('s-mpc').value=v;}},
  {n:'n-rounds',   min:1,    max:8,     get:()=>S.rounds, set:v=>{S.rounds=Math.round(v); document.getElementById('s-rounds').value=S.rounds;}},
