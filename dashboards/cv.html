@@ -268,7 +268,7 @@ body{background-image:radial-gradient(circle at 18% -10%,rgba(216,179,98,.08),tr
 
   <!-- PETA DISPARITAS -->
   <div class="card pad fade" style="animation-delay:.16s;margin-top:18px">
-    <div class="section-h" style="margin:0 0 8px"><h2>Peta Disparitas Harga <span data-com-name>Beras Medium</span></h2><span class="note">Rata-rata harga per provinsi sepanjang periode</span></div>
+    <div class="section-h" style="margin:0 0 8px"><h2>Peta Disparitas Harga <span data-com-name>Beras Medium</span></h2><span class="note">Rata-rata harga per provinsi · <span id="mapPeriod">Periode Januari s.d. Juli 2026</span></span></div>
     <div class="mapwrap">
       <div id="cvmap"></div>
       <div class="maplegend"><span>Tinggi</span><div class="ml-bar"></div><span>Rendah</span></div>
@@ -449,6 +449,7 @@ function compute(){
 }
 
 const fmt=(v,d=2)=>v==null||isNaN(v)?"—":v.toLocaleString("id-ID",{minimumFractionDigits:d,maximumFractionDigits:d});
+function periodLabel(){if(!DATES.length)return"";const a=DATES[0],b=DATES[DATES.length-1];const m1=+a.slice(5,7)-1,y1=a.slice(0,4),m2=+b.slice(5,7)-1,y2=b.slice(0,4);return y1===y2?("Periode "+MNAME[m1]+" s.d. "+MNAME[m2]+" "+y1):("Periode "+MNAME[m1]+" "+y1+" s.d. "+MNAME[m2]+" "+y2);}
 function band(v){if(v==null||isNaN(v))return "";if(v<=TARGET_HI)return "band-ok";if(v<=WARN_HI)return "band-warn";return "band-bad";}
 
 /* ---------- PETA CHOROPLETH (SVG mandiri, tanpa pustaka peta) ---------- */
@@ -503,6 +504,7 @@ function render(){
   const meta=R.provs.length+" prov · "+R.dates.length+" hari";
   document.getElementById("hdrmeta").textContent=meta;
   document.getElementById("footmeta").textContent="Tersimpan · "+meta;
+  {const mp=document.getElementById("mapPeriod");if(mp)mp.textContent=periodLabel();}
   let sb="";
   R.monthsSp.forEach(m=>{sb+=`<tr><td>${m.label}</td><td class="num ${band(m.cv)}">${fmt(m.cv)}</td><td class="num" style="color:var(--muted)">${m.n}</td></tr>`;});
   sb+=`<tr class="total"><td>TOTAL</td><td class="num ${band(R.totSp.cv)}">${fmt(R.totSp.cv)}</td><td class="num">${R.totSp.n}</td></tr>`;
