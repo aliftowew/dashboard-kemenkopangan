@@ -226,7 +226,7 @@ body{background-image:radial-gradient(circle at 18% -10%,rgba(216,179,98,.08),tr
   <!-- PEMILIH METODE & KOMODITAS -->
   <div class="controls fade" style="animation-delay:.02s">
     <div class="comsw" role="tablist" aria-label="Metode CV">
-      <button class="cbtn on" data-method="dalam">Dalam Provinsi · Resmi</button>
+      <button class="cbtn on" data-method="dalam">Dalam Provinsi</button>
       <button class="cbtn" data-method="antar">Antar Provinsi</button>
     </div>
     <label class="comselwrap">Komoditas <select id="comSel" class="comsel"></select></label>
@@ -264,7 +264,7 @@ body{background-image:radial-gradient(circle at 18% -10%,rgba(216,179,98,.08),tr
   <!-- KPI: hanya Koefisien Variasi Spasial (target utama), di-highlight -->
   <div class="kpihero fade" id="kpiHero" style="animation-delay:.10s">
     <div class="kh-main">
-      <div class="kh-lab" id="kpiLabel">Koefisien Variasi · Metode Resmi (Dalam Provinsi)</div>
+      <div class="kh-lab" id="kpiLabel">Koefisien Variasi · Dalam Provinsi</div>
       <div class="kh-val mono" id="k_sp">—<small>%</small></div>
       <div class="cvstat big" id="k_sp_status"></div>
     </div>
@@ -370,7 +370,7 @@ body{background-image:radial-gradient(circle at 18% -10%,rgba(216,179,98,.08),tr
 
       <h3>Cara hitung — dua metode</h3>
       <p><b>Koefisien Variasi (CV)</b> = simpangan baku sampel dibagi rata-rata, dalam persen. Dashboard menyediakan dua metode yang bisa dipilih di atas:</p>
-      <p><b>1. Dalam Provinsi (metode resmi / "Konsisten").</b> Untuk tiap provinsi pada tiap bulan, CV dihitung dari seluruh harga kabupaten/kota × hari di provinsi-bulan itu; lalu semua CV (provinsi × bulan) dirata-rata. Mengukur <b>keragaman harga di dalam wilayah</b>. Angkanya cocok dengan rekap resmi (mis. Beras Medium 4,76%).</p>
+      <p><b>1. Dalam Provinsi ("Konsisten").</b> Untuk tiap provinsi pada tiap bulan, CV dihitung dari seluruh harga kabupaten/kota × hari di provinsi-bulan itu; lalu semua CV (provinsi × bulan) dirata-rata. Mengukur <b>keragaman harga di dalam wilayah</b>. Angkanya cocok dengan rekap (mis. Beras Medium 4,76%).</p>
       <p><b>2. Antar Provinsi.</b> Untuk tiap bulan, CV dihitung dari harga rata-rata antar provinsi; lalu dirata-rata antar bulan. Mengukur <b>disparitas harga antar wilayah</b>.</p>
       <p><b>Sel kosong / nol di-exclude</b>, bukan diisi 0 — harga Rp0 mustahil dan merusak rata-rata serta simpangan baku. Hanya provinsi yang <b>tercentang</b> di filter yang ikut dihitung pada kedua metode.</p>
       <p><b>Agregasi:</b> data SP2KP level kabupaten/kota diringkas menjadi rata-rata &amp; CV per provinsi per bulan. Rentang data: Triwulan II (Januari–Juni 2026).</p>
@@ -642,14 +642,14 @@ function updateUI(){
   const tlab=isBeras?"Target RPJMN 2025–2029:":"Acuan pita keseragaman:";
   const tl=document.getElementById("targetLbl"); if(tl)tl.textContent=tlab;
   const tl2=document.getElementById("defTargetLbl"); if(tl2)tl2.textContent=tlab;
-  const kl=document.getElementById("kpiLabel"); if(kl)kl.textContent=dalam?"Koefisien Variasi · Metode Resmi (Dalam Provinsi)":"Koefisien Variasi Antar-Provinsi";
+  const kl=document.getElementById("kpiLabel"); if(kl)kl.textContent=dalam?"Koefisien Variasi · Dalam Provinsi":"Koefisien Variasi Antar-Provinsi";
   const lead=document.getElementById("kpiDescLead"), mid=document.getElementById("kpiDescMid");
   if(lead)lead.textContent=dalam?"Keragaman harga":"Disparitas harga";
-  if(mid)mid.innerHTML=dalam?"di dalam tiap provinsi (antar kab/kota &amp; hari), dirata-rata semua provinsi — <b>metode resmi</b> sesuai rekap.":"antar provinsi — makin kecil makin seragam.";
+  if(mid)mid.innerHTML=dalam?"di dalam tiap provinsi (antar kab/kota &amp; hari), dirata-rata semua provinsi — sesuai rekap.":"antar provinsi — makin kecil makin seragam.";
   const mtm=document.getElementById("mapTitleMetric"); if(mtm)mtm.textContent=dalam?"Peta CV Dalam-Provinsi":"Peta Disparitas Harga";
   const mnm=document.getElementById("mapNoteMetric"); if(mnm)mnm.textContent=dalam?"CV dalam-provinsi per provinsi":"Rata-rata harga per provinsi";
   const mf=document.getElementById("mapFoot"); if(mf)mf.innerHTML=dalam
-    ? 'Warna = CV harga <b>'+lab+'</b> <b>di dalam tiap provinsi</b> (<b style="color:#5FB892">hijau = seragam</b>, <b style="color:#E89B6A">merah = beragam</b>) — sesuai metrik resmi di atas. Provinsi yang dikeluarkan tampil redup.'
+    ? 'Warna = CV harga <b>'+lab+'</b> <b>di dalam tiap provinsi</b> (<b style="color:#5FB892">hijau = seragam</b>, <b style="color:#E89B6A">merah = beragam</b>) — sesuai metrik di atas. Provinsi yang dikeluarkan tampil redup.'
     : 'Warna = rata-rata harga <b>'+lab+'</b> tiap provinsi (<b style="color:#5FB892">hijau = murah</b>, <b style="color:#E89B6A">merah = mahal</b>). Makin lebar rentang warna, makin besar disparitas antar wilayah. Provinsi yang dikeluarkan tampil redup.';
   document.querySelectorAll(".comsw .cbtn").forEach(b=>b.classList.toggle("on",b.dataset.method===METHOD));
   const cs=document.getElementById("comSel"); if(cs)cs.value=COMMODITY;
