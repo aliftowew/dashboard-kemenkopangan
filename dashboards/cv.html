@@ -370,7 +370,7 @@ body{background-image:radial-gradient(circle at 18% -10%,rgba(216,179,98,.08),tr
 
       <h3>Cara hitung — dua metode</h3>
       <p><b>Koefisien Variasi (CV)</b> = simpangan baku sampel dibagi rata-rata, dalam persen. Dashboard menyediakan dua metode yang bisa dipilih di atas:</p>
-      <p><b>1. Dalam Provinsi ("Konsisten").</b> Untuk tiap provinsi pada tiap bulan, CV dihitung dari seluruh harga kabupaten/kota × hari di provinsi-bulan itu; lalu semua CV (provinsi × bulan) dirata-rata. Mengukur <b>keragaman harga di dalam wilayah</b>. Angkanya cocok dengan rekap (mis. Beras Medium 4,76%).</p>
+      <p><b>1. Dalam Provinsi.</b> Untuk tiap provinsi pada tiap bulan, CV dihitung dari seluruh harga kabupaten/kota × hari di provinsi-bulan itu; lalu semua CV (provinsi × bulan) dirata-rata. Mengukur <b>keragaman harga di dalam wilayah</b>. Contoh: Beras Medium 4,76%.</p>
       <p><b>2. Antar Provinsi.</b> Untuk tiap bulan, CV dihitung dari harga rata-rata antar provinsi; lalu dirata-rata antar bulan. Mengukur <b>disparitas harga antar wilayah</b>.</p>
       <p><b>Sel kosong / nol di-exclude</b>, bukan diisi 0 — harga Rp0 mustahil dan merusak rata-rata serta simpangan baku. Hanya provinsi yang <b>tercentang</b> di filter yang ikut dihitung pada kedua metode.</p>
       <p><b>Agregasi:</b> data SP2KP level kabupaten/kota diringkas menjadi rata-rata &amp; CV per provinsi per bulan. Rentang data: Triwulan II (Januari–Juni 2026).</p>
@@ -645,7 +645,7 @@ function updateUI(){
   const kl=document.getElementById("kpiLabel"); if(kl)kl.textContent=dalam?"Koefisien Variasi · Dalam Provinsi":"Koefisien Variasi Antar-Provinsi";
   const lead=document.getElementById("kpiDescLead"), mid=document.getElementById("kpiDescMid");
   if(lead)lead.textContent=dalam?"Keragaman harga":"Disparitas harga";
-  if(mid)mid.innerHTML=dalam?"di dalam tiap provinsi (antar kab/kota &amp; hari), dirata-rata semua provinsi — sesuai rekap.":"antar provinsi — makin kecil makin seragam.";
+  if(mid)mid.innerHTML=dalam?"di dalam tiap provinsi (antar kab/kota &amp; hari), dirata-rata semua provinsi.":"antar provinsi — makin kecil makin seragam.";
   const mtm=document.getElementById("mapTitleMetric"); if(mtm)mtm.textContent=dalam?"Peta CV Dalam-Provinsi":"Peta Disparitas Harga";
   const mnm=document.getElementById("mapNoteMetric"); if(mnm)mnm.textContent=dalam?"CV dalam-provinsi per provinsi":"Rata-rata harga per provinsi";
   const mf=document.getElementById("mapFoot"); if(mf)mf.innerHTML=dalam
