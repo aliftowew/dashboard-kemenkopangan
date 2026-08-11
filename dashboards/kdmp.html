@@ -275,10 +275,20 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
       <div class="ctrl-grid">
 
         <div class="ctrl-group">
-          <div class="grp-title">Cakupan — Data Riil per Kodam</div>
+          <div class="grp-title">Cakupan — Data Riil / Proyeksi</div>
           <div class="ctrl">
             <label>Pilih cakupan analisis <span class="out" id="o-scope"></span></label>
             <select id="s-scope" class="selin"></select>
+          </div>
+          <div class="ctrl" id="proj-ctrl" style="display:none">
+            <label>Jumlah titik terbangun (skenario) <span class="out" id="o-proj"></span></label>
+            <div class="srow"><input type="range" id="s-proj" min="1000" max="80000" step="500" value="35972"><input type="number" class="numin" id="n-proj" min="1000" max="80000" step="500"><span class="numunit">titik</span></div>
+            <div class="presets" id="proj-presets">
+              <button class="preset" data-t="27654">Realisasi · 27.654</button>
+              <button class="preset" data-t="35000">35.000</button>
+              <button class="preset" data-t="35972">Target portal · 35.972</button>
+              <button class="preset" data-t="80000">Target · 80.000</button>
+            </div>
           </div>
           <p class="hint" id="scope-info">—</p>
         </div>
@@ -628,7 +638,7 @@ window.addEventListener('error', function(ev){
 });
 
 // ---------- STATE ----------
-const D = {scope:'NASIONAL', anggaran:1658000000, localShare:68.76, workdays:26, days:91, mpc:0.50, rounds:4, io:1.85};
+const D = {scope:'NASIONAL', projTitik:35972, anggaran:1658000000, localShare:68.76, workdays:26, days:91, mpc:0.50, rounds:4, io:1.85};
 const S = {...D};
 
 // split porsi luar-lokal (rangka atap): 2/3 material, 1/3 jasa
@@ -694,20 +704,27 @@ function num(x){ // compact plain number
 }
 
 // ---------- MODEL ----------
+const NAT_AGG=(function(){let t=0,p=0,l=0;KODAM_EKON.forEach(k=>{t+=k[4];p+=k[6];l+=k[7];});return {titik:t,pekerja:p,lokal:l};})();
 function scopeRows(){
-  if(S.scope==='NASIONAL') return KODAM_EKON;
+  if(S.scope==='NASIONAL'||S.scope==='PROYEKSI') return KODAM_EKON;
   const k=KODAM_EKON.find(x=>x[0]===S.scope);
   return k ? [k] : KODAM_EKON;
 }
 function scopeLabel(){
+  if(S.scope==='PROYEKSI') return 'Proyeksi — '+nf.format(S.projTitik)+' titik';
   if(S.scope==='NASIONAL') return 'Nasional — 315 Kodim terisi';
   const k=KODAM_EKON.find(x=>x[0]===S.scope);
   return k ? 'KODAM '+k[0] : 'Nasional';
 }
 function scopeAgg(){
-  let titik=0,pekerja=0,lokal=0; const rows=scopeRows();
+  const rows=scopeRows();
+  if(S.scope==='PROYEKSI'){
+    const factor=NAT_AGG.titik ? S.projTitik/NAT_AGG.titik : 1;
+    return {titik:S.projTitik, pekerja:Math.round(NAT_AGG.pekerja*factor), lokal:Math.round(NAT_AGG.lokal*factor), rows, factor};
+  }
+  let titik=0,pekerja=0,lokal=0;
   rows.forEach(k=>{ titik+=k[4]; pekerja+=k[6]; lokal+=k[7]; });
-  return {titik,pekerja,lokal,rows};
+  return {titik,pekerja,lokal,rows,factor:1};
 }
 function scopeRealPct(){ const a=scopeAgg(); return a.pekerja ? a.lokal/a.pekerja*100 : 0; }
 
@@ -725,6 +742,7 @@ function calc(o){
     laborTotal += k[6]*daily*o.days;
     laborLokal += k[7]*daily*o.days;
   });
+  if(ag.factor && ag.factor!==1){ laborTotal*=ag.factor; laborLokal*=ag.factor; }  // proyeksi: skala dari nasional
   const wageAvg = (pekerja && o.days) ? laborTotal/(pekerja*o.days) : 0; // upah harian tertimbang
   const materialLokal = Math.max(0, local-laborLokal);
   const leakMat = luar*LEAK_MAT, leakJasa = luar*(1-LEAK_MAT);
@@ -885,9 +903,11 @@ function render(){
   setTxt('o-mpc',S.mpc.toFixed(2));
   setTxt('o-rounds',S.rounds+' putaran');
   setTxt('o-io','×'+S.io.toFixed(2));
-  setTxt('scope-info', nf.format(m.titik)+' titik terbangun · '+nf.format(m.pekerja)+' pekerja ('+nf.format(m.pekerjaLokal)+' lokal · '+round2(scopeRealPct())+'%)');
+  setTxt('o-proj', nf.format(S.projTitik)+' titik');
+  setTxt('scope-info', nf.format(m.titik)+' titik terbangun · '+nf.format(m.pekerja)+' pekerja ('+nf.format(m.pekerjaLokal)+' lokal · '+round2(scopeRealPct())+'%)'
+    + (S.scope==='PROYEKSI' ? ' — proyeksi, diekstrapolasi dari data nasional (± 18 pekerja/titik, % lokal 68,8%)' : ''));
   // info dasar upah (riil per wilayah)
-  if(S.scope==='NASIONAL'){
+  if(S.scope==='NASIONAL'||S.scope==='PROYEKSI'){
     setTxt('wage-info','Rata-rata tertimbang dari upah bulanan riil tiap Kodam (Rp 3,75–7,65 jt) ÷ '+S.workdays+' hari kerja. Nilai TK dijumlahkan per Kodam.');
   }else{
     const k=scopeRows()[0];
@@ -967,20 +987,28 @@ document.getElementById('s-luar').addEventListener('input',e=>{ S.localShare=cla
 const selScope=document.getElementById('s-scope');
 (function fillScope(){
   let html='<option value="NASIONAL">Nasional — semua Kodam (315 Kodim terisi)</option>';
+  html+='<option value="PROYEKSI">Proyeksi / Skenario — atur jumlah titik terbangun</option>';
   [...KODAM_EKON].sort((a,b)=>b[6]-a[6]).forEach(k=>{
     html+='<option value="'+k[0]+'">KODAM '+k[0]+' — '+nf.format(k[6])+' pekerja</option>';
   });
   selScope.innerHTML=html;
 })();
+function updateProjVis(){ const el=document.getElementById('proj-ctrl'); if(el) el.style.display=(S.scope==='PROYEKSI')?'':'none'; }
 selScope.addEventListener('change',e=>{
   S.scope=e.target.value;
-  S.localShare=round2(scopeRealPct());   // default ke % lokal riil cakupan itu
+  S.localShare=round2(scopeRealPct());   // default ke % lokal cakupan itu
+  updateProjVis();
   render();
 });
+// jumlah titik terbangun (mode proyeksi)
+document.getElementById('s-proj').addEventListener('input',e=>{ S.projTitik=clamp(Math.round(+e.target.value),1000,80000); render(); });
+document.querySelectorAll('#proj-presets .preset').forEach(b=>b.addEventListener('click',()=>{ S.projTitik=+b.dataset.t; document.getElementById('s-proj').value=S.projTitik; render(); }));
 
 document.getElementById('reset').addEventListener('click',()=>{
   Object.assign(S,D);
   document.getElementById('s-scope').value=D.scope;
+  document.getElementById('s-proj').value=D.projTitik;
+  updateProjVis();
   document.getElementById('s-anggaran').value=D.anggaran;
   document.getElementById('s-local').value=D.localShare;
   document.getElementById('s-luar').value=round2(100-D.localShare);
@@ -994,6 +1022,7 @@ document.getElementById('reset').addEventListener('click',()=>{
 
 // ---------- INPUT ANGKA (ketik langsung, sinkron dengan slider) ----------
 const NUMS=[
+ {n:'n-proj',     min:1000, max:80000, get:()=>S.projTitik, set:v=>{S.projTitik=Math.round(v); document.getElementById('s-proj').value=S.projTitik;}},
  {n:'n-anggaran', min:500,  max:3000,  get:()=>Math.round(S.anggaran/1e6), set:v=>{S.anggaran=v*1e6; document.getElementById('s-anggaran').value=S.anggaran;}},
  {n:'nn-local',   min:0,    max:100,   get:()=>round2(S.localShare),       set:v=>{S.localShare=v; document.getElementById('s-local').value=v; document.getElementById('s-luar').value=round2(100-v);}},
  {n:'nn-luar',    min:0,    max:100,   get:()=>round2(100-S.localShare),   set:v=>{S.localShare=100-v; document.getElementById('s-local').value=100-v; document.getElementById('s-luar').value=v;}},
@@ -1028,6 +1057,8 @@ render=function(){ __render(); syncNums(); };
 
 // ---------- INIT ----------
 document.getElementById('s-scope').value=D.scope;
+document.getElementById('s-proj').value=D.projTitik;
+updateProjVis();
 document.getElementById('s-local').value=D.localShare;
 document.getElementById('s-luar').value=round2(100-D.localShare);
 initCharts(calc(S));
