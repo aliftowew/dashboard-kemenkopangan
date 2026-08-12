@@ -168,7 +168,7 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
 </style>
 </head>
 <body>
-<script>/* set tema sedini mungkin agar tidak berkedip */(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('fp_theme')||'dark');}catch(e){}})();</script>
+<script>/* set tema sedini mungkin agar tidak berkedip */(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('fp_theme')||'light');}catch(e){}})();</script>
 
 <button class="theme-toggle" id="themeBtn" title="Ganti tema terang/gelap" aria-label="Ganti tema"></button>
 
@@ -413,7 +413,7 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
   const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.2 8.2 0 1 1 9.8 3.5a6.6 6.6 0 0 0 10.7 10.7z"/></svg>';
   const btn=document.getElementById('themeBtn');
   function apply(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('fp_theme',t);}catch(e){}if(btn)btn.innerHTML=(t==='light')?MOON:SUN;}
-  apply(document.documentElement.getAttribute('data-theme')||'dark');
+  apply(document.documentElement.getAttribute('data-theme')||'light');
   if(btn)btn.addEventListener('click',()=>{apply(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light');});
 })();
 

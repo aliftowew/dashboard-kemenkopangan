@@ -1975,9 +1975,10 @@
   }catch(e){ location.replace('../index.html'); }
 })();
 </script>
+<script>/* tema bersama portal (default terang) */(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('fp_theme')||'light');}catch(e){}})();</script>
 <style id="darkmode">
 
-:root{
+:root[data-theme="dark"]{
   --cream:#EAF1F9; --cream-2:#16304A; --paper:#0d1f33;
   --ink:#E9F0F8; --ink-soft:#c3d2e4; --ink-light:#9fb2cc; --muted:#8298b2;
   --emerald:#5FB892; --emerald-soft:#4d9a76; --emerald-tint:rgba(95,184,146,.16);
@@ -1986,14 +1987,26 @@
   --indigo:#3f6f9c; --indigo-soft:#5d80a8;
   --surf-dark:#06101d; --page-bg:#091422;
 }
-body{background:#091422 !important}
-.panel{background:#102338 !important;border-color:#21384F}
-.panel.dark{background:#06101d !important;color:#EAF1F9;border-color:#21384F}
-svg text{fill:#E9F0F8}
-
+:root[data-theme="dark"] body{background:#091422 !important}
+:root[data-theme="dark"] .panel{background:#102338 !important;border-color:#21384F}
+:root[data-theme="dark"] .panel.dark{background:#06101d !important;color:#EAF1F9;border-color:#21384F}
+:root[data-theme="dark"] svg text{fill:#E9F0F8}
+.theme-fab{position:fixed;bottom:20px;right:20px;z-index:9999;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--paper);border:1px solid var(--line,#ccc);color:var(--ink);box-shadow:0 6px 20px -8px rgba(0,0,0,.4);transition:.15s}
+.theme-fab:hover{transform:translateY(-2px);border-color:var(--rust);color:var(--rust)}
+.theme-fab svg{width:21px;height:21px}
 </style>
 </head>
 <body>
+<button class="theme-fab" id="themeFab" title="Tema terang/gelap" aria-label="Ganti tema"></button>
+<script>(function(){
+  var SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>';
+  var MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.2 8.2 0 1 1 9.8 3.5a6.6 6.6 0 0 0 10.7 10.7z"/></svg>';
+  function apply(t){document.documentElement.setAttribute('data-theme',t);var b=document.getElementById('themeFab');if(b)b.innerHTML=(t==='light')?MOON:SUN;}
+  apply(document.documentElement.getAttribute('data-theme')||'light');
+  var btn=document.getElementById('themeFab');
+  if(btn)btn.addEventListener('click',function(){var n=(document.documentElement.getAttribute('data-theme')==='light')?'dark':'light';try{localStorage.setItem('fp_theme',n);}catch(e){}apply(n);});
+  window.addEventListener('storage',function(e){if(e.key==='fp_theme')apply(e.newValue||'light');});
+})();</script>
 
 <!-- ============== HEADER ============== -->
 <header class="dash-header">
