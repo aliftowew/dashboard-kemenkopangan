@@ -16,6 +16,19 @@
   --gold:#D8B362; --ink-blue:#3f6f9c; --flow:#5FB892;
   --shadow:0 1px 2px rgba(33,28,22,.05),0 8px 28px -12px rgba(33,28,22,.18);
 }
+:root[data-theme="light"]{
+  --cream:#F4F1EA; --paper:#EFE9DC; --card:#FCFAF4; --ink:#20304A; --ink2:#5D6B80;
+  --line:#E4DBCA; --line2:#CBBFA8;
+  --surplus:#2E7D52; --surplus-soft:rgba(46,135,104,.14); --surplus-deep:#1f6b3a;
+  --deficit:#C0492F; --deficit-soft:rgba(192,73,47,.12); --deficit-deep:#9c3a24;
+  --gold:#A8791F; --ink-blue:#345f8c; --flow:#2E8768;
+  --shadow:0 1px 2px rgba(60,50,30,.05),0 8px 28px -12px rgba(60,50,30,.18);
+}
+:root[data-theme="light"] svg text{fill:#20304A}
+:root[data-theme="light"] .tabbar{background:rgba(252,250,244,.92)}
+.theme-fab{position:fixed;bottom:20px;right:20px;z-index:9999;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--card);border:1px solid var(--line2);color:var(--ink);box-shadow:0 6px 20px -8px rgba(0,0,0,.4);transition:.15s}
+.theme-fab:hover{transform:translateY(-2px);border-color:var(--deficit);color:var(--deficit)}
+.theme-fab svg{width:21px;height:21px}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--cream);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;line-height:1.55;
@@ -147,19 +160,30 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-fa
   }catch(e){ location.replace('../index.html'); }
 })();
 </script>
+<script>/* tema bersama portal (default terang) */(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('fp_theme')||'light');}catch(e){}})();</script>
 <style id="darkmode">
 
-.leaflet-container{background:#0a1a2c!important}
-.leaflet-bar a,.leaflet-bar a:link{background:#102338!important;color:#E9F0F8!important;border-bottom:1px solid #21384F!important}
-.leaflet-bar a:hover{background:#16304A!important}
-.leaflet-control-attribution{background:rgba(9,20,34,.78)!important;color:#7e93ad!important}
-.leaflet-control-attribution a{color:#9fb2cc!important}
-.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#102338!important;color:#E9F0F8!important;box-shadow:0 8px 28px rgba(0,0,0,.6)!important}
-svg text{fill:#E9F0F8}
+:root[data-theme="dark"] .leaflet-container{background:#0a1a2c!important}
+:root[data-theme="dark"] .leaflet-bar a,:root[data-theme="dark"] .leaflet-bar a:link{background:#102338!important;color:#E9F0F8!important;border-bottom:1px solid #21384F!important}
+:root[data-theme="dark"] .leaflet-bar a:hover{background:#16304A!important}
+:root[data-theme="dark"] .leaflet-control-attribution{background:rgba(9,20,34,.78)!important;color:#7e93ad!important}
+:root[data-theme="dark"] .leaflet-control-attribution a{color:#9fb2cc!important}
+:root[data-theme="dark"] .leaflet-popup-content-wrapper,:root[data-theme="dark"] .leaflet-popup-tip{background:#102338!important;color:#E9F0F8!important;box-shadow:0 8px 28px rgba(0,0,0,.6)!important}
+:root[data-theme="dark"] svg text{fill:#E9F0F8}
 
 </style>
 </head>
 <body>
+<button class="theme-fab" id="themeFab" title="Tema terang/gelap" aria-label="Ganti tema"></button>
+<script>(function(){
+  var SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>';
+  var MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.2 8.2 0 1 1 9.8 3.5a6.6 6.6 0 0 0 10.7 10.7z"/></svg>';
+  function apply(t){document.documentElement.setAttribute('data-theme',t);var b=document.getElementById('themeFab');if(b)b.innerHTML=(t==='light')?MOON:SUN;}
+  apply(document.documentElement.getAttribute('data-theme')||'light');
+  var btn=document.getElementById('themeFab');
+  if(btn)btn.addEventListener('click',function(){var n=(document.documentElement.getAttribute('data-theme')==='light')?'dark':'light';try{localStorage.setItem('fp_theme',n);}catch(e){}apply(n);});
+  window.addEventListener('storage',function(e){if(e.key==='fp_theme')apply(e.newValue||'light');});
+})();</script>
 <div class="wrap">
 <header>
   <div class="brand"><span class="dot"></span> <b>#SemuaBisaDihitung</b> &nbsp;•&nbsp; NERACA PANGAN REGIONAL</div>

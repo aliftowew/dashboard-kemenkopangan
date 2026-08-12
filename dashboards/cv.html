@@ -17,6 +17,16 @@
   --green:#5FB892; --green-soft:#2f6a52; --gold:#D8B362;
   --shadow:0 1px 2px rgba(28,26,21,.04),0 10px 30px -18px rgba(28,26,21,.30);
 }
+:root[data-theme="light"]{
+  --bg:#F4F1EA; --surface:#FCFAF4; --surface2:#EFE9DC; --ink:#20304A; --muted:#5D6B80;
+  --line:#E4DBCA; --line-strong:#CBBFA8; --rust:#C25640; --rust-soft:#e6cfc4;
+  --green:#2E8768; --green-soft:#bfe0d0; --gold:#A8791F;
+  --shadow:0 1px 2px rgba(60,50,30,.05),0 12px 30px -18px rgba(60,50,30,.24);
+}
+:root[data-theme="light"] svg text{fill:#20304A}
+.theme-fab{position:fixed;bottom:20px;right:20px;z-index:9999;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--surface);border:1px solid var(--line-strong);color:var(--ink);box-shadow:0 6px 20px -8px rgba(0,0,0,.4);transition:.15s}
+.theme-fab:hover{transform:translateY(-2px);border-color:var(--rust);color:var(--rust)}
+.theme-fab svg{width:21px;height:21px}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialiased}
 body{background-image:radial-gradient(circle at 18% -10%,rgba(176,69,30,.06),transparent 45%),radial-gradient(circle at 100% 0%,rgba(44,97,73,.06),transparent 40%);background-attachment:fixed}
@@ -203,6 +213,7 @@ tr.total td.band-bad{background:rgba(232,155,106,.28)}
   }catch(e){ location.replace('../index.html'); }
 })();
 </script>
+<script>/* tema bersama portal (default terang) */(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('fp_theme')||'light');}catch(e){}})();</script>
 <style id="darkmode">
 
 svg text{fill:#E9F0F8}
@@ -213,6 +224,16 @@ body{background-image:radial-gradient(circle at 18% -10%,rgba(216,179,98,.08),tr
 </style>
 </head>
 <body>
+<button class="theme-fab" id="themeFab" title="Tema terang/gelap" aria-label="Ganti tema"></button>
+<script>(function(){
+  var SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>';
+  var MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.2 8.2 0 1 1 9.8 3.5a6.6 6.6 0 0 0 10.7 10.7z"/></svg>';
+  function apply(t){document.documentElement.setAttribute('data-theme',t);var b=document.getElementById('themeFab');if(b)b.innerHTML=(t==='light')?MOON:SUN;}
+  apply(document.documentElement.getAttribute('data-theme')||'light');
+  var btn=document.getElementById('themeFab');
+  if(btn)btn.addEventListener('click',function(){var n=(document.documentElement.getAttribute('data-theme')==='light')?'dark':'light';try{localStorage.setItem('fp_theme',n);}catch(e){}apply(n);});
+  window.addEventListener('storage',function(e){if(e.key==='fp_theme')apply(e.newValue||'light');});
+})();</script>
 <div class="wrap">
   <header class="fade">
     <div>
