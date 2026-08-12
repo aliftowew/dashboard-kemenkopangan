@@ -239,15 +239,16 @@ input[type=range]::-webkit-slider-thumb{box-shadow:0 1px 4px rgba(0,0,0,.6)}
 
     <div class="hero-stat">
       <div class="hero-big">
-        <div class="lbl">Total Perputaran Ekonomi Desa — cakupan terpilih</div>
+        <div class="lbl">Total Perputaran Ekonomi Desa · setelah efek pengganda</div>
         <div class="val mono" id="hero-total">—</div>
         <div class="sub" id="hero-total-sub">—</div>
       </div>
       <div class="hero-mini">
-        <div class="mini-row"><span class="k">Injeksi konstruksi (nilai/unit × titik terbangun)</span><span class="v mono" id="hero-inject">—</span></div>
-        <div class="mini-row"><span class="k">Terserap di ekonomi lokal desa</span><span class="v mono" id="hero-local">—</span></div>
-        <div class="mini-row"><span class="k">Angka pengganda lokal (multiplier)</span><span class="v mono" id="hero-mult">—</span></div>
-        <div class="mini-row"><span class="k">Pekerja terserap (data riil)</span><span class="v mono" id="hero-jobs">—</span></div>
+        <div class="mini-row"><span class="k">Anggaran konstruksi disuntik</span><span class="v mono" id="hero-inject">—</span></div>
+        <div class="mini-row"><span class="k">Terserap di ekonomi desa</span><span class="v mono" id="hero-local">—</span></div>
+        <div class="mini-row"><span class="k">Nilai upah pekerja (riil)</span><span class="v mono" id="hero-wage">—</span></div>
+        <div class="mini-row"><span class="k">Efek pengganda · uang berputar ulang</span><span class="v mono" id="hero-mult">—</span></div>
+        <div class="mini-row"><span class="k">Jumlah pekerja terlibat</span><span class="v mono" id="hero-jobs">—</span></div>
       </div>
     </div>
 
@@ -914,11 +915,12 @@ function render(){
     setTxt('wage-info', m.label+': upah Rp '+nf.format(k[8])+'/bulan ÷ '+S.workdays+' = Rp '+nf.format(Math.round(k[8]/S.workdays))+'/hari.');
   }
 
-  // hero
+  // hero — rantai cerita: anggaran → masuk desa → berputar
   setTxt('hero-total',rp(m.circ));
-  setTxt('hero-total-sub','dari injeksi '+rp(m.I0)+' · '+m.label);
+  setTxt('hero-total-sub',rp(m.local)+' terserap lokal × pengganda '+m.kFin.toFixed(2)+' · dari anggaran '+rp(m.I0)+' · '+m.label);
   setTxt('hero-inject',rp(m.I0));
   setTxt('hero-local',rp(m.local));
+  setTxt('hero-wage',rp(m.laborTotal));
   setTxt('hero-mult','×'+m.kFin.toFixed(2));
   setTxt('hero-jobs',nf.format(m.pekerja)+' pekerja');
 
