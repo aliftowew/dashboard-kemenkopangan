@@ -17,6 +17,23 @@
   --coral:#E89B6A; --rust:#DF7A68; --teal:#5FB892; --amber:#E6C677;
   --shadow:0 1px 2px rgba(0,0,0,.45),0 22px 48px -26px rgba(0,0,0,.85);
 }
+:root[data-theme="light"]{
+  --bg:#F1ECE1; --bg2:#E9E2D3; --surface:#FCFAF4; --surface2:#F1EADC;
+  --ink:#1E2C43; --muted:#5D6B80; --line:#E4DBCA; --line-strong:#CBBFA8;
+  --gold:#A8791F; --gold-deep:#8C6416;
+  --coral:#C56A3B; --rust:#C25640; --teal:#2E8768; --amber:#B48A2E;
+  --shadow:0 1px 2px rgba(60,50,30,.06),0 20px 40px -26px rgba(60,50,30,.26);
+}
+:root[data-theme="light"] body{background-image:
+  radial-gradient(900px 500px at 12% -8%,rgba(168,121,31,.10),transparent 55%),
+  radial-gradient(800px 520px at 100% 4%,rgba(46,135,104,.09),transparent 50%),
+  radial-gradient(700px 700px at 50% 120%,rgba(203,191,168,.35),transparent 60%);}
+:root[data-theme="light"] .topbar{background:rgba(252,250,244,.86)}
+:root[data-theme="light"] .btn:hover{background:#efe6d5}
+:root[data-theme="light"] .btn.pri:hover{background:rgba(168,121,31,.10)}
+.theme-toggle{position:fixed;bottom:20px;right:20px;z-index:300;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--surface2);border:1px solid var(--line-strong);color:var(--ink);box-shadow:0 6px 20px -6px rgba(0,0,0,.5);transition:.15s}
+.theme-toggle:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px)}
+.theme-toggle svg{width:21px;height:21px}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;-webkit-font-smoothing:antialiased}
 body{min-height:100vh;background-image:
@@ -82,7 +99,10 @@ select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,va
 .dash-card::after{content:"";position:absolute;inset:0;background:radial-gradient(420px 160px at 50% -30%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 70%);opacity:0;transition:.25s;pointer-events:none}
 .dash-card:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 1px 2px rgba(0,0,0,.5),0 28px 52px -26px rgba(0,0,0,.9)}
 .dash-card:hover::after{opacity:1}
-.dash-card .body{padding:22px 22px 24px;flex:1;display:flex;flex-direction:column;position:relative}
+.dash-card .thumb{display:block;width:100%;height:136px;object-fit:cover;border-bottom:1px solid var(--line);background:var(--surface2)}
+.dash-card:hover .thumb{filter:saturate(1.08) brightness(1.03)}
+.dash-card .body{padding:20px 22px 24px;flex:1;display:flex;flex-direction:column;position:relative}
+.dash-card .body .icon{margin-top:-42px;background:var(--surface);box-shadow:0 6px 16px -6px rgba(0,0,0,.5)}
 .dash-card .icon{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,transparent);border:1px solid color-mix(in srgb,var(--accent) 32%,transparent);margin-bottom:16px;transition:.18s}
 .dash-card:hover .icon{background:color-mix(in srgb,var(--accent) 20%,transparent);transform:scale(1.04)}
 .dash-card .icon svg{width:24px;height:24px}
@@ -148,6 +168,9 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
 </style>
 </head>
 <body>
+<script>/* set tema sedini mungkin agar tidak berkedip */(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('fp_theme')||'dark');}catch(e){}})();</script>
+
+<button class="theme-toggle" id="themeBtn" title="Ganti tema terang/gelap" aria-label="Ganti tema"></button>
 
 <!-- ============ LOGIN ============ -->
 <div id="loginView">
@@ -193,6 +216,7 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
       </div>
       <div class="grid">
         <button class="dash-card fade" style="--accent:var(--coral);animation-delay:.05s" data-dash="cv">
+          <img class="thumb" src="assets/menu/cv.jpg" alt="Aneka komoditas pangan di pasar" loading="lazy">
           <div class="body">
             <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16.5l4-5.5 3.2 3.4L15 6l5.5 8"/><path d="M3 20.5h18" opacity=".35"/></svg></div>
             <div class="eyebrow">Volatilitas Harga</div>
@@ -202,6 +226,7 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
           </div>
         </button>
         <button class="dash-card fade" style="--accent:var(--teal);animation-delay:.12s" data-dash="peta">
+          <img class="thumb" src="assets/menu/peta.jpg" alt="Pelabuhan peti kemas — distribusi antar wilayah" loading="lazy">
           <div class="body">
             <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v17"/><path d="M5.5 20.5h13" opacity=".5"/><path d="M4 7.5h16"/><path d="M4 7.5L1.6 12.7a2.6 2.6 0 0 0 4.8 0L4 7.5z"/><path d="M20 7.5l-2.4 5.2a2.6 2.6 0 0 0 4.8 0L20 7.5z"/></svg></div>
             <div class="eyebrow">Neraca Regional</div>
@@ -211,6 +236,7 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
           </div>
         </button>
         <button class="dash-card fade" style="--accent:var(--amber);animation-delay:.19s" data-dash="rice">
+          <img class="thumb" src="assets/menu/rice.jpg" alt="Petani menanam padi di sawah" loading="lazy">
           <div class="body">
             <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5.5" r="2.6"/><circle cx="18" cy="18.5" r="2.6"/><path d="M8.6 5.5H14a3 3 0 0 1 0 6H10a3 3 0 0 0 0 6h5.4" stroke-dasharray="0.5 3.2" opacity=".75"/></svg></div>
             <div class="eyebrow">Distribusi</div>
@@ -220,6 +246,7 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
           </div>
         </button>
         <button class="dash-card fade" style="--accent:var(--rust);animation-delay:.26s" data-dash="kdmp">
+          <img class="thumb" src="assets/menu/kdmp.jpg" alt="Papan Koperasi Merah Putih — pembangunan KDKMP" loading="lazy">
           <div class="body">
             <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5 5 4.5h14l1.5 5"/><path d="M3.5 9.5a2.4 2.4 0 0 0 4.8 0 2.4 2.4 0 0 0 4.8 0 2.4 2.4 0 0 0 4.8 0 2.4 2.4 0 0 0 4.6 0" opacity=".85" transform="scale(.88) translate(1.6 1.2)"/><path d="M5 11.5v8h14v-8"/><path d="M9.5 19.5v-5h5v5" opacity=".6"/></svg></div>
             <div class="eyebrow">Ekonomi Desa</div>
@@ -380,6 +407,16 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
 <div class="toast" id="toast"></div>
 
 <script>
+/* ---------- Tema terang / gelap ---------- */
+(function(){
+  const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>';
+  const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.2 8.2 0 1 1 9.8 3.5a6.6 6.6 0 0 0 10.7 10.7z"/></svg>';
+  const btn=document.getElementById('themeBtn');
+  function apply(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('fp_theme',t);}catch(e){}if(btn)btn.innerHTML=(t==='light')?MOON:SUN;}
+  apply(document.documentElement.getAttribute('data-theme')||'dark');
+  if(btn)btn.addEventListener('click',()=>{apply(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light');});
+})();
+
 /* =========================================================
    SEED_USERS — daftar akun bawaan yang "terbakar" ke file.
    Untuk menambah akun permanen lintas perangkat:
