@@ -121,9 +121,17 @@ select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,va
 .dbar .ttl{font-family:'Sora',sans-serif;font-size:16px;font-weight:600}
 .dbar .ttl small{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--gold);display:block;letter-spacing:.12em;text-transform:uppercase;font-weight:400}
 .dbar .acts{display:flex;gap:9px}
-.dbar .btn{background:transparent;color:var(--ink);border-color:#26405a}
+.dbar .btn{background:transparent;color:var(--ink);border-color:#26405a;display:inline-flex;align-items:center;gap:7px}
+.dbar .btn svg{width:15px;height:15px;flex:0 0 auto}
 .dbar .btn:hover{background:#0e2034;border-color:var(--gold)}
-#dashFrame{flex:1 1 auto;width:100%;border:none;background:#fff}
+.dbar .btn.danger{color:var(--coral);border-color:#5a3b2d}
+.dbar .btn.danger:hover{background:rgba(232,155,106,.12);border-color:var(--coral)}
+:root[data-theme="light"] .dbar{background:rgba(252,250,244,.97)}
+:root[data-theme="light"] .dbar .btn{border-color:var(--line-strong)}
+:root[data-theme="light"] .dbar .btn:hover{background:#efe6d5;border-color:var(--gold)}
+:root[data-theme="light"] .dbar .btn.danger{border-color:#d9b9a4}
+:root[data-theme="light"] .dbar .btn.danger:hover{background:rgba(197,106,59,.10)}
+#dashFrame{flex:1 1 auto;width:100%;border:none;background:var(--bg)}
 
 /* ===== USER MGMT ===== */
 .umt{width:100%;border-collapse:collapse;font-size:14.5px}
@@ -359,9 +367,9 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
       <div class="ttl" id="dbTitle">—<small id="dbSub">—</small></div>
     </div>
     <div class="acts">
-      <button class="btn" id="dbBack">← Portal</button>
-      <button class="btn" id="dbOpen">Buka di tab baru ↗</button>
-      <button class="btn" id="dbLogout">Keluar</button>
+      <button class="btn" id="dbBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg><span>Portal</span></button>
+      <button class="btn" id="dbOpen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span>Buka di tab baru</span></button>
+      <button class="btn danger" id="dbLogout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg><span>Keluar</span></button>
     </div>
   </div>
   <iframe id="dashFrame" title="Dasbor"></iframe>
