@@ -703,7 +703,20 @@ document.getElementById("dlcsv2").addEventListener("click",downloadCSV);
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));t.classList.add("active");curTab=t.dataset.tab;document.querySelectorAll(".tabpanel").forEach(p=>p.classList.remove("active"));document.getElementById("tab-"+curTab).classList.add("active");drawCur();}));
 let tt;function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200);}
 document.querySelectorAll(".comsw .cbtn").forEach(b=>b.addEventListener("click",()=>setMethod(b.dataset.method)));
-(function(){const cs=document.getElementById("comSel");if(cs){cs.innerHTML=STORE.order.filter(c=>STORE.data[c]).map(c=>`<option value="${c}">${c}</option>`).join("");cs.value=COMMODITY;cs.addEventListener("change",()=>setCommodity(cs.value));}})();
+function comEmoji(n){n=(n||'').toLowerCase();
+  if(n.includes('beras'))return'🍚';
+  if(n.includes('kedelai'))return'🫘';
+  if(n.includes('jagung'))return'🌽';
+  if(n.includes('cabai')||n.includes('cabe'))return'🌶️';
+  if(n.includes('bawang putih'))return'🧄';
+  if(n.includes('bawang'))return'🧅';
+  if(n.includes('minyak'))return'🛢️';
+  if(n.includes('gula'))return'🍬';
+  if(n.includes('sapi')||n.includes('kerbau'))return'🥩';
+  if(n.includes('telur'))return'🥚';
+  if(n.includes('ayam'))return'🍗';
+  return'📦';}
+(function(){const cs=document.getElementById("comSel");if(cs){cs.innerHTML=STORE.order.filter(c=>STORE.data[c]).map(c=>`<option value="${c}">${comEmoji(c)}  ${c}</option>`).join("");cs.value=COMMODITY;cs.addEventListener("change",()=>setCommodity(cs.value));}})();
 try{katex.render("\\mathrm{CV}=\\frac{s}{\\bar{x}}\\times 100\\%\\qquad s=\\sqrt{\\frac{\\sum_{i=1}^{n}(x_i-\\bar{x})^2}{n-1}}",document.getElementById("formula"),{throwOnError:false});}catch(e){}
 updateUI();renderFilter();render();
 document.getElementById("status").textContent=store.get(KEY)?"Data tersimpan dimuat":"Data contoh dimuat";
