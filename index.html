@@ -526,6 +526,13 @@ async function doLogin(){
   if(!rec || rec.hash !== h){ $("#liErr").textContent = "Username atau password salah."; return; }
   const remember = $("#liRemember") ? $("#liRemember").checked : false;
   setSession({ username:rec.u, name:rec.name, role:rec.role, ts:Date.now() }, remember);
+  // simpan kredensial ke pengelola sandi browser (Chrome dsb.) → memicu prompt "Save password?"
+  try{
+    if(window.PasswordCredential){
+      const cred = new window.PasswordCredential({ id: rec.u, password: p, name: rec.name });
+      await navigator.credentials.store(cred);
+    }
+  }catch(e){}
   $("#liPass").value = "";
   enterPortal();
   toast("Selamat datang, "+rec.name.split(" ")[0]+".");
