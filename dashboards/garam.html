@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neraca Garam Nasional — Monitor Swasembada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<script src="vendor/katex/katex.min.js"></script>
+<script src="vendor/chart.umd.min.js"></script>
+<style>
+:root{
+  --paper:#FBF8F1;
+  --panel:#FFFFFF;
+  --ink:#191817;
+  --ink-soft:#5A554B;
+  --rule:#E5DFD2;
+  --rule-strong:#C9C1AE;
+  --sea:#175E63;
+  --sea-soft:#E3EEEE;
+  --sand:#C79A3D;
+  --red:#A6392E;
+  --red-soft:#F6E7E4;
+  --amber:#A96A00;
+  --amber-soft:#F7EEDC;
+  --green:#2E6B4F;
+  --green-soft:#E4EFE9;
+  --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+a{color:var(--sea)}
+
+/* ---------- masthead ---------- */
+.masthead{border-bottom:3px solid var(--ink);padding:26px 0 18px}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+.masthead h1{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(34px,5.4vw,58px);line-height:1.04;margin:14px 0 10px;letter-spacing:-.01em}
+.masthead .dek{font-size:17px;color:var(--ink-soft);max-width:760px}
+.masthead .dek b{color:var(--ink)}
+.sim-note{margin-top:16px;background:var(--amber-soft);border:1px solid #E3CE9E;border-left:4px solid var(--amber);padding:10px 14px;font-size:13.5px;color:#6B4A08;border-radius:0 6px 6px 0}
+.sim-note code{font-family:var(--mono);font-size:12px}
+
+/* ---------- verdict hero ---------- */
+.verdict{display:grid;grid-template-columns:minmax(230px,1fr) 2fr;gap:0;border-bottom:1px solid var(--rule-strong)}
+.verdict-num{padding:34px 28px 34px 0;border-right:1px solid var(--rule-strong)}
+.verdict-num .big{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(64px,9vw,104px);line-height:.95;color:var(--red)}
+.verdict-num .cap{font-size:14px;color:var(--ink-soft);margin-top:8px;max-width:230px}
+.gates{padding:30px 0 30px 30px;display:flex;flex-direction:column;gap:14px}
+.gate{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:start}
+.gate .light{font-family:var(--mono);font-size:12px;font-weight:700;padding:5px 10px;border-radius:4px;text-align:center;white-space:nowrap}
+.gate .light.red{background:var(--red-soft);color:var(--red)}
+.gate .light.amber{background:var(--amber-soft);color:var(--amber)}
+.gate h3{font-family:'Fraunces',serif;font-size:18px;font-weight:600;margin-bottom:2px}
+.gate p{font-size:14px;color:var(--ink-soft)}
+.gate p b{color:var(--ink);font-family:var(--mono);font-size:13px}
+
+/* ---------- kpi strip ---------- */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:3px solid var(--ink)}
+.kpi{padding:18px 16px 20px;border-right:1px solid var(--rule)}
+.kpi:last-child{border-right:none}
+.kpi .v{font-family:var(--mono);font-size:26px;font-weight:700;letter-spacing:-.02em}
+.kpi .v small{font-size:14px;font-weight:500;color:var(--ink-soft)}
+.kpi .l{font-size:12.5px;color:var(--ink-soft);margin-top:4px;line-height:1.45}
+.kpi .src{font-family:var(--mono);font-size:10.5px;color:#9B9484;margin-top:6px}
+.up{color:var(--red)} .down{color:var(--green)} .warn{color:var(--amber)}
+
+/* ---------- sections ---------- */
+section{padding:52px 0 8px}
+.sec-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--ink);padding-bottom:10px;margin-bottom:26px}
+.sec-head .no{font-family:var(--mono);font-size:13px;color:var(--ink-soft)}
+.sec-head h2{font-family:'Fraunces',serif;font-size:clamp(24px,3.4vw,34px);font-weight:600;letter-spacing:-.01em}
+.lede{font-size:16.5px;max-width:820px;color:var(--ink);margin-bottom:22px}
+.lede .soft{color:var(--ink-soft)}
+.grid2{display:grid;grid-template-columns:3fr 2fr;gap:28px;align-items:start}
+.grid2r{display:grid;grid-template-columns:2fr 3fr;gap:28px;align-items:start}
+
+.chart-card{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:20px 20px 14px}
+.chart-card h4{font-family:'Fraunces',serif;font-size:17px;font-weight:600;margin-bottom:2px}
+.chart-card .sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:12px}
+.chart-box{position:relative;height:340px}
+.chart-box.tall{height:380px}
+.chart-box.short{height:280px}
+.foot-src{font-family:var(--mono);font-size:10.5px;color:#9B9484;margin-top:10px;line-height:1.5}
+
+.note{background:var(--sea-soft);border:1px solid #C3D9D9;border-left:4px solid var(--sea);padding:14px 16px;border-radius:0 8px 8px 0;font-size:14.5px}
+.note h5{font-family:'Fraunces',serif;font-size:15.5px;margin-bottom:4px}
+.note + .note{margin-top:14px}
+.note.warn-n{background:var(--amber-soft);border-color:#E3CE9E;border-left-color:var(--amber)}
+.note.red-n{background:var(--red-soft);border-color:#E5C4BF;border-left-color:var(--red)}
+
+.formula{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:14px 18px;margin:14px 0;overflow-x:auto}
+.formula .fx-cap{font-size:12.5px;color:var(--ink-soft);margin-top:6px}
+
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-family:var(--mono);font-size:11.5px;font-weight:500;color:var(--ink-soft);text-align:left;padding:8px 10px;border-bottom:2px solid var(--ink)}
+td{padding:9px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+td.num,th.num{text-align:right;font-family:var(--mono);font-size:13px}
+tr:hover td{background:#F6F2E8}
+.tag{font-family:var(--mono);font-size:10.5px;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.tag.ok{background:var(--green-soft);color:var(--green)}
+.tag.no{background:var(--red-soft);color:var(--red)}
+.tag.mid{background:var(--amber-soft);color:var(--amber)}
+.tag.ghost{background:#EFEBDF;color:var(--ink-soft)}
+
+/* progress bars ekstensifikasi */
+.loc{margin-bottom:22px}
+.loc .loc-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.loc .loc-head b{font-family:'Fraunces',serif;font-size:16.5px;font-weight:600}
+.loc .loc-head span{font-family:var(--mono);font-size:12.5px;color:var(--ink-soft)}
+.bar{height:22px;background:#EFEADF;border:1px solid var(--rule-strong);border-radius:4px;position:relative;overflow:hidden}
+.bar .fill{position:absolute;left:0;top:0;bottom:0;background:var(--sea)}
+.loc .loc-sub{font-size:13px;color:var(--ink-soft);margin-top:5px}
+.loc .loc-sub b{font-family:var(--mono);font-size:12.5px;color:var(--ink)}
+
+/* sliders */
+.sliders{display:grid;grid-template-columns:1fr 1fr;gap:14px 26px;margin:16px 0 6px}
+.sl label{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:4px}
+.sl label output{font-family:var(--mono);font-weight:700;font-size:13px}
+input[type=range]{width:100%;accent-color:var(--sea);height:26px}
+.result-line{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
+.pill{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:10px 16px;min-width:150px;flex:1}
+.pill .pv{font-family:var(--mono);font-size:21px;font-weight:700}
+.pill .pl{font-size:12px;color:var(--ink-soft);margin-top:2px}
+.verdict-chip{font-family:var(--mono);font-size:13px;font-weight:700;padding:10px 16px;border-radius:8px;flex:1.4;display:flex;align-items:center}
+.verdict-chip.bad{background:var(--red-soft);color:var(--red);border:1px solid #E5C4BF}
+.verdict-chip.good{background:var(--green-soft);color:var(--green);border:1px solid #BFD8CC}
+
+/* cost chain */
+.chain{display:flex;flex-wrap:wrap;gap:0;align-items:stretch;margin:10px 0 4px}
+.chain .step{flex:1;min-width:120px;border:1px solid var(--rule-strong);border-right:none;padding:10px 12px;background:var(--panel)}
+.chain .step:first-child{border-radius:8px 0 0 8px}
+.chain .step:last-child{border-right:1px solid var(--rule-strong);border-radius:0 8px 8px 0;background:var(--sea-soft)}
+.chain .step .cv{font-family:var(--mono);font-weight:700;font-size:16px}
+.chain .step .cl{font-size:11.5px;color:var(--ink-soft);line-height:1.35}
+
+/* kpi definitions */
+.defs{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.def{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:16px 18px}
+.def .dn{font-family:var(--mono);font-size:11px;color:var(--sea);font-weight:700}
+.def h4{font-family:'Fraunces',serif;font-size:16.5px;font-weight:600;margin:3px 0 5px}
+.def p{font-size:13.5px;color:var(--ink-soft)}
+.def p b{color:var(--ink)}
+.def .dsrc{font-family:var(--mono);font-size:10.5px;color:#9B9484;margin-top:8px}
+
+/* gap matrix */
+.gapnote{font-size:14.5px;color:var(--ink-soft);max-width:800px;margin-bottom:18px}
+
+/* footer */
+footer{margin-top:70px;border-top:3px solid var(--ink);padding:26px 0 60px}
+footer .cols{display:grid;grid-template-columns:1fr 1fr;gap:34px}
+footer h5{font-family:'Fraunces',serif;font-size:16px;margin-bottom:8px}
+footer p,footer li{font-size:13px;color:var(--ink-soft);line-height:1.7}
+footer ul{list-style:none}
+footer li{padding-left:14px;text-indent:-14px}
+.sig{font-family:var(--mono);font-size:11.5px;color:#9B9484;margin-top:26px;border-top:1px solid var(--rule);padding-top:14px}
+
+@media(max-width:900px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .kpi{border-bottom:1px solid var(--rule)}
+  .verdict{grid-template-columns:1fr}
+  .verdict-num{border-right:none;border-bottom:1px solid var(--rule-strong);padding:26px 0}
+  .gates{padding:24px 0}
+  .grid2,.grid2r,.defs,footer .cols{grid-template-columns:1fr}
+  .sliders{grid-template-columns:1fr}
+  .gate{grid-template-columns:96px 1fr}
+}
+</style>
+<script>
+/* === Portal access guard (login gate) === */
+(function(){
+  try{
+    if(!sessionStorage.getItem('fp_auth')){ location.replace('../index.html'); }
+  }catch(e){ location.replace('../index.html'); }
+})();
+</script>
+<script>/* tema bersama portal (default terang) */(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('fp_theme')||'light');}catch(e){}})();</script>
+<style id="darkmode">
+:root[data-theme="dark"]{
+  --paper:#091422; --panel:#102338;
+  --ink:#E9F0F8; --ink-soft:#A9BAD0;
+  --rule:#21384F; --rule-strong:#33506E;
+  --sea:#5FB892; --sea-soft:rgba(95,184,146,.13);
+  --sand:#D8B362;
+  --red:#E89B6A; --red-soft:rgba(232,155,106,.13);
+  --amber:#D8B362; --amber-soft:rgba(216,179,98,.13);
+  --green:#5FB892; --green-soft:rgba(95,184,146,.13);
+}
+:root[data-theme="dark"] tr:hover td{background:#16304A}
+:root[data-theme="dark"] .bar{background:#16304A}
+:root[data-theme="dark"] .tag.ghost{background:#16304A;color:var(--ink-soft)}
+:root[data-theme="dark"] .foot-src,
+:root[data-theme="dark"] .sig,
+:root[data-theme="dark"] .kpi .src,
+:root[data-theme="dark"] .def .dsrc{color:#7E93AD}
+:root[data-theme="dark"] .sim-note{color:#EBD9AE;border-color:#5C4A22}
+:root[data-theme="dark"] .note{border-color:#33506E}
+:root[data-theme="dark"] .masthead,
+:root[data-theme="dark"] .kpis{border-bottom-color:#33506E}
+:root[data-theme="dark"] .sec-head,
+:root[data-theme="dark"] th{border-bottom-color:#33506E}
+:root[data-theme="dark"] footer{border-top-color:#33506E}
+:root[data-theme="dark"] .verdict-chip.bad{border-color:#5C3A2E}
+:root[data-theme="dark"] .verdict-chip.good{border-color:#2F5C46}
+.theme-fab{position:fixed;bottom:20px;right:20px;z-index:9999;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--panel);border:1px solid var(--rule-strong);color:var(--ink);box-shadow:0 6px 20px -8px rgba(0,0,0,.4);transition:.15s}
+.theme-fab:hover{transform:translateY(-2px);border-color:var(--sea);color:var(--sea)}
+.theme-fab svg{width:21px;height:21px}
+</style>
+</head>
+<body>
+<button class="theme-fab" id="themeFab" title="Tema terang/gelap" aria-label="Ganti tema"></button>
+<script>(function(){
+  var SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>';
+  var MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.2 8.2 0 1 1 9.8 3.5a6.6 6.6 0 0 0 10.7 10.7z"/></svg>';
+  function apply(t){document.documentElement.setAttribute('data-theme',t);var b=document.getElementById('themeFab');if(b)b.innerHTML=(t==='light')?MOON:SUN;}
+  apply(document.documentElement.getAttribute('data-theme')||'light');
+  var btn=document.getElementById('themeFab');
+  if(btn)btn.addEventListener('click',function(){var n=(document.documentElement.getAttribute('data-theme')==='light')?'dark':'light';try{localStorage.setItem('fp_theme',n);}catch(e){}apply(n);location.reload();});
+  window.addEventListener('storage',function(e){if(e.key==='fp_theme'){apply(e.newValue||'light');location.reload();}});
+})();</script>
+
+<!-- ============ MASTHEAD ============ -->
+<header class="masthead">
+  <div class="wrap">
+    <div class="kicker">
+      <span>KEMENTERIAN KOORDINATOR BIDANG PANGAN · ANALISIS KEBIJAKAN</span>
+      <span>MONITOR SWASEMBADA GARAM · DEPUTI IV SUMBER DAYA MARITIM</span>
+    </div>
+    <h1>Neraca Garam Nasional:<br>Seberapa Jauh dari Swasembada?</h1>
+    <p class="dek">Monitor terpadu produksi–kebutuhan–impor, progres ekstensifikasi NTT, dan paritas biaya logistik terhadap garam impor. <b>Swasembada bukan satu angka — ia tiga gerbang yang harus lolos bersamaan: volume, kualitas, dan harga.</b></p>
+    <div class="sim-note">⬚ <b>Catatan data.</b> Seluruh angka bersumber dari data publik (BPS, KKP, Kemenperin, Kemenko Pangan, pemberitaan resmi) per <code>3 Sep 2026</code>. Panel bertanda ⬚ menunggu data resmi K/L — daftar lengkapnya ada di bagian akhir. Bukan publikasi resmi.</div>
+  </div>
+</header>
+
+<!-- ============ VERDICT ============ -->
+<div class="wrap">
+  <div class="verdict">
+    <div class="verdict-num">
+      <div class="big">21%</div>
+      <div class="cap">rasio swasembada volume 2025 — produksi 1,03 juta ton terhadap kebutuhan ±4,9 juta ton <span style="font-family:var(--mono);font-size:11px;color:#9B9484">[KKP, 30 Des 2025]</span></div>
+    </div>
+    <div class="gates">
+      <div class="gate">
+        <div class="light red">OFF-TRACK</div>
+        <div><h3>Gerbang 1 — Volume</h3>
+        <p>Produksi 2025 anjlok 49% karena hujan (La Niña). Target 2026: <b>2,5 jt ton</b>; kebutuhan <b>4,5–5 jt ton</b>. Deadline Perpres 17/2025 (2027) menuntut konstruksi lahan <b>±20×</b> lebih cepat dari run-rate saat ini.</p></div>
+      </div>
+      <div class="gate">
+        <div class="light red">OFF-TRACK</div>
+        <div><h3>Gerbang 2 — Kualitas</h3>
+        <p>Kebutuhan spek industri (NaCl ≥97%) ±3 jt ton/th; program produksi domestik yang memenuhi spek baru menargetkan <b>400 rb ton/th</b> (±13%). Garam rakyat umumnya &lt;94% NaCl. Uji coba K-SIGN Rote: <b>97%</b> — proof point kritis.</p></div>
+      </div>
+      <div class="gate">
+        <div class="light amber">BELUM PARITAS</div>
+        <div><h3>Gerbang 3 — Harga</h3>
+        <p>CIF impor ±<b>US$48/ton ≈ Rp750–800/kg</b> sudah sampai pelabuhan Jawa. Harga tambak domestik saat panen Rp600–880/kg — <b>ruang untuk seluruh biaya logistik NTT→Jawa nyaris nol</b>. Paritas hanya tercapai lewat skala angkut + premium kualitas.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ KPI STRIP ============ -->
+  <div class="kpis">
+    <div class="kpi">
+      <div class="v up">2,67 <small>jt ton</small></div>
+      <div class="l">Impor garam 2025 — Australia 75,3%, India 24,4%</div>
+      <div class="src">[BPS via KKP]</div>
+    </div>
+    <div class="kpi">
+      <div class="v warn">936 <small>rb ton</small></div>
+      <div class="l">Impor garam industri Jan–Mei 2026 (+13,1% YoY) — run-rate di atas lintasan target 2 jt</div>
+      <div class="src">[BPS, HS 25010093]</div>
+    </div>
+    <div class="kpi">
+      <div class="v">5,7<small>%</small></div>
+      <div class="l">Lahan K-SIGN Rote terbangun: 616 dari 10.764 ha kawasan</div>
+      <div class="src">[KKP/BAKOM, 2 Sep 2026]</div>
+    </div>
+    <div class="kpi">
+      <div class="v">200 <small>t/ha</small></div>
+      <div class="l">Target produktivitas K-SIGN — vs ±60–100 t/ha tambak rakyat</div>
+      <div class="src">[KKP]</div>
+    </div>
+    <div class="kpi">
+      <div class="v">Nov <small>2026</small></div>
+      <div class="l">Panen perdana Rote Ndao 616 ha — pembuktian 200 t/ha &amp; NaCl 97%</div>
+      <div class="src">[BAKOM, 2 Sep 2026]</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SECTION A: NERACA ============ -->
+<section id="neraca">
+  <div class="wrap">
+    <div class="sec-head"><span class="no">A</span><h2>Neraca Volume: Produksi vs Kebutuhan vs Impor</h2></div>
+    <p class="lede">Produksi garam nasional adalah fungsi cuaca sebelum fungsi kebijakan: rentangnya <b>0,7–2,85 juta ton</b> dalam tujuh tahun terakhir, sementara kebutuhan stabil naik menuju 5 juta ton. <span class="soft">Ketergantungan impor bukan residu — ia struktural: rata-rata 2,6–2,8 juta ton per tahun apa pun kondisi panennya.</span></p>
+    <div class="grid2">
+      <div class="chart-card">
+        <h4>Produksi, kebutuhan, dan impor garam nasional 2019–2026</h4>
+        <div class="sub">juta ton per tahun · kolom target 2026 diarsir</div>
+        <div class="chart-box tall"><canvas id="neracaChart"></canvas></div>
+        <div class="foot-src">Sumber: KKP (produksi 2019–2025; konpers 30 Des 2025), BPS (impor per negara asal 2017–2023; rilis 2025), Kemenko Perekonomian/BPS (kebutuhan neraca komoditas). Impor 2024 memakai baseline pemerintah ±2,6 jt ton — perlu verifikasi angka final BPS (⬚).</div>
+      </div>
+      <div>
+        <div class="note red-n">
+          <h5>Kenapa 2025 anjlok 49%?</h5>
+          Intensitas hujan tinggi mengganggu evaporasi — produksi hanya 1,035 jt ton (46% dari target 2,25 jt). Ini bukan anomali pertama: 2020–2022 basah beruntun menekan produksi ke titik terendah 0,7 jt ton (2022), lalu El Niño 2023 melambungkannya ke 2,55 jt. <b>Musim kering efektif adalah variabel dominan — dashboard harus memuat prakiraan ENSO BMKG sebagai leading indicator.</b>
+        </div>
+        <div class="note">
+          <h5>Struktur target resmi</h5>
+          Perpres 126/2022: setop impor garam konsumsi (aneka pangan &amp; farmasi ditutup per 2025, kecuali "keadaan tertentu"). Perpres 17/2025: swasembada nasional <b>2027</b>. Pernyataan BAKOM (2 Sep 2026): glide path impor <b>2,6 → 2,0 (2026) → 1,0 (2027) → 0 (2029)</b>. Dua deadline ini tidak identik — dashboard menampilkan keduanya apa adanya.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION B: GLIDE PATH ============ -->
+<section id="glide">
+  <div class="wrap">
+    <div class="sec-head"><span class="no">B</span><h2>Lintasan Penurunan Impor: Target vs Realisasi</h2></div>
+    <p class="lede">Ini instrumen monitoring paling tajam di dashboard: satu garis target, satu garis realisasi. <span class="soft">Realisasi Jan–Mei 2026 untuk garam industri saja sudah 936 rb ton (+13,1% YoY). Disetahunkan sederhana ±2,25 jt ton — di atas lintasan target 2,0 jt, dan itu belum termasuk pos garam lainnya.</span></p>
+    <div class="grid2">
+      <div class="chart-card">
+        <h4>Glide path impor menuju nol (2025–2029)</h4>
+        <div class="sub">juta ton · garis putus = target resmi · titik merah = proyeksi run-rate 2026</div>
+        <div class="chart-box"><canvas id="glideChart"></canvas></div>
+        <div class="foot-src">Target: pernyataan Kepala BAKOM (2 Sep 2026); titik 2028 interpolasi linear (tidak disebut eksplisit). Proyeksi 2026: impor garam industri HS 25010093 Jan–Mei (BPS) disetahunkan pro-rata — metode kasar, musiman impor bisa front-loaded; angka final menunggu Des 2026 (⬚).</div>
+      </div>
+      <div>
+        <div class="note warn-n">
+          <h5>⚠ Sinyal dini: run-rate 2026 di atas lintasan</h5>
+          Kuota impor CAP 2026 ditetapkan Kemenko Pangan <b>1,18 jt ton</b>; realisasi garam industri sudah 936 rb ton dalam lima bulan. Kalau pola berlanjut, realisasi tahunan menembus kuota — mekanisme "keadaan tertentu" untuk non-CAP menjadi katup yang perlu diawasi ketat. <b>KPI dashboard: impor kumulatif YTD ÷ target pro-rata, dicek bulanan.</b>
+        </div>
+        <div class="note">
+          <h5>Konteks tata kelola</h5>
+          Kejagung pernah menemukan rekayasa data kebutuhan impor garam (2,3 jt digelembungkan jadi 3,7 jt ton) pada kasus 2016–2022. Justru karena itu neraca yang transparan dan bisa diaudit publik — produksi, kuota, realisasi PI, serapan lokal dalam satu layar — adalah instrumen kebijakan, bukan sekadar pelaporan.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION C: SEGMEN & KUALITAS ============ -->
+<section id="segmen">
+  <div class="wrap">
+    <div class="sec-head"><span class="no">C</span><h2>Gerbang Kualitas: Kebutuhan per Segmen &amp; Spesifikasi</h2></div>
+    <p class="lede">Swasembada gagal "di atas kertas" kalau volume terpenuhi tapi speknya tidak. <span class="soft">Segmen terbesar — chlor alkali plant (CAP) untuk petrokimia dan pulp &amp; kertas — menuntut NaCl ≥97%, impuritas rendah, dan pasokan kontinu. Garam rakyat umumnya di bawah 94%.</span></p>
+    <div class="grid2r">
+      <div>
+        <div class="chart-card">
+          <h4>Struktur kebutuhan garam nasional</h4>
+          <div class="sub">±4,9–5,0 jt ton/th · estimasi komposisi dari neraca komoditas &amp; data Kemenperin</div>
+          <div class="chart-box short"><canvas id="segmenChart"></canvas></div>
+          <div class="foot-src">Komposisi: CAP ±2,4 jt (petrokimia + pulp&amp;kertas); aneka pangan ±0,6 jt; pengasinan ikan ±0,5 jt; farmasi-kosmetik ±0,01 jt; industri non-CAP lain (tekstil, kulit, pakan, sabun, pengeboran) ±0,4 jt; rumah tangga &amp; komersial ±1,0 jt. Angka antar-sumber bervariasi — kolom resmi per segmen 2026 perlu rilis neraca komoditas (⬚).</div>
+        </div>
+      </div>
+      <div>
+        <table>
+          <thead><tr><th>Segmen</th><th class="num">Kebutuhan (rb ton)</th><th>Spek NaCl</th><th>Status impor 2026</th></tr></thead>
+          <tbody>
+            <tr><td><b>CAP</b> — petrokimia, pulp &amp; kertas</td><td class="num">±2.400</td><td class="num">≥97%</td><td><span class="tag mid">kuota 1,18 jt</span></td></tr>
+            <tr><td><b>Aneka pangan</b> — mi, bumbu, snack</td><td class="num">±600</td><td class="num">≥97%</td><td><span class="tag no">tutup — keadaan tertentu</span></td></tr>
+            <tr><td><b>Pengasinan ikan</b></td><td class="num">±500</td><td class="num">krosok</td><td><span class="tag ok">domestik</span></td></tr>
+            <tr><td><b>Farmasi &amp; kosmetik</b> — infus, hemodialisa</td><td class="num">±10</td><td class="num">99,9%</td><td><span class="tag no">tutup — keadaan tertentu</span></td></tr>
+            <tr><td><b>Industri non-CAP lain</b></td><td class="num">±400</td><td class="num">variatif</td><td><span class="tag ok">domestik</span></td></tr>
+            <tr><td><b>Rumah tangga &amp; komersial</b></td><td class="num">±1.000</td><td class="num">SNI beryodium</td><td><span class="tag ok">domestik</span></td></tr>
+          </tbody>
+        </table>
+        <div class="note" style="margin-top:16px">
+          <h5>Rasio gerbang kualitas ±13%</h5>
+          Kebutuhan spek tinggi (CAP + aneka pangan) ±3,0 jt ton/th. Program domestik yang eksplisit mengejar spek ini: target KKP <b>400 rb ton/th NaCl &gt;97%</b> + rencana Cheetham Nagekeo 150–200 rb ton. Sisanya masih janji lahan. <b>KPI dashboard: produksi lolos uji lab ≥97% ÷ kebutuhan spek tinggi — bukan total ton.</b>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION D: EKSTENSIFIKASI ============ -->
+<section id="lahan">
+  <div class="wrap">
+    <div class="sec-head"><span class="no">D</span><h2>Ekstensifikasi NTT: Lahan, Run-Rate, dan Matematika Deadline</h2></div>
+    <p class="lede">Tiga lokasi ini adalah taruhan utama suplai baru. <span class="soft">Pertanyaan monitoringnya sederhana: berapa hektare produktif bertambah per bulan, dan berapa yang dibutuhkan agar deadline masuk akal?</span></p>
+
+    <div class="grid2">
+      <div>
+        <div class="loc">
+          <div class="loc-head"><b>K-SIGN Rote Ndao</b><span>616 / 10.764 ha kawasan (5,7%)</span></div>
+          <div class="bar"><div class="fill" style="width:5.7%"></div></div>
+          <div class="loc-sub">Tahap I <b>616 ha selesai 100%</b> (kontraktor Nindya Karya, APBN) — uji coba produksi, panen perdana target <b>Nov 2026</b>. Tahap II <b>751 ha</b> pengadaan tanah. Porsi KKP 2.000 ha (investasi <b>Rp2 T</b>); 8.000 ha berikutnya menunggu investor. Uji NaCl: <b>97%</b>.</div>
+        </div>
+        <div class="loc">
+          <div class="loc-head"><b>Kabupaten Kupang</b><span>±2.000 ha ekstensifikasi (KAK)</span></div>
+          <div class="bar"><div class="fill" style="width:30%;background:var(--sand)"></div></div>
+          <div class="loc-sub">Eksisting: PT Timor Livestock Lestari <b>600 ha</b> (Nunkurus), PT Tjakrawala Timor Sentosa (Babau), PT Garam Bipolo <b>225 ha</b>. Produksi historis fluktuatif — total korporasi NTT 2022 hanya <b>3,65 rb ton</b> (tahun basah). Porsi lahan sudah-produktif vs izin: ⬚ perlu data Dinas KP NTT.</div>
+        </div>
+        <div class="loc">
+          <div class="loc-head"><b>Kabupaten Nagekeo</b><span>±443 ha ekstensifikasi (KAK)</span></div>
+          <div class="bar"><div class="fill" style="width:12%;background:var(--sand)"></div></div>
+          <div class="loc-sub">PT Cheetham Garam Indonesia ±499 ha (56 ha berproduksi per 2022; HPL sisanya dalam proses). Rencana penuh 540–1.050 ha, kapasitas desain <b>150–200 rb ton/th</b>, investasi US$21 jt. Progres konstruksi terkini: ⬚ menunggu konfirmasi K/L.</div>
+        </div>
+        <div class="foot-src">Arsiran biru = terkonstruksi terverifikasi; kuning = estimasi porsi aktif dari lahan eksisting (belum terverifikasi, ⬚). Sumber: KKP/BAKOM (2 Sep 2026), dokumen perencanaan ekstensifikasi, Pemkab Rote Ndao, pemberitaan Kompas/Floresa/KatongNTT.</div>
+      </div>
+
+      <div>
+        <div class="formula" id="fx-runrate"></div>
+        <table>
+          <thead><tr><th>Skenario deadline</th><th class="num">Sisa waktu</th><th class="num">Butuh (ha/bln)</th><th class="num">vs run-rate ±31</th></tr></thead>
+          <tbody>
+            <tr><td>Perpres 17/2025 — swasembada <b>2027</b></td><td class="num">16 bln</td><td class="num">634</td><td class="num" style="color:var(--red);font-weight:700">20×</td></tr>
+            <tr><td>Glide path — nol impor <b>2029</b></td><td class="num">40 bln</td><td class="num">254</td><td class="num" style="color:var(--amber);font-weight:700">8×</td></tr>
+          </tbody>
+        </table>
+        <div class="foot-src" style="margin-top:8px">Run-rate historis: 616 ha sejak konstruksi efektif awal 2025 (≈20 bln) ≈ 31 ha/bln. Target lahan penuh memakai kawasan Rote 10.764 ha sebagai proxy kebutuhan lahan gap CAP (lihat kalkulator di bawah).</div>
+
+        <div class="note warn-n" style="margin-top:16px">
+          <h5>Simulasi suplai baru NTT — geser asumsinya</h5>
+          <div class="sliders" style="grid-template-columns:1fr">
+            <div class="sl">
+              <label>Lahan produktif NTT s.d. akhir 2027 <output id="o-ha">3.000 ha</output></label>
+              <input type="range" id="s-ha" min="616" max="10764" step="100" value="3000">
+            </div>
+            <div class="sl">
+              <label>Produktivitas rata-rata <output id="o-yield">150 t/ha</output></label>
+              <input type="range" id="s-yield" min="60" max="220" step="10" value="150">
+            </div>
+          </div>
+          <div class="result-line">
+            <div class="pill"><div class="pv" id="o-prod">450 rb ton</div><div class="pl">suplai baru per tahun</div></div>
+            <div class="pill"><div class="pv" id="o-gap">16%</div><div class="pl">dari gap kualitas ±3 jt ton (CAP + aneka pangan)</div></div>
+          </div>
+          <p style="font-size:13px;margin-top:10px;color:#6B4A08">Cek cepat: 616 ha × 200 t/ha = <b style="font-family:var(--mono)">123 rb ton/th</b> pada kapasitas penuh — bandingkan gap impor 2,6–2,8 jt ton. Kawasan penuh 10.764 ha × 200 t/ha ≈ <b style="font-family:var(--mono)">2,15 jt ton</b> — baru itu yang menutup gap CAP. Skala, bukan simbol.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION E: PARITAS LOGISTIK ============ -->
+<section id="paritas">
+  <div class="wrap">
+    <div class="sec-head"><span class="no">E</span><h2>Gerbang Harga: Kalkulator Paritas Logistik NTT → Jawa</h2></div>
+    <p class="lede">Garam adalah komoditas <b>nilai-rendah-per-kilogram</b> (Rp600–900/kg di tambak) — sehingga toleransinya terhadap biaya angkut sangat tipis. <span class="soft">Impor Australia tiba di pelabuhan Jawa dengan CIF ±US$48/ton (≈Rp750–800/kg) berkat kapal curah 30–50 rb DWT. Garam NTT harus menempuh 1.500 km dengan armada jauh lebih kecil — dan tetap harus mendarat lebih murah, atau setidaknya setara dengan premium kualitas.</span></p>
+
+    <div class="formula" id="fx-paritas"></div>
+
+    <div class="chart-card">
+      <h4>Rantai biaya: tambak NTT → gudang → pelabuhan → industri Jawa</h4>
+      <div class="sub">geser asumsi — angka default adalah placeholder yang harus diganti angka riil dari Pelni, Pelindo, PT Garam, dan Cheetham</div>
+      <div class="sliders">
+        <div class="sl"><label>Harga garam di tambak NTT (Rp/kg) <output id="o-tambak">700</output></label><input type="range" id="s-tambak" min="400" max="2500" step="10" value="700"></div>
+        <div class="sl"><label>Angkut darat tambak→pelabuhan + handling (Rp/kg) <output id="o-darat">140</output></label><input type="range" id="s-darat" min="20" max="500" step="10" value="140"></div>
+        <div class="sl"><label>⬚ Freight laut NTT→Surabaya (Rp/kg) <output id="o-freight">250</output></label><input type="range" id="s-freight" min="50" max="1000" step="10" value="250"></div>
+        <div class="sl"><label>Bongkar + distribusi ke pabrik Jawa (Rp/kg) <output id="o-bongkar">60</output></label><input type="range" id="s-bongkar" min="20" max="300" step="10" value="60"></div>
+        <div class="sl"><label>CIF garam impor di pelabuhan Jawa (Rp/kg) <output id="o-cif">780</output></label><input type="range" id="s-cif" min="500" max="1500" step="10" value="780"></div>
+        <div class="sl"><label>Biaya pelabuhan + distribusi garam impor (Rp/kg) <output id="o-portimp">70</output></label><input type="range" id="s-portimp" min="20" max="300" step="10" value="70"></div>
+      </div>
+
+      <div class="chain">
+        <div class="step"><div class="cv" id="c-tambak">700</div><div class="cl">tambak NTT</div></div>
+        <div class="step"><div class="cv" id="c-darat">+140</div><div class="cl">darat + handling</div></div>
+        <div class="step"><div class="cv" id="c-freight">+250</div><div class="cl">freight laut ⬚</div></div>
+        <div class="step"><div class="cv" id="c-bongkar">+60</div><div class="cl">bongkar + distribusi</div></div>
+        <div class="step"><div class="cv" id="c-landed">= 1.150</div><div class="cl">landed NTT di pabrik Jawa (Rp/kg)</div></div>
+      </div>
+
+      <div class="result-line">
+        <div class="pill"><div class="pv" id="o-landed-ntt">Rp1.150</div><div class="pl">landed cost garam NTT</div></div>
+        <div class="pill"><div class="pv" id="o-landed-imp">Rp850</div><div class="pl">landed cost garam impor</div></div>
+        <div class="pill"><div class="pv" id="o-indeks">1,35</div><div class="pl">indeks paritas (target ≤ 1,00)</div></div>
+        <div class="verdict-chip bad" id="o-verdict">BELUM KOMPETITIF — selisih Rp300/kg</div>
+      </div>
+      <div class="result-line">
+        <div class="pill" style="flex:2"><div class="pv" id="o-maxfreight">≤ Rp0/kg</div><div class="pl">freight laut maksimum agar paritas tercapai (pada asumsi lain tetap) — inilah angka yang harus dinegosiasikan dengan Pelni/Pelindo</div></div>
+      </div>
+      <div class="foot-src">Benchmark CIF: nilai impor 2023 US$135,3 jt ÷ 2,80 jt ton = US$48,3/ton (BPS). Ongkos komersial LCL Surabaya↔Kupang Rp3.000–4.000/kg — 4–5× nilai barangnya; garam mustahil lewat general cargo, wajib curah/tongkang khusus. Freight curah aktual NTT→Jawa belum tersedia publik (⬚) — angka kunci yang perlu dikonfirmasi ke Pelni &amp; Pelindo.</div>
+    </div>
+
+    <div class="grid2" style="margin-top:22px">
+      <div class="note">
+        <h5>Tiga tuas menuju paritas</h5>
+        <b>1. Skala kapal.</b> Impor murah karena Panamax; freight embedded CIF−FOB Australia→Jawa hanya ±US$10–15/ton (Rp160–240/kg) untuk 5.000 km. NTT butuh konsolidasi muatan (gudang pengumpul + jadwal tetap) agar bisa naik kelas dari tongkang kecil.
+        <br><b>2. Muatan balik tol laut.</b> Kapal tol laut dari Surabaya ke NTT pulang nyaris kosong — garam adalah kandidat alami muatan balik dengan biaya marginal rendah. Usulan konkret: garam masuk daftar komoditas muatan balik prioritas.
+        <br><b>3. Premium kualitas.</b> Bila K-SIGN konsisten 97% NaCl, pembandingnya bukan garam krosok Rp700 tapi garam spek industri — ruang harga lebih lebar.
+      </div>
+      <div class="note warn-n">
+        <h5>Dermaga adalah bottleneck yang diam</h5>
+        Paritas juga soal fisik: draft dan panjang dermaga Ba'a (Rote), Tenau (Kupang), Marapokot (Nagekeo) menentukan ukuran kapal maksimum yang bisa sandar — dan ukuran kapal menentukan Rp/kg. Data spesifikasi + rencana dermaga curah khusus K-SIGN: ⬚ perlu diminta ke Direktur Kepelabuhanan Kemenhub. Tanpa dermaga curah, garam Rote diangkut karung — dan karung tidak akan pernah menang lawan Panamax.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION F: KEBIJAKAN & LOGISTIK ============ -->
+<section id="kebijakan">
+  <div class="wrap">
+    <div class="sec-head"><span class="no">F</span><h2>Payung Kebijakan yang Bisa Ditumpangi</h2></div>
+    <div class="grid2">
+      <table>
+        <thead><tr><th>Instrumen</th><th>Isi relevan untuk garam</th></tr></thead>
+        <tbody>
+          <tr><td><b>Perpres 17/2025</b><br><span style="font-size:12px;color:var(--ink-soft)">Percepatan Pembangunan Pergaraman Nasional</span></td><td>Mandat swasembada 2027; K-SIGN terintegrasi hulu–hilir; dasar hukum ekstensifikasi (Pasal 6).</td></tr>
+          <tr><td><b>Perpres 41/2026</b><br><span style="font-size:12px;color:var(--ink-soft)">Penguatan Logistik Nasional (diundangkan Jul 2026)</span></td><td>Mengganti Sislognas 2012. Tiga strategi: infrastruktur konektivitas &amp; backbone, integrasi &amp; digitalisasi (NLE), daya saing SDM. 24 program, 180 target keluaran, renaksi 2026–2029. Target biaya logistik 14,29% PDB → 12,5% (2029). <b>Peluang: masukkan koridor garam NTT→Jawa + dermaga curah K-SIGN ke renaksi.</b></td></tr>
+          <tr><td><b>Perpres 126/2022 + Neraca Komoditas</b></td><td>Impor hanya CAP (kuota 2026: 1,18 jt ton); non-CAP via "keadaan tertentu". Kontrol verifikasi kini di Kemenko Pangan/KKP.</td></tr>
+          <tr><td><b>Kepmen KP 28/2025</b></td><td>Penetapan lokasi K-SIGN Rote Ndao 2025–2026 (10.764 ha).</td></tr>
+        </tbody>
+      </table>
+      <div>
+        <div class="note">
+          <h5>Pola angkutan yang dimonitor dashboard</h5>
+          <span style="font-family:var(--mono);font-size:13px">tambak → gudang → pelabuhan asal → laut → pelabuhan Jawa → industri</span><br>
+          Tiap ruas punya KPI sendiri: jarak &amp; kondisi jalan produksi (ruas 1), kapasitas-utilisasi gudang (ruas 2), spek dermaga &amp; frekuensi kapal (ruas 3), Rp/ton-km (ruas 4), waktu bongkar (ruas 5). Yang tidak terukur tidak akan pernah efisien.
+        </div>
+        <div class="note warn-n">
+          <h5>Risiko yang jujur dicatat</h5>
+          (1) Cuaca — La Niña kapan pun bisa memangkas produksi 50%. (2) Sosial-lingkungan — Walhi NTT menyoroti daya dukung pulau kecil; DPRD Rote membentuk pansus lahan; Tahap I terkoreksi dari ±1.600 → 1.057 ha terukur. (3) Serapan — tanpa kewajiban offtake, garam lokal kalah oleh impor bahkan di pasar sendiri (harga petambak Agu 2026 jatuh ke Rp600/kg justru saat panen bagus). Swasembada yang menghancurkan harga petambak bukan kemenangan.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION G: KPI DEFINITIONS ============ -->
+<section id="kpi-def">
+  <div class="wrap">
+    <div class="sec-head"><span class="no">G</span><h2>Delapan Angka yang Menjawab "Sudah On-Track Belum?"</h2></div>
+    <p class="lede">Kalau dashboard ini dilembagakan, inilah instrumen panelnya — masing-masing dengan pemilik data dan frekuensi pembaruan.</p>
+    <div class="defs">
+      <div class="def"><div class="dn">KPI-1 · bulanan</div><h4>Rasio swasembada volume</h4><p>Produksi 12 bulan berjalan ÷ kebutuhan tahunan. <b>Posisi: 21%. Target: 100% (2029).</b></p><div class="dsrc">Data: KKP satudata + neraca komoditas</div></div>
+      <div class="def"><div class="dn">KPI-2 · per panen</div><h4>Rasio swasembada kualitas</h4><p>Produksi lolos uji NaCl ≥97% ÷ kebutuhan spek tinggi (±3 jt ton). <b>Posisi: ±13% (target program, realisasi ⬚).</b></p><div class="dsrc">Data: Balai Besar Produksi Garam, uji lab per lokasi</div></div>
+      <div class="def"><div class="dn">KPI-3 · bulanan</div><h4>Impor YTD vs glide path</h4><p>Realisasi kumulatif ÷ target pro-rata tahun berjalan. <b>Posisi: &gt;100% dari lintasan (warning).</b></p><div class="dsrc">Data: BPS HS 2501 per bulan + PI INSW</div></div>
+      <div class="def"><div class="dn">KPI-4 · bulanan</div><h4>Lahan produktif vs kurva rencana</h4><p>Ha terbangun-berproduksi vs S-curve target. <b>Posisi: 616 ha; butuh 254 ha/bln (jalur 2029) — 8× run-rate.</b></p><div class="dsrc">Data: KKP, kontraktor, pemda, investor</div></div>
+      <div class="def"><div class="dn">KPI-5 · per musim</div><h4>Produktivitas aktual (t/ha)</h4><p>Panen riil per lokasi vs asumsi 200 t/ha. <b>Pembuktian pertama: panen Rote Nov 2026.</b></p><div class="dsrc">Data: laporan panen K-SIGN &amp; korporasi</div></div>
+      <div class="def"><div class="dn">KPI-6 · triwulanan</div><h4>Indeks paritas harga</h4><p>Landed NTT ÷ landed impor di gerbang pabrik Jawa. <b>Target ≤1,00. Posisi: ⬚ (butuh freight aktual).</b></p><div class="dsrc">Data: Pelni/Pelindo, BPS CIF, survei harga tambak</div></div>
+      <div class="def"><div class="dn">KPI-7 · triwulanan</div><h4>Offtake coverage</h4><p>Volume kontrak pembelian terikat ÷ proyeksi produksi. Tanpa ini, panen sukses = harga hancur. <b>Posisi: ⬚.</b></p><div class="dsrc">Data: AIPGI, APKI, Kemenperin (MoU serapan)</div></div>
+      <div class="def"><div class="dn">KPI-8 · bulanan</div><h4>Hari kering efektif vs normal</h4><p>Leading indicator produksi — prakiraan ENSO menentukan proyeksi 6 bulan ke depan. <b>2026: netral-kering, produksi membaik.</b></p><div class="dsrc">Data: BMKG (ENSO outlook, curah hujan NTT &amp; Pantura)</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION H: DATA GAP / MATRIKS AKSI ============ -->
+<section id="gaps">
+  <div class="wrap">
+    <div class="sec-head"><span class="no">H</span><h2>Panel Kosong = Matriks Aksi Data</h2></div>
+    <p class="gapnote">Setiap tanda ⬚ di dashboard ini adalah baris matriks aksi yang siap diisi (upaya–waktu–PIC): satu tugas data untuk tiap K/L pemilik datanya. Panel akan terisi otomatis begitu datanya tersedia.</p>
+    <table>
+      <thead><tr><th style="width:38%">Data yang belum tersedia publik</th><th>PIC pemilik data</th><th>Dipakai untuk</th></tr></thead>
+      <tbody>
+        <tr><td>Tarif freight curah aktual Tenau/Ba'a/Marapokot → Surabaya per ton, per ukuran kapal + frekuensi pelayaran</td><td>Dirut Pelni, Dirut Pelindo</td><td>KPI-6 paritas; kalkulator Seksi E</td></tr>
+        <tr><td>Spesifikasi dermaga (draft, panjang, alat muat curah) + rencana dermaga khusus K-SIGN</td><td>Direktur Kepelabuhanan Kemenhub</td><td>Penentu ukuran kapal maksimum = Rp/kg</td></tr>
+        <tr><td>Jadwal konstruksi &amp; komitmen investasi 8.000 ha zona investor Rote</td><td>Kementerian Investasi/Hilirisasi, KKP</td><td>KPI-4 kurva lahan; skenario Seksi D</td></tr>
+        <tr><td>Hasil uji mutu (NaCl, Mg, Ca) per lokasi per panen</td><td>Kepala Balai Besar Produksi Garam KKP</td><td>KPI-2 gerbang kualitas</td></tr>
+        <tr><td>Volume &amp; spesifikasi kebutuhan riil per industri anggota + komitmen kontrak offtake</td><td>Ketum AIPGI, Ketum APKI, Kemenperin</td><td>KPI-7 offtake coverage</td></tr>
+        <tr><td>Dekomposisi biaya tambak→gudang→pelabuhan di tiga kabupaten + kondisi jalan produksi</td><td>Dinas KP Prov. NTT, PT Garam, Cheetham, TLL, Tjakrawala</td><td>Rantai biaya ruas 1–2</td></tr>
+        <tr><td>Realisasi impor bulanan seluruh pos HS 2501 (bukan hanya 25010093) + realisasi PI vs kuota</td><td>Kemenko Pangan, BPS, INSW</td><td>KPI-3 glide path presisi</td></tr>
+        <tr><td>Kapasitas &amp; utilisasi gudang garam eksisting (GGR 100–200 t, GGN 2.000–7.000 t) per lokasi</td><td>KKP, Pemda</td><td>Buffer stok &amp; stabilisasi harga petambak</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <h5>Metodologi &amp; kejujuran angka</h5>
+        <p>Semua nilai adalah data publik per 3 September 2026, ditandai sumbernya di tiap panel. Angka yang antar-sumber tidak konsisten (kebutuhan per segmen, impor 2024) ditampilkan sebagai rentang atau diberi tanda ⬚. Proyeksi run-rate impor 2026 memakai penyetahunan pro-rata sederhana — sengaja kasar, karena fungsinya sinyal dini, bukan angka final. Interpolasi (titik glide path 2028) dinyatakan eksplisit. Kalkulator paritas adalah kerangka hitung dengan nilai awal placeholder; ia menjadi valid hanya setelah diisi angka riil dari K/L terkait.</p>
+      </div>
+      <div>
+        <h5>Sumber utama</h5>
+        <ul>
+          <li>· KKP — konferensi pers produksi garam nasional (30 Des 2025); siaran pers K-SIGN (Mei &amp; Agu 2026)</li>
+          <li>· BAKOM RI — konferensi pers KSIGN Rote Ndao &amp; glide path impor (2 Sep 2026)</li>
+          <li>· BPS — impor garam menurut negara asal 2017–2023; HS 25010093 Jan–Mei 2026</li>
+          <li>· Kemenko Pangan — penetapan kebutuhan garam CAP 2026 (Des 2025)</li>
+          <li>· Kemenperin — struktur kebutuhan garam industri; neraca komoditas</li>
+          <li>· Dokumen perencanaan ekstensifikasi — luasan Rote, Kupang, Nagekeo</li>
+          <li>· Perpres 17/2025; Perpres 126/2022; Perpres 41/2026; Kepmen KP 28/2025</li>
+          <li>· Pemberitaan terverifikasi: Antara, CNBC Indonesia, Kompas, Tempo, Floresa, Pos Kupang (2025–2026)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="sig">Kemenko Pangan RI · #SemuaBisaDihitung — prototipe analitik, bukan publikasi resmi kementerian.</div>
+  </div>
+</footer>
+
+<script>
+/* ================= KaTeX formulas ================= */
+katex.render(String.raw`\underbrace{\frac{L_{\text{target}}-L_{\text{terbangun}}}{\text{bulan tersisa}}}_{\text{run-rate yang dibutuhkan}} = \frac{10.764-616}{16\ \text{bln}} \approx 634\ \tfrac{\text{ha}}{\text{bln}} \;\; \text{vs realisasi} \approx 31\ \tfrac{\text{ha}}{\text{bln}}`, document.getElementById('fx-runrate'), {throwOnError:false, displayMode:true});
+document.getElementById('fx-runrate').insertAdjacentHTML('beforeend','<div class="fx-cap">Matematika deadline: agar swasembada 2027 masuk akal, kecepatan konstruksi lahan harus naik ±20 kali lipat. Jalur 2029 menuntut ±8 kali lipat — berat, tapi bukan mustahil bila 8.000 ha zona investor bergerak serentak.</div>');
+
+katex.render(String.raw`\underbrace{P_{\text{tambak}} + C_{\text{darat}} + C_{\text{laut}} + C_{\text{bongkar}}}_{\text{landed cost NTT}} \;\le\; \underbrace{P_{\text{CIF}} + C_{\text{pelabuhan}}}_{\text{landed cost impor}}`, document.getElementById('fx-paritas'), {throwOnError:false, displayMode:true});
+document.getElementById('fx-paritas').insertAdjacentHTML('beforeend','<div class="fx-cap">Syarat paritas di gerbang pabrik Jawa. Karena P<sub>tambak</sub> saat panen sudah mendekati P<sub>CIF</sub>, seluruh pertarungan ada di ruas biaya logistik — itulah mengapa isu ini soal freight, dermaga, dan gudang, bukan soal semangat.</div>');
+
+/* ================= Chart defaults ================= */
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+Chart.defaults.font.size = 12;
+const DARK = document.documentElement.getAttribute('data-theme')==='dark';
+Chart.defaults.color = DARK ? '#A9BAD0' : '#5A554B';
+const mono = "'JetBrains Mono', monospace";
+const GRID = DARK ? '#21384F' : '#EDE8DB';
+
+/* ================= A. Neraca chart ================= */
+const years = ['2019','2020','2021','2022','2023','2024','2025','2026'];
+new Chart(document.getElementById('neracaChart'), {
+  data:{
+    labels:years,
+    datasets:[
+      {type:'bar',label:'Produksi (realisasi)',data:[2.85,1.37,1.09,0.70,2.55,2.04,1.03,null],backgroundColor:'#175E63',borderRadius:3,barPercentage:.62},
+      {type:'bar',label:'Produksi (target 2026)',data:[null,null,null,null,null,null,null,2.5],backgroundColor:'rgba(23,94,99,.18)',borderColor:'#175E63',borderWidth:1.5,borderDash:[4,3],borderRadius:3,barPercentage:.62},
+      {type:'line',label:'Kebutuhan nasional',data:[4.2,4.46,4.6,4.5,4.9,4.9,4.9,5.0],borderColor:DARK?'#E9F0F8':'#191817',borderWidth:2,pointRadius:3,pointBackgroundColor:DARK?'#E9F0F8':'#191817',tension:.25},
+      {type:'line',label:'Impor (BPS)',data:[2.60,2.61,2.83,2.45,2.80,2.6,2.67,null],borderColor:'#A6392E',borderWidth:2,borderDash:[6,4],pointRadius:3,pointBackgroundColor:'#A6392E',tension:.25}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{position:'bottom',labels:{boxWidth:14,boxHeight:14,padding:16}},
+      tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y==null?'—':c.parsed.y.toFixed(2)+' jt ton'}`}}
+    },
+    scales:{
+      x:{grid:{display:false},ticks:{font:{family:mono,size:11}}},
+      y:{min:0,max:5.5,grid:{color:GRID},ticks:{font:{family:mono,size:11},callback:v=>v+' jt'}}
+    }
+  }
+});
+
+/* ================= B. Glide path ================= */
+const runrate2026 = 936/5*12/1000; // 2.246 jt — pro-rata garam industri
+new Chart(document.getElementById('glideChart'), {
+  data:{
+    labels:['2025','2026','2027','2028','2029'],
+    datasets:[
+      {type:'line',label:'Target glide path (BAKOM)',data:[2.67,2.0,1.0,0.5,0],borderColor:DARK?'#E9F0F8':'#191817',borderWidth:2,borderDash:[7,5],pointRadius:4,pointStyle:'rectRot',pointBackgroundColor:DARK?'#E9F0F8':'#191817',tension:0},
+      {type:'line',label:'Realisasi / proyeksi run-rate',data:[2.67,runrate2026,null,null,null],borderColor:'#A6392E',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#A6392E',tension:0},
+      {type:'bar',label:'Kuota impor CAP 2026',data:[null,1.18,null,null,null],backgroundColor:'rgba(199,154,61,.35)',borderColor:'#C79A3D',borderWidth:1.5,barPercentage:.3}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'bottom',labels:{boxWidth:14,boxHeight:14,padding:16}},
+      tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y==null?'—':c.parsed.y.toFixed(2)+' jt ton'}`}}
+    },
+    scales:{
+      x:{grid:{display:false},ticks:{font:{family:mono,size:11}}},
+      y:{min:0,max:3,grid:{color:GRID},ticks:{font:{family:mono,size:11},callback:v=>v+' jt'}}
+    }
+  }
+});
+
+/* ================= C. Segmen ================= */
+new Chart(document.getElementById('segmenChart'), {
+  type:'bar',
+  data:{
+    labels:['CAP (petrokimia, pulp & kertas)','Rumah tangga & komersial','Aneka pangan','Pengasinan ikan','Industri non-CAP lain','Farmasi & kosmetik'],
+    datasets:[{
+      data:[2.4,1.0,0.6,0.5,0.4,0.01],
+      backgroundColor:['#175E63','#2E6B4F','#A6392E','#7BA3A6','#C79A3D','#8A5A9E'],
+      borderRadius:3,barPercentage:.7
+    }]
+  },
+  options:{
+    indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:c=>` ${c.parsed.x.toFixed(2)} jt ton/th`}}
+    },
+    scales:{
+      x:{min:0,max:2.6,grid:{color:GRID},ticks:{font:{family:mono,size:11},callback:v=>v+' jt'}},
+      y:{grid:{display:false},ticks:{font:{size:11.5}}}
+    }
+  }
+});
+
+/* ================= D. Skenario ekstensifikasi ================= */
+const sHa=document.getElementById('s-ha'), sY=document.getElementById('s-yield');
+function fmtID(n){return n.toLocaleString('id-ID')}
+function calcExt(){
+  const ha=+sHa.value, y=+sY.value;
+  const prod = ha*y; // ton
+  document.getElementById('o-ha').textContent = fmtID(ha)+' ha';
+  document.getElementById('o-yield').textContent = y+' t/ha';
+  document.getElementById('o-prod').textContent = prod>=1000000 ? (prod/1000000).toFixed(2).replace('.',',')+' jt ton' : Math.round(prod/1000)+' rb ton';
+  document.getElementById('o-gap').textContent = Math.round(prod/3000000*100)+'%';
+}
+sHa.addEventListener('input',calcExt); sY.addEventListener('input',calcExt); calcExt();
+
+/* ================= E. Paritas calculator ================= */
+const ids=['tambak','darat','freight','bongkar','cif','portimp'];
+const el = Object.fromEntries(ids.map(k=>[k,document.getElementById('s-'+k)]));
+function rp(n){return 'Rp'+Math.round(n).toLocaleString('id-ID')}
+function calcParity(){
+  const v = Object.fromEntries(ids.map(k=>[k,+el[k].value]));
+  ids.forEach(k=>document.getElementById('o-'+k).textContent = Math.round(v[k]).toLocaleString('id-ID'));
+  const landedNTT = v.tambak+v.darat+v.freight+v.bongkar;
+  const landedImp = v.cif+v.portimp;
+  const idx = landedNTT/landedImp;
+  document.getElementById('c-tambak').textContent = fmtID(v.tambak);
+  document.getElementById('c-darat').textContent = '+'+fmtID(v.darat);
+  document.getElementById('c-freight').textContent = '+'+fmtID(v.freight);
+  document.getElementById('c-bongkar').textContent = '+'+fmtID(v.bongkar);
+  document.getElementById('c-landed').textContent = '= '+fmtID(landedNTT);
+  document.getElementById('o-landed-ntt').textContent = rp(landedNTT);
+  document.getElementById('o-landed-imp').textContent = rp(landedImp);
+  document.getElementById('o-indeks').textContent = idx.toFixed(2).replace('.',',');
+  const diff = landedNTT-landedImp;
+  const vd = document.getElementById('o-verdict');
+  if(diff<=0){ vd.className='verdict-chip good'; vd.textContent='PARITAS TERCAPAI — lebih murah '+rp(-diff)+'/kg dari impor'; }
+  else{ vd.className='verdict-chip bad'; vd.textContent='BELUM KOMPETITIF — selisih '+rp(diff)+'/kg di atas impor'; }
+  const maxFreight = landedImp - (v.tambak+v.darat+v.bongkar);
+  document.getElementById('o-maxfreight').textContent = (maxFreight>0? '≤ '+rp(maxFreight)+'/kg' : 'tidak ada ruang — struktur biaya lain harus turun dulu');
+}
+ids.forEach(k=>el[k].addEventListener('input',calcParity)); calcParity();
+</script>
+</body>
+</html>
