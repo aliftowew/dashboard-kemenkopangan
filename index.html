@@ -541,6 +541,10 @@ function clearSession(){ sessionStorage.removeItem(SS_KEY); try{ localStorage.re
 function show(view){
   ["loginView","portalView","dashView"].forEach(v=>$("#"+v).classList.add("hidden"));
   $("#"+view).classList.remove("hidden");
+  // dasbor punya tombol temanya sendiri di dalam iframe — sembunyikan milik portal
+  // agar tidak ada dua tombol bertumpuk.
+  const tb = $("#themeBtn");
+  if(tb) tb.style.display = (view === "dashView") ? "none" : "grid";
 }
 function enterPortal(){
   const s = session();
