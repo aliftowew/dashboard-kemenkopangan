@@ -208,6 +208,13 @@ footer li{padding-left:14px;text-indent:-14px}
 .theme-fab{position:fixed;bottom:20px;right:20px;z-index:9999;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--panel);border:1px solid var(--rule-strong);color:var(--ink);box-shadow:0 6px 20px -8px rgba(0,0,0,.4);transition:.15s}
 .theme-fab:hover{transform:translateY(-2px);border-color:var(--sea);color:var(--sea)}
 .theme-fab svg{width:21px;height:21px}
+.tabbar{display:flex;flex-wrap:wrap;gap:2px;border-bottom:2px solid var(--ink);margin-top:34px}
+.tabbtn{appearance:none;border:none;background:none;font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--ink-soft);padding:11px 16px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;white-space:nowrap}
+.tabbtn:hover{color:var(--ink)}
+.tabbtn.active{color:var(--ink);border-bottom-color:var(--sea)}
+.tabpanel{display:none}
+.tabpanel.active{display:block}
+@media(max-width:700px){.tabbtn{font-size:15px;padding:10px 11px}}
 </style>
 </head>
 <body>
@@ -291,6 +298,14 @@ footer li{padding-left:14px;text-indent:-14px}
   </div>
 </div>
 
+<div class="wrap"><div class="tabbar" id="tabbar">
+  <button class="tabbtn active" type="button" data-tab="neraca">Neraca &amp; Impor</button>
+  <button class="tabbtn" type="button" data-tab="kualitas">Kualitas</button>
+  <button class="tabbtn" type="button" data-tab="lahan">Lahan NTT</button>
+  <button class="tabbtn" type="button" data-tab="paritas">Paritas Logistik</button>
+  <button class="tabbtn" type="button" data-tab="kebijakan">Kebijakan &amp; KPI</button>
+</div></div>
+<div class="tabpanel active" data-panel="neraca">
 <!-- ============ SECTION A: NERACA ============ -->
 <section id="neraca">
   <div class="wrap">
@@ -316,6 +331,7 @@ footer li{padding-left:14px;text-indent:-14px}
     </div>
   </div>
 </section>
+
 
 <!-- ============ SECTION B: GLIDE PATH ============ -->
 <section id="glide">
@@ -343,6 +359,10 @@ footer li{padding-left:14px;text-indent:-14px}
   </div>
 </section>
 
+
+</div>
+
+<div class="tabpanel" data-panel="kualitas">
 <!-- ============ SECTION C: SEGMEN & KUALITAS ============ -->
 <section id="segmen">
   <div class="wrap">
@@ -378,6 +398,10 @@ footer li{padding-left:14px;text-indent:-14px}
   </div>
 </section>
 
+
+</div>
+
+<div class="tabpanel" data-panel="lahan">
 <!-- ============ SECTION D: EKSTENSIFIKASI ============ -->
 <section id="lahan">
   <div class="wrap">
@@ -438,6 +462,10 @@ footer li{padding-left:14px;text-indent:-14px}
   </div>
 </section>
 
+
+</div>
+
+<div class="tabpanel" data-panel="paritas">
 <!-- ============ SECTION E: PARITAS LOGISTIK ============ -->
 <section id="paritas">
   <div class="wrap">
@@ -493,6 +521,10 @@ footer li{padding-left:14px;text-indent:-14px}
   </div>
 </section>
 
+
+</div>
+
+<div class="tabpanel" data-panel="kebijakan">
 <!-- ============ SECTION F: KEBIJAKAN & LOGISTIK ============ -->
 <section id="kebijakan">
   <div class="wrap">
@@ -522,6 +554,7 @@ footer li{padding-left:14px;text-indent:-14px}
   </div>
 </section>
 
+
 <!-- ============ SECTION G: KPI DEFINITIONS ============ -->
 <section id="kpi-def">
   <div class="wrap">
@@ -539,6 +572,7 @@ footer li{padding-left:14px;text-indent:-14px}
     </div>
   </div>
 </section>
+
 
 <!-- ============ SECTION H: DATA GAP / MATRIKS AKSI ============ -->
 <section id="gaps">
@@ -561,6 +595,8 @@ footer li{padding-left:14px;text-indent:-14px}
   </div>
 </section>
 
+
+</div>
 <!-- ============ FOOTER ============ -->
 <footer>
   <div class="wrap">
@@ -716,6 +752,21 @@ function calcParity(){
   document.getElementById('o-maxfreight').textContent = (maxFreight>0? '≤ '+rp(maxFreight)+'/kg' : 'tidak ada ruang — struktur biaya lain harus turun dulu');
 }
 ids.forEach(k=>el[k].addEventListener('input',calcParity)); calcParity();
+
+/* ================= Tab navigasi ================= */
+(function(){
+  var CANVAS=['neracaChart','glideChart','segmenChart'];
+  function relayout(){ CANVAS.forEach(function(id){ var c=(window.Chart&&Chart.getChart)?Chart.getChart(id):null; if(c) c.resize(); }); }
+  document.querySelectorAll('.tabbtn').forEach(function(b){
+    b.addEventListener('click',function(){
+      var t=b.dataset.tab;
+      document.querySelectorAll('.tabbtn').forEach(function(x){x.classList.toggle('active',x===b);});
+      document.querySelectorAll('.tabpanel').forEach(function(p){p.classList.toggle('active',p.dataset.panel===t);});
+      window.scrollTo({top:document.getElementById('tabbar').offsetTop-8,behavior:'smooth'});
+      requestAnimationFrame(relayout);
+    });
+  });
+})();
 </script>
 </body>
 </html>
