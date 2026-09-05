@@ -208,6 +208,31 @@ footer li{padding-left:14px;text-indent:-14px}
 .theme-fab{position:fixed;bottom:20px;right:20px;z-index:9999;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--panel);border:1px solid var(--rule-strong);color:var(--ink);box-shadow:0 6px 20px -8px rgba(0,0,0,.4);transition:.15s}
 .theme-fab:hover{transform:translateY(-2px);border-color:var(--sea);color:var(--sea)}
 .theme-fab svg{width:21px;height:21px}
+/* --- banner foto masthead --- */
+.hero-img{position:relative;height:210px;border-radius:10px;overflow:hidden;margin-top:18px;border:1px solid var(--rule)}
+.hero-img img{width:100%;height:100%;object-fit:cover;display:block}
+.hero-img figcaption{position:absolute;left:0;right:0;bottom:0;padding:22px 16px 9px;font-family:var(--mono);font-size:11px;color:#fff;
+  background:linear-gradient(to top,rgba(10,26,30,.82),transparent);letter-spacing:.03em}
+/* --- ikon gerbang --- */
+.gate .gicon{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;flex:0 0 auto}
+.gate .gicon svg{width:19px;height:19px}
+.gate .gicon.red{background:var(--red-soft);color:var(--red)}
+.gate .gicon.amber{background:var(--amber-soft);color:var(--amber)}
+.gate{grid-template-columns:34px 120px 1fr;gap:12px}
+@media(max-width:900px){.gate{grid-template-columns:34px 96px 1fr;gap:9px}}
+/* --- ikon tab --- */
+.tabbtn{display:inline-flex;align-items:center;gap:8px}
+.tabbtn svg{width:16px;height:16px;flex:0 0 auto;opacity:.75}
+.tabbtn.active svg{opacity:1;color:var(--sea)}
+/* --- foto pendukung dalam seksi --- */
+.secfig{margin:0 0 18px;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--panel)}
+.secfig img{width:100%;height:210px;object-fit:cover;display:block}
+.secfig figcaption{font-family:var(--mono);font-size:11px;color:var(--ink-soft);padding:9px 12px;line-height:1.5}
+/* --- ikon kartu KPI --- */
+.def{position:relative}
+.def .kicon{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--sea-soft);color:var(--sea)}
+.def .kicon svg{width:16px;height:16px}
+.def h4{padding-right:38px}
 .tabbar{display:flex;flex-wrap:wrap;gap:2px;border-bottom:2px solid var(--ink);margin-top:34px}
 .tabbtn{appearance:none;border:none;background:none;font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--ink-soft);padding:11px 16px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;white-space:nowrap}
 .tabbtn:hover{color:var(--ink)}
@@ -239,6 +264,10 @@ footer li{padding-left:14px;text-indent:-14px}
     <h1>Neraca Garam Nasional:<br>Mengukur Jarak Menuju Swasembada</h1>
     <p class="dek">Monitor terpadu produksi–kebutuhan–impor, progres ekstensifikasi NTT, dan paritas biaya logistik terhadap garam impor. <b>Swasembada bukan satu angka — ia tiga gerbang yang harus lolos bersamaan: volume, kualitas, dan harga.</b></p>
     <div class="sim-note">⬚ <b>Catatan data.</b> Seluruh angka bersumber dari data publik (BPS, KKP, Kemenperin, Kemenko Pangan, pemberitaan resmi) per <code>3 Sep 2026</code>. Panel bertanda ⬚ menunggu data resmi K/L — daftar lengkapnya ada di bagian akhir. Bukan publikasi resmi.</div>
+    <figure class="hero-img">
+      <img src="../assets/img/garam-tambak.jpg" alt="Hamparan tambak garam dengan gundukan garam siap panen" loading="lazy">
+      <figcaption>Gundukan garam siap angkut di lahan penggaraman — titik awal rantai pasok menuju industri.</figcaption>
+    </figure>
   </div>
 </header>
 
@@ -251,16 +280,19 @@ footer li{padding-left:14px;text-indent:-14px}
     </div>
     <div class="gates">
       <div class="gate">
+        <div class="gicon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M6 20V10l6-5 6 5v10"/><path d="M10 20v-5h4v5"/></svg></div>
         <div class="light red">OFF-TRACK</div>
         <div><h3>Gerbang 1 — Volume</h3>
         <p>Produksi 2025 anjlok 49% karena hujan (La Niña). Target 2026: <b>2,5 jt ton</b>; kebutuhan <b>4,5–5 jt ton</b>. Deadline Perpres 17/2025 (2027) menuntut konstruksi lahan <b>±20×</b> lebih cepat dari run-rate saat ini.</p></div>
       </div>
       <div class="gate">
+        <div class="gicon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3.6v5c0 4.4-3.1 8-7.5 9.4-4.4-1.4-7.5-5-7.5-9.4v-5L12 3z"/><path d="M9 12.2l2.2 2.2L15.2 10"/></svg></div>
         <div class="light red">OFF-TRACK</div>
         <div><h3>Gerbang 2 — Kualitas</h3>
         <p>Kebutuhan spek industri (NaCl ≥97%) ±3 jt ton/th; program produksi domestik yang memenuhi spek baru menargetkan <b>400 rb ton/th</b> (±13%). Garam rakyat umumnya &lt;94% NaCl. Uji coba K-SIGN Rote: <b>97%</b> — proof point kritis.</p></div>
       </div>
       <div class="gate">
+        <div class="gicon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M4 8.5h9.5a2.8 2.8 0 0 1 0 5.6H6"/><path d="M4 19h11"/></svg></div>
         <div class="light amber">BELUM PARITAS</div>
         <div><h3>Gerbang 3 — Harga</h3>
         <p>CIF impor ±<b>US$48/ton ≈ Rp750–800/kg</b> sudah sampai pelabuhan Jawa. Harga tambak domestik saat panen Rp600–880/kg — <b>ruang untuk seluruh biaya logistik NTT→Jawa nyaris nol</b>. Paritas hanya tercapai lewat skala angkut + premium kualitas.</p></div>
@@ -299,11 +331,11 @@ footer li{padding-left:14px;text-indent:-14px}
 </div>
 
 <div class="wrap"><div class="tabbar" id="tabbar">
-  <button class="tabbtn active" type="button" data-tab="neraca">Neraca &amp; Impor</button>
-  <button class="tabbtn" type="button" data-tab="kualitas">Kualitas</button>
-  <button class="tabbtn" type="button" data-tab="lahan">Lahan NTT</button>
-  <button class="tabbtn" type="button" data-tab="paritas">Paritas Logistik</button>
-  <button class="tabbtn" type="button" data-tab="kebijakan">Kebijakan &amp; KPI</button>
+  <button class="tabbtn active" type="button" data-tab="neraca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l3.5-4 3 2.6L20 7"/></svg>Neraca &amp; Impor</button>
+  <button class="tabbtn" type="button" data-tab="kualitas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3.6v5c0 4.4-3.1 8-7.5 9.4-4.4-1.4-7.5-5-7.5-9.4v-5L12 3z"/><path d="M9 12.2l2.2 2.2L15.2 10"/></svg>Kualitas</button>
+  <button class="tabbtn" type="button" data-tab="lahan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M4 20V9l8-5 8 5v11"/><path d="M4 13h16"/></svg>Lahan NTT</button>
+  <button class="tabbtn" type="button" data-tab="paritas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17.5c1.8-1.4 3.4-1.4 5.2 0 1.8 1.4 3.4 1.4 5.2 0 1.8-1.4 3.4-1.4 5.2 0"/><path d="M5 13.5V7h10l3 4"/><path d="M9 7V4.5h3"/></svg>Paritas Logistik</button>
+  <button class="tabbtn" type="button" data-tab="kebijakan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5h7l4 4v13H7z"/><path d="M14 3.5V8h4"/><path d="M10 12.5h5M10 16h5"/></svg>Kebijakan &amp; KPI</button>
 </div></div>
 <div class="tabpanel active" data-panel="neraca">
 <!-- ============ SECTION A: NERACA ============ -->
@@ -368,6 +400,10 @@ footer li{padding-left:14px;text-indent:-14px}
   <div class="wrap">
     <div class="sec-head"><span class="no">C</span><h2>Gerbang Kualitas: Kebutuhan per Segmen &amp; Spesifikasi</h2></div>
     <p class="lede">Swasembada gagal "di atas kertas" kalau volume terpenuhi tapi speknya tidak. <span class="soft">Segmen terbesar — chlor alkali plant (CAP) untuk petrokimia dan pulp &amp; kertas — menuntut NaCl ≥97%, impuritas rendah, dan pasokan kontinu. Garam rakyat umumnya di bawah 94%.</span></p>
+    <figure class="secfig">
+      <img src="../assets/img/garam-industri.jpg" alt="Pekerja mengolah garam berspesifikasi industri di dalam pabrik" loading="lazy">
+      <figcaption>Garam spesifikasi industri (NaCl ≥97%) diproses di lingkungan terkendali — inilah mutu yang dituntut segmen CAP dan aneka pangan, dan yang belum bisa dipenuhi garam rakyat.</figcaption>
+    </figure>
     <div class="grid2r">
       <div>
         <div class="chart-card">
@@ -472,6 +508,11 @@ footer li{padding-left:14px;text-indent:-14px}
     <div class="sec-head"><span class="no">E</span><h2>Gerbang Harga: Kalkulator Paritas Logistik NTT → Jawa</h2></div>
     <p class="lede">Garam adalah komoditas <b>nilai-rendah-per-kilogram</b> (Rp600–900/kg di tambak) — sehingga toleransinya terhadap biaya angkut sangat tipis. <span class="soft">Impor Australia tiba di pelabuhan Jawa dengan CIF ±US$48/ton (≈Rp750–800/kg) berkat kapal curah 30–50 rb DWT. Garam NTT harus menempuh 1.500 km dengan armada jauh lebih kecil — dan tetap harus mendarat lebih murah, atau setidaknya setara dengan premium kualitas.</span></p>
 
+    <figure class="secfig">
+      <img src="../assets/img/garam-pelabuhan.jpg" alt="Bongkar muat garam curah dari kapal ke truk di pelabuhan" loading="lazy">
+      <figcaption>Bongkar muat garam curah di pelabuhan. Ukuran kapal dan kecepatan bongkar menentukan Rp/kg — ruas inilah yang menentukan menang-kalah terhadap garam impor.</figcaption>
+    </figure>
+
     <div class="formula" id="fx-paritas"></div>
 
     <div class="chart-card">
@@ -561,14 +602,14 @@ footer li{padding-left:14px;text-indent:-14px}
     <div class="sec-head"><span class="no">G</span><h2>Delapan Angka Penentu Status On-Track</h2></div>
     <p class="lede">Kalau dashboard ini dilembagakan, inilah instrumen panelnya — masing-masing dengan pemilik data dan frekuensi pembaruan.</p>
     <div class="defs">
-      <div class="def"><div class="dn">KPI-1 · bulanan</div><h4>Rasio swasembada volume</h4><p>Produksi 12 bulan berjalan ÷ kebutuhan tahunan. <b>Posisi: 21%. Target: 100% (2029).</b></p><div class="dsrc">Data: KKP satudata + neraca komoditas</div></div>
-      <div class="def"><div class="dn">KPI-2 · per panen</div><h4>Rasio swasembada kualitas</h4><p>Produksi lolos uji NaCl ≥97% ÷ kebutuhan spek tinggi (±3 jt ton). <b>Posisi: ±13% (target program, realisasi ⬚).</b></p><div class="dsrc">Data: Balai Besar Produksi Garam, uji lab per lokasi</div></div>
-      <div class="def"><div class="dn">KPI-3 · bulanan</div><h4>Impor YTD vs glide path</h4><p>Realisasi kumulatif ÷ target pro-rata tahun berjalan. <b>Posisi: &gt;100% dari lintasan (warning).</b></p><div class="dsrc">Data: BPS HS 2501 per bulan + PI INSW</div></div>
-      <div class="def"><div class="dn">KPI-4 · bulanan</div><h4>Lahan produktif vs kurva rencana</h4><p>Ha terbangun-berproduksi vs S-curve target. <b>Posisi: 616 ha; butuh 254 ha/bln (jalur 2029) — 8× run-rate.</b></p><div class="dsrc">Data: KKP, kontraktor, pemda, investor</div></div>
-      <div class="def"><div class="dn">KPI-5 · per musim</div><h4>Produktivitas aktual (t/ha)</h4><p>Panen riil per lokasi vs asumsi 200 t/ha. <b>Pembuktian pertama: panen Rote Nov 2026.</b></p><div class="dsrc">Data: laporan panen K-SIGN &amp; korporasi</div></div>
-      <div class="def"><div class="dn">KPI-6 · triwulanan</div><h4>Indeks paritas harga</h4><p>Landed NTT ÷ landed impor di gerbang pabrik Jawa. <b>Target ≤1,00. Posisi: ⬚ (butuh freight aktual).</b></p><div class="dsrc">Data: Pelni/Pelindo, BPS CIF, survei harga tambak</div></div>
-      <div class="def"><div class="dn">KPI-7 · triwulanan</div><h4>Offtake coverage</h4><p>Volume kontrak pembelian terikat ÷ proyeksi produksi. Tanpa ini, panen sukses = harga hancur. <b>Posisi: ⬚.</b></p><div class="dsrc">Data: AIPGI, APKI, Kemenperin (MoU serapan)</div></div>
-      <div class="def"><div class="dn">KPI-8 · bulanan</div><h4>Hari kering efektif vs normal</h4><p>Leading indicator produksi — prakiraan ENSO menentukan proyeksi 6 bulan ke depan. <b>2026: netral-kering, produksi membaik.</b></p><div class="dsrc">Data: BMKG (ENSO outlook, curah hujan NTT &amp; Pantura)</div></div>
+      <div class="def"><div class="dn">KPI-1 · bulanan</div><div class="kicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M12 3v9h9"/></svg></div><h4>Rasio swasembada volume</h4><p>Produksi 12 bulan berjalan ÷ kebutuhan tahunan. <b>Posisi: 21%. Target: 100% (2029).</b></p><div class="dsrc">Data: KKP satudata + neraca komoditas</div></div>
+      <div class="def"><div class="dn">KPI-2 · per panen</div><div class="kicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3.6v5c0 4.4-3.1 8-7.5 9.4-4.4-1.4-7.5-5-7.5-9.4v-5L12 3z"/><path d="M9 12.2l2.2 2.2L15.2 10"/></svg></div><h4>Rasio swasembada kualitas</h4><p>Produksi lolos uji NaCl ≥97% ÷ kebutuhan spek tinggi (±3 jt ton). <b>Posisi: ±13% (target program, realisasi ⬚).</b></p><div class="dsrc">Data: Balai Besar Produksi Garam, uji lab per lokasi</div></div>
+      <div class="def"><div class="dn">KPI-3 · bulanan</div><div class="kicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-4.5 3 2.5L20 7"/><path d="M17 7h3v3"/></svg></div><h4>Impor YTD vs glide path</h4><p>Realisasi kumulatif ÷ target pro-rata tahun berjalan. <b>Posisi: &gt;100% dari lintasan (warning).</b></p><div class="dsrc">Data: BPS HS 2501 per bulan + PI INSW</div></div>
+      <div class="def"><div class="dn">KPI-4 · bulanan</div><div class="kicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M4 20V9l8-5 8 5v11"/><path d="M4 13h16"/></svg></div><h4>Lahan produktif vs kurva rencana</h4><p>Ha terbangun-berproduksi vs S-curve target. <b>Posisi: 616 ha; butuh 254 ha/bln (jalur 2029) — 8× run-rate.</b></p><div class="dsrc">Data: KKP, kontraktor, pemda, investor</div></div>
+      <div class="def"><div class="dn">KPI-5 · per musim</div><div class="kicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V9"/><path d="M12 9c0-3 2-5 5-5 0 3-2 5-5 5z"/><path d="M12 12c0-3-2-5-5-5 0 3 2 5 5 5z"/><path d="M6 20h12"/></svg></div><h4>Produktivitas aktual (t/ha)</h4><p>Panen riil per lokasi vs asumsi 200 t/ha. <b>Pembuktian pertama: panen Rote Nov 2026.</b></p><div class="dsrc">Data: laporan panen K-SIGN &amp; korporasi</div></div>
+      <div class="def"><div class="dn">KPI-6 · triwulanan</div><div class="kicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16"/><path d="M6 8h9a2.6 2.6 0 0 1 0 5.2H8"/><path d="M6 18h11"/></svg></div><h4>Indeks paritas harga</h4><p>Landed NTT ÷ landed impor di gerbang pabrik Jawa. <b>Target ≤1,00. Posisi: ⬚ (butuh freight aktual).</b></p><div class="dsrc">Data: Pelni/Pelindo, BPS CIF, survei harga tambak</div></div>
+      <div class="def"><div class="dn">KPI-7 · triwulanan</div><div class="kicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5 12 4l8 3.5v9L12 20l-8-3.5z"/><path d="M4 7.5 12 11l8-3.5M12 11v9"/></svg></div><h4>Offtake coverage</h4><p>Volume kontrak pembelian terikat ÷ proyeksi produksi. Tanpa ini, panen sukses = harga hancur. <b>Posisi: ⬚.</b></p><div class="dsrc">Data: AIPGI, APKI, Kemenperin (MoU serapan)</div></div>
+      <div class="def"><div class="dn">KPI-8 · bulanan</div><div class="kicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2M4.6 6.6l1.4 1.4M3 14h2M19 14h2M18 6.6l-1.4 1.4"/><path d="M8 18a4.2 4.2 0 1 1 8 0z"/><path d="M6 21h12"/></svg></div><h4>Hari kering efektif vs normal</h4><p>Leading indicator produksi — prakiraan ENSO menentukan proyeksi 6 bulan ke depan. <b>2026: netral-kering, produksi membaik.</b></p><div class="dsrc">Data: BMKG (ENSO outlook, curah hujan NTT &amp; Pantura)</div></div>
     </div>
   </div>
 </section>
