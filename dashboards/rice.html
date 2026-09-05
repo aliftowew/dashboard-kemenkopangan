@@ -173,6 +173,20 @@
     color: var(--ink);
   }
   .section-title em { font-style: italic; color: var(--rust); }
+  /* --- strip 4 tahap perjalanan beras --- */
+  .journey{grid-column:span 12;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0 8px}
+  .jstep{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper);position:relative}
+  .jstep img{width:100%;height:132px;object-fit:cover;display:block}
+  .jstep .jbody{padding:11px 13px 13px}
+  .jstep .jno{position:absolute;top:9px;left:9px;width:24px;height:24px;border-radius:50%;background:rgba(26,22,18,.82);color:#f4ede0;
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:700;display:grid;place-items:center}
+  .jstep .jicon{position:absolute;top:9px;right:9px;width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,.9);color:var(--rust);display:grid;place-items:center}
+  .jstep .jicon svg{width:15px;height:15px}
+  .jstep h5{font-family:'Fraunces',serif;font-size:15px;font-weight:600;margin-bottom:2px}
+  .jstep .jmeta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--rust);font-weight:600;margin-bottom:4px}
+  .jstep p{font-size:12.3px;color:var(--ink-light);line-height:1.45}
+  @media(max-width:900px){.journey{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.journey{grid-template-columns:1fr}}
   .section-sub {
     margin-left: auto;
     font-size: 12px;
@@ -2093,6 +2107,29 @@
       <div class="kpi-value"><span id="kpiYield">57</span><span style="font-size:18px;color:var(--muted);">%</span></div>
       <div class="kpi-sub" id="kpiYieldSub">574 g beras dari 1 kg GKP awal</div>
       <div class="kpi-trend"><span class="arrow down">▼</span> <span id="kpiLossText">-43% massa</span></div>
+    </div>
+
+    <div class="journey">
+      <figure class="jstep">
+        <span class="jno">1</span><span class="jicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V9"/><path d="M12 9c0-3 2-5 5-5 0 3-2 5-5 5z"/><path d="M12 12c0-3-2-5-5-5 0 3 2 5 5 5z"/><path d="M6 20h12"/></svg></span>
+        <img src="../assets/img/rice-gkp.jpg" alt="Petani menampi gabah hasil panen di tepi sawah" loading="lazy">
+        <figcaption class="jbody"><h5>Panen — GKP</h5><div class="jmeta">Rp 6.500/kg · 100% massa</div><p>Gabah kering panen langsung dari sawah, kadar air masih ±25%.</p></figcaption>
+      </figure>
+      <figure class="jstep">
+        <span class="jno">2</span><span class="jicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.4M12 19.1v2.4M4.4 4.4l1.7 1.7M17.9 17.9l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.4 19.6l1.7-1.7M17.9 6.1l1.7-1.7"/></svg></span>
+        <img src="../assets/img/rice-jemur.jpg" alt="Gabah dijemur dan dibalik di lantai penjemuran" loading="lazy">
+        <figcaption class="jbody"><h5>Pengeringan — GKG</h5><div class="jmeta">Rp 8.338/kg · 84% massa</div><p>Susut 16% menguap sebagai air. Di sinilah biaya per kg mulai melonjak.</p></figcaption>
+      </figure>
+      <figure class="jstep">
+        <span class="jno">3</span><span class="jicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg></span>
+        <img src="../assets/img/rice-huller.jpg" alt="Unit penggilingan padi (RMU) di dalam pabrik" loading="lazy">
+        <figcaption class="jbody"><h5>Penggilingan</h5><div class="jmeta">Rp 11.217/kg · 63% massa</div><p>Pecah kulit membuang 25% sekam — lonjakan biaya terbesar di seluruh rantai.</p></figcaption>
+      </figure>
+      <figure class="jstep">
+        <span class="jno">4</span><span class="jicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5h16l-1.2 11a2 2 0 0 1-2 1.8H7.2a2 2 0 0 1-2-1.8z"/><path d="M8.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5"/></svg></span>
+        <img src="../assets/img/rice-beras.jpg" alt="Rak beras kemasan di ritel modern" loading="lazy">
+        <figcaption class="jbody"><h5>Pengecer</h5><div class="jmeta">Rp 13.544/kg · 57,4% massa</div><p>Beras kemasan siap jual. Dari 1 kg gabah, tersisa 574 gram.</p></figcaption>
+      </figure>
     </div>
 
     <!-- ──────── 02 · ALUR HARGA ──────── -->
