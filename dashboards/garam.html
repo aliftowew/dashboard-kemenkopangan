@@ -222,8 +222,8 @@ footer li{padding-left:14px;text-indent:-14px}
 @media(max-width:900px){.gate{grid-template-columns:34px 96px 1fr;gap:9px}}
 /* --- ikon tab --- */
 .tabbtn{display:inline-flex;align-items:center;gap:8px}
-.tabbtn svg{width:16px;height:16px;flex:0 0 auto;opacity:.75}
-.tabbtn.active svg{opacity:1;color:var(--sea)}
+.tabbtn svg{width:16px;height:16px;flex:0 0 auto;opacity:.8}
+.tabbtn.active svg{opacity:1;color:currentColor}
 /* --- foto pendukung dalam seksi --- */
 .secfig{margin:0 0 18px;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--panel)}
 .secfig img{width:100%;height:210px;object-fit:cover;display:block}
@@ -287,10 +287,13 @@ footer li{padding-left:14px;text-indent:-14px}
 .snitab{width:100%;margin-top:4px}
 .snitab td{padding:7px 9px;font-size:13px}
 .snitab td.k{font-family:var(--mono);font-weight:700;width:52px}
-.tabbar{display:flex;flex-wrap:wrap;gap:2px;border-bottom:2px solid var(--ink);margin-top:34px}
-.tabbtn{appearance:none;border:none;background:none;font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--ink-soft);padding:11px 16px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;white-space:nowrap}
-.tabbtn:hover{color:var(--ink)}
-.tabbtn.active{color:var(--ink);border-bottom-color:var(--sea)}
+.tabbar{display:flex;flex-wrap:wrap;gap:9px;margin-top:34px;padding-bottom:4px}
+.tabbtn{appearance:none;background:var(--panel);border:1px solid var(--rule-strong);border-radius:999px;
+  font-family:'Fraunces',serif;font-size:15.5px;font-weight:600;color:var(--ink-soft);padding:9px 17px;cursor:pointer;
+  transition:.15s;white-space:nowrap;box-shadow:0 1px 2px rgba(60,50,30,.05)}
+.tabbtn:hover{color:var(--ink);border-color:var(--sea);transform:translateY(-1px)}
+.tabbtn.active{background:var(--sea);border-color:var(--sea);color:#FBF8F1;box-shadow:0 3px 10px -4px rgba(23,94,99,.55)}
+:root[data-theme="dark"] .tabbtn.active{color:#08171c}
 .tabpanel{display:none}
 .tabpanel.active{display:block}
 @media(max-width:700px){.tabbtn{font-size:15px;padding:10px 11px}}
@@ -415,10 +418,6 @@ footer li{padding-left:14px;text-indent:-14px}
         </div>
       </div>
     </div>
-  </div>
-</section>
-
-
   </div>
 </section>
 
