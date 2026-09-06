@@ -133,7 +133,15 @@ tr:hover td{background:#F6F2E8}
 /* sliders */
 .sliders{display:grid;grid-template-columns:1fr 1fr;gap:14px 26px;margin:16px 0 6px}
 .sl label{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:4px}
-.sl label output{font-family:var(--mono);font-weight:700;font-size:13px}
+.sl label{align-items:center;gap:10px}
+.sl .valwrap{display:inline-flex;align-items:center;gap:5px;flex:0 0 auto}
+.sl .numin{width:88px;font-family:var(--mono);font-weight:700;font-size:13px;text-align:right;
+  background:var(--panel);border:1px solid var(--rule-strong);border-radius:6px;padding:3px 7px;color:var(--ink);
+  -moz-appearance:textfield}
+.sl .numin::-webkit-outer-spin-button,.sl .numin::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.sl .numin:hover{border-color:var(--sea)}
+.sl .numin:focus{outline:none;border-color:var(--sea);box-shadow:0 0 0 3px rgba(23,94,99,.15)}
+.sl .unit{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);white-space:nowrap}
 input[type=range]{width:100%;accent-color:var(--sea);height:26px}
 .result-line{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
 .pill{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:10px 16px;min-width:150px;flex:1}
@@ -542,11 +550,11 @@ footer li{padding-left:14px;text-indent:-14px}
           <h5>Simulasi suplai baru NTT — geser asumsinya</h5>
           <div class="sliders" style="grid-template-columns:1fr">
             <div class="sl">
-              <label>Lahan produktif NTT s.d. akhir 2027 <output id="o-ha">3.000 ha</output></label>
+              <label>Lahan produktif NTT s.d. akhir 2027 <span class="valwrap"><input type="number" class="numin" id="o-ha" inputmode="numeric" aria-label="nilai"><span class="unit">ha</span></span></label>
               <input type="range" id="s-ha" min="616" max="10764" step="100" value="3000">
             </div>
             <div class="sl">
-              <label>Produktivitas rata-rata <output id="o-yield">150 t/ha</output></label>
+              <label>Produktivitas rata-rata <span class="valwrap"><input type="number" class="numin" id="o-yield" inputmode="numeric" aria-label="nilai"><span class="unit">t/ha</span></span></label>
               <input type="range" id="s-yield" min="60" max="220" step="10" value="150">
             </div>
           </div>
@@ -662,12 +670,12 @@ footer li{padding-left:14px;text-indent:-14px}
       <h4>Rantai biaya: tambak NTT → gudang → pelabuhan → industri Jawa</h4>
       <div class="sub">geser asumsi — angka default adalah placeholder yang harus diganti angka riil dari Pelni, Pelindo, PT Garam, dan Cheetham</div>
       <div class="sliders">
-        <div class="sl"><label>Harga garam di tambak NTT (Rp/kg) <output id="o-tambak">700</output></label><input type="range" id="s-tambak" min="400" max="2500" step="10" value="700"></div>
-        <div class="sl"><label>Angkut darat tambak→pelabuhan + handling (Rp/kg) <output id="o-darat">140</output></label><input type="range" id="s-darat" min="20" max="500" step="10" value="140"></div>
-        <div class="sl"><label>⬚ Freight laut NTT→Surabaya (Rp/kg) <output id="o-freight">250</output></label><input type="range" id="s-freight" min="50" max="1000" step="10" value="250"></div>
-        <div class="sl"><label>Bongkar + distribusi ke pabrik Jawa (Rp/kg) <output id="o-bongkar">60</output></label><input type="range" id="s-bongkar" min="20" max="300" step="10" value="60"></div>
-        <div class="sl"><label>CIF garam impor di pelabuhan Jawa (Rp/kg) <output id="o-cif">780</output></label><input type="range" id="s-cif" min="500" max="1500" step="10" value="780"></div>
-        <div class="sl"><label>Biaya pelabuhan + distribusi garam impor (Rp/kg) <output id="o-portimp">70</output></label><input type="range" id="s-portimp" min="20" max="300" step="10" value="70"></div>
+        <div class="sl"><label>Harga garam di tambak NTT (Rp/kg) <span class="valwrap"><input type="number" class="numin" id="o-tambak" inputmode="numeric" aria-label="nilai"><span class="unit">Rp/kg</span></span></label><input type="range" id="s-tambak" min="400" max="2500" step="10" value="700"></div>
+        <div class="sl"><label>Angkut darat tambak→pelabuhan + handling (Rp/kg) <span class="valwrap"><input type="number" class="numin" id="o-darat" inputmode="numeric" aria-label="nilai"><span class="unit">Rp/kg</span></span></label><input type="range" id="s-darat" min="20" max="500" step="10" value="140"></div>
+        <div class="sl"><label>⬚ Freight laut NTT→Surabaya (Rp/kg) <span class="valwrap"><input type="number" class="numin" id="o-freight" inputmode="numeric" aria-label="nilai"><span class="unit">Rp/kg</span></span></label><input type="range" id="s-freight" min="50" max="1000" step="10" value="250"></div>
+        <div class="sl"><label>Bongkar + distribusi ke pabrik Jawa (Rp/kg) <span class="valwrap"><input type="number" class="numin" id="o-bongkar" inputmode="numeric" aria-label="nilai"><span class="unit">Rp/kg</span></span></label><input type="range" id="s-bongkar" min="20" max="300" step="10" value="60"></div>
+        <div class="sl"><label>CIF garam impor di pelabuhan Jawa (Rp/kg) <span class="valwrap"><input type="number" class="numin" id="o-cif" inputmode="numeric" aria-label="nilai"><span class="unit">Rp/kg</span></span></label><input type="range" id="s-cif" min="500" max="1500" step="10" value="780"></div>
+        <div class="sl"><label>Biaya pelabuhan + distribusi garam impor (Rp/kg) <span class="valwrap"><input type="number" class="numin" id="o-portimp" inputmode="numeric" aria-label="nilai"><span class="unit">Rp/kg</span></span></label><input type="range" id="s-portimp" min="20" max="300" step="10" value="70"></div>
       </div>
 
       <div class="chain">
@@ -898,17 +906,43 @@ new Chart(document.getElementById('segmenChart'), {
 });
 
 /* ================= D. Skenario ekstensifikasi ================= */
+/* --- input angka manual: sinkron dua arah dengan slider --- */
+function setNum(id,val){const el=document.getElementById(id);
+  if(el && document.activeElement!==el) el.value=val;}
+function bindNum(key,onChange){
+  const r=document.getElementById('s-'+key), n=document.getElementById('o-'+key);
+  if(!r||!n) return;
+  n.min=r.min; n.max=r.max; n.step=r.step;
+  const clamp=v=>Math.min(parseFloat(r.max),Math.max(parseFloat(r.min),v));
+  n.addEventListener('input',()=>{
+    const v=parseFloat(n.value);
+    if(isNaN(v)) return;                 // biarkan pengguna mengetik
+    r.value=clamp(v); onChange();
+  });
+  const settle=()=>{                     // rapikan saat selesai mengetik
+    let v=parseFloat(n.value);
+    if(isNaN(v)) v=parseFloat(r.value);
+    r.value=clamp(v);                    // peramban membulatkan ke kelipatan step
+    n.value=r.value;                     // tampilkan nilai yang benar-benar dipakai
+    onChange();
+  };
+  n.addEventListener('change',settle);
+  n.addEventListener('blur',settle);
+  n.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault(); n.blur();} });
+}
+
 const sHa=document.getElementById('s-ha'), sY=document.getElementById('s-yield');
 function fmtID(n){return n.toLocaleString('id-ID')}
 function calcExt(){
   const ha=+sHa.value, y=+sY.value;
   const prod = ha*y; // ton
-  document.getElementById('o-ha').textContent = fmtID(ha)+' ha';
-  document.getElementById('o-yield').textContent = y+' t/ha';
+  setNum('o-ha', ha); setNum('o-yield', y);
   document.getElementById('o-prod').textContent = prod>=1000000 ? (prod/1000000).toFixed(2).replace('.',',')+' jt ton' : Math.round(prod/1000)+' rb ton';
   document.getElementById('o-gap').textContent = Math.round(prod/3000000*100)+'%';
 }
-sHa.addEventListener('input',calcExt); sY.addEventListener('input',calcExt); calcExt();
+sHa.addEventListener('input',calcExt); sY.addEventListener('input',calcExt);
+bindNum('ha',calcExt); bindNum('yield',calcExt);
+calcExt();
 
 /* ================= E. Paritas calculator ================= */
 const ids=['tambak','darat','freight','bongkar','cif','portimp'];
@@ -916,7 +950,7 @@ const el = Object.fromEntries(ids.map(k=>[k,document.getElementById('s-'+k)]));
 function rp(n){return 'Rp'+Math.round(n).toLocaleString('id-ID')}
 function calcParity(){
   const v = Object.fromEntries(ids.map(k=>[k,+el[k].value]));
-  ids.forEach(k=>document.getElementById('o-'+k).textContent = Math.round(v[k]).toLocaleString('id-ID'));
+  ids.forEach(k=>setNum('o-'+k, Math.round(v[k])));
   const landedNTT = v.tambak+v.darat+v.freight+v.bongkar;
   const landedImp = v.cif+v.portimp;
   const idx = landedNTT/landedImp;
@@ -935,7 +969,9 @@ function calcParity(){
   const maxFreight = landedImp - (v.tambak+v.darat+v.bongkar);
   document.getElementById('o-maxfreight').textContent = (maxFreight>0? '≤ '+rp(maxFreight)+'/kg' : 'tidak ada ruang — struktur biaya lain harus turun dulu');
 }
-ids.forEach(k=>el[k].addEventListener('input',calcParity)); calcParity();
+ids.forEach(k=>el[k].addEventListener('input',calcParity));
+ids.forEach(k=>bindNum(k,calcParity));
+calcParity();
 
 /* ================= Tab navigasi ================= */
 (function(){
