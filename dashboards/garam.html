@@ -265,6 +265,28 @@ footer li{padding-left:14px;text-indent:-14px}
 :root[data-theme="dark"] .qrow .qtrack{background:#16304A}
 .qrow .qfill{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
 .qrow .qnote{font-size:12px;color:var(--ink-soft);margin-top:3px}
+/* --- kuantitas menurut mutu --- */
+.gradegrid{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+@media(max-width:900px){.gradegrid{grid-template-columns:1fr}}
+.grow{margin-bottom:15px}
+.grow .g-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:4px}
+.grow .g-spec{font-family:var(--mono);font-size:12px;font-weight:700}
+.grow .g-val{font-family:var(--mono);font-size:13.5px;font-weight:700;white-space:nowrap}
+.grow .g-track{height:22px;background:#EFEADF;border:1px solid var(--rule-strong);border-radius:4px;overflow:hidden}
+:root[data-theme="dark"] .grow .g-track{background:#16304A}
+.grow .g-fill{height:100%}
+.grow .g-sub{font-size:12px;color:var(--ink-soft);margin-top:4px;line-height:1.45}
+.grow.unmet .g-track{border-color:var(--red)}
+.supbox{border:1px solid var(--rule);border-radius:10px;background:var(--panel);padding:14px 16px;margin-bottom:14px}
+.supbox .s-h{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px}
+.supbox .s-v{font-family:var(--mono);font-size:20px;font-weight:700}
+.supbox .s-n{font-size:12.5px;color:var(--ink-soft);margin-top:4px;line-height:1.5}
+.supbox.gap{background:var(--red-soft);border-color:#E5C4BF}
+.supbox.gap .s-v{color:var(--red)}
+:root[data-theme="dark"] .supbox.gap{border-color:#5C3A2E}
+.snitab{width:100%;margin-top:4px}
+.snitab td{padding:7px 9px;font-size:13px}
+.snitab td.k{font-family:var(--mono);font-weight:700;width:52px}
 .tabbar{display:flex;flex-wrap:wrap;gap:2px;border-bottom:2px solid var(--ink);margin-top:34px}
 .tabbtn{appearance:none;border:none;background:none;font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--ink-soft);padding:11px 16px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;white-space:nowrap}
 .tabbtn:hover{color:var(--ink)}
@@ -426,25 +448,6 @@ footer li{padding-left:14px;text-indent:-14px}
           <div class="foot-src">Tiga provinsi teratas bersumber dari rilis KKP (produksi garam 2023). Baris <b>provinsi lainnya</b> adalah <b>selisih hitung</b> — total nasional 2,5 jt ton dikurangi ketiga provinsi itu — bukan angka resmi per provinsi. Rincian NTB, NTT, Sulsel, Aceh dan lainnya ⬚ menunggu rilis KKP Satudata.</div>
         </div>
 
-        <div class="chart-card" style="padding:16px 18px 14px;margin-top:16px">
-          <h4>Kualitas: ambang yang harus dilewati</h4>
-          <div class="sub">kadar NaCl · standar nasional</div>
-          <div class="qband">
-            <div class="qrow">
-              <div><div class="qlab" style="color:var(--red)">GARAM RAKYAT</div><div class="qnote">umumnya &lt;94%</div></div>
-              <div class="qtrack"><div class="qfill" style="width:88%;background:var(--red)"></div></div>
-            </div>
-            <div class="qrow">
-              <div><div class="qlab" style="color:var(--amber)">K1 · SNI</div><div class="qnote">minimum 94% — paling mudah diserap industri</div></div>
-              <div class="qtrack"><div class="qfill" style="width:94%;background:var(--amber)"></div></div>
-            </div>
-            <div class="qrow">
-              <div><div class="qlab" style="color:var(--green)">SPEK INDUSTRI</div><div class="qnote">&#8805;97% — syarat masuk segmen CAP &amp; aneka pangan</div></div>
-              <div class="qtrack"><div class="qfill" style="width:97%;background:var(--green)"></div></div>
-            </div>
-          </div>
-          <div class="foot-src">Selisih 94% ke 97% tampak kecil, tetapi itulah garis pemisah antara garam konsumsi dan garam industri. Kadar NaCl <b>per provinsi</b> ⬚ tidak dipublikasikan — hanya tersedia lewat uji lab per lokasi (Balai Besar Produksi Garam KKP), dan sudah tercatat sebagai baris matriks aksi data.</div>
-        </div>
       </div>
     </div>
   </div>
@@ -516,6 +519,43 @@ footer li{padding-left:14px;text-indent:-14px}
         </div>
       </div>
     </div>
+
+    <div class="sec-head" style="margin-top:46px"><span class="no">C2</span><h2>Kuantitas Menurut Tingkat Mutu</h2></div>
+    <p class="lede">Pertanyaan yang menentukan: <b>berapa ton yang dibutuhkan di tiap tingkat kemurnian, dan berapa yang mampu kita pasok di tingkat itu.</b> <span class="soft">Total ton nasional bisa terlihat besar, tetapi bila kemurniannya tidak sampai, ton tersebut tidak dapat masuk ke segmen yang membutuhkannya.</span></p>
+
+    <div class="gradegrid">
+      <div>
+        <div class="chart-card" style="padding:16px 18px 14px">
+          <h4>Kebutuhan menurut tingkat kemurnian</h4>
+          <div class="sub">±4,91 juta ton/tahun · dikelompokkan dari kebutuhan per segmen</div>
+          <div id="gradebars"></div>
+          <div class="foot-src">Dikelompokkan dari tabel kebutuhan per segmen di atas: <b>≥97%</b> = CAP 2.400 + aneka pangan 600 rb ton; <b>≥99,9%</b> = farmasi &amp; kosmetik; <b>SNI konsumsi</b> = rumah tangga &amp; komersial; <b>krosok/variatif</b> = pengasinan ikan 500 + industri non-CAP 400 rb ton.</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="supbox">
+          <div class="s-h">Pasokan domestik 2025 · seluruh mutu</div>
+          <div class="s-v">1.030 rb ton</div>
+          <div class="s-n">Mayoritas garam rakyat dengan kadar <b>maksimum sekitar 94% NaCl</b> — memenuhi segmen konsumsi dan krosok, tetapi <b>belum memenuhi ambang industri ≥97%</b>.</div>
+        </div>
+        <div class="supbox gap">
+          <div class="s-h">Segmen ≥97% · pasokan domestik terverifikasi</div>
+          <div class="s-v">⬚ belum ada realisasi</div>
+          <div class="s-n">Yang tersedia baru <b>target</b>, bukan realisasi: program KKP <b>400 rb ton/th</b> berkadar &gt;97% dan rencana Cheetham Nagekeo <b>150–200 rb ton</b>. Pembuktian pertama menunggu panen perdana K-SIGN Rote <b>Nov 2026</b> (uji coba sudah menunjukkan 97%). Artinya kebutuhan <b>±3 juta ton</b> berkemurnian tinggi praktis masih ditutup impor.</div>
+        </div>
+        <div class="chart-card" style="padding:14px 16px 12px">
+          <h4 style="font-size:15.5px">Kelas mutu garam · SNI 4435-2017</h4>
+          <table class="snitab">
+            <tr><td class="k" style="color:var(--green)">K1</td><td>kualitas baik — minimum <b>94% NaCl</b></td></tr>
+            <tr><td class="k" style="color:var(--amber)">K2</td><td>kualitas sedang — minimum <b>90%</b></td></tr>
+            <tr><td class="k" style="color:var(--red)">K3</td><td>kualitas rendah — minimum <b>85%</b></td></tr>
+          </table>
+          <div class="foot-src">KKP menargetkan garam rakyat seragam minimal di kelas <b>K1</b>, dan menyiapkan SNI baru beserta sertifikasi petambak untuk mengejar &gt;97%. <b>Rincian berapa ton produksi nasional yang jatuh di K1, K2, dan K3 ⬚ tidak dipublikasikan</b> — hanya tersedia lewat uji lab per lokasi.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -943,6 +983,35 @@ const PROD_NAS_2023=2500000;
     +'<b>Total nasional 2023: '+fmtID(PROD_NAS_2023/1000)+' rb ton</b> — melampaui target 1,7 jt ton. '
     +'Bandingkan dengan 2025 yang hanya 1,03 jt ton akibat curah hujan tinggi.</div>';
   document.getElementById('prodbars').innerHTML=html;
+})();
+
+/* ================= C2. Kebutuhan menurut tingkat mutu ================= */
+(function(){
+  const host=document.getElementById('gradebars'); if(!host)return;
+  const G=[
+    {spec:'\u226597% \u00b7 spek industri', ton:3000, col:'var(--red)', unmet:true,
+     note:'CAP (petrokimia, pulp &amp; kertas) + aneka pangan. <b>Pasokan domestik terverifikasi \u2b1a belum ada</b> \u2014 praktis seluruhnya impor.'},
+    {spec:'SNI konsumsi \u00b7 beryodium', ton:1000, col:'var(--sea)', unmet:false,
+     note:'Rumah tangga &amp; komersial. Dapat dipenuhi garam rakyat.'},
+    {spec:'krosok / variatif', ton:900, col:'var(--sand)', unmet:false,
+     note:'Pengasinan ikan + industri non-CAP lain. Dapat dipenuhi garam rakyat.'},
+    {spec:'\u226599,9% \u00b7 farmasi', ton:10, col:'var(--indigo, #2d3a5e)', unmet:true,
+     note:'Infus &amp; hemodialisa. Volume kecil, tetapi kemurniannya paling menuntut.'}
+  ];
+  const max=Math.max.apply(null,G.map(g=>g.ton));
+  const tot=G.reduce((a,g)=>a+g.ton,0);
+  let h='';
+  G.forEach(g=>{
+    h+='<div class="grow'+(g.unmet?' unmet':'')+'">'
+      +'<div class="g-top"><span class="g-spec">'+g.spec+'</span>'
+      +'<span class="g-val">'+fmtID(g.ton)+' rb ton</span></div>'
+      +'<div class="g-track"><div class="g-fill" style="width:'+Math.max(1.2,g.ton/max*100).toFixed(1)+'%;background:'+g.col+'"></div></div>'
+      +'<div class="g-sub">'+g.note+'</div></div>';
+  });
+  h+='<div class="g-sub" style="margin-top:10px;padding-top:9px;border-top:1px solid var(--rule)">'
+    +'<b>Total kebutuhan: '+fmtID(tot)+' rb ton/tahun.</b> Sekitar <b>'+Math.round(3010/tot*100)+'%</b> di antaranya '
+    +'menuntut kemurnian \u226597% \u2014 dan justru di tingkat itulah pasokan domestik belum terbukti.</div>';
+  host.innerHTML=h;
 })();
 </script>
 </body>
