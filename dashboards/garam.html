@@ -46,9 +46,23 @@ a{color:var(--sea)}
 
 /* ---------- verdict hero ---------- */
 .verdict{display:grid;grid-template-columns:minmax(230px,1fr) 2fr;gap:0;border-bottom:1px solid var(--rule-strong)}
-.verdict-num{padding:34px 28px 34px 0;border-right:1px solid var(--rule-strong)}
-.verdict-num .big{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(64px,9vw,104px);line-height:.95;color:var(--red)}
-.verdict-num .cap{font-size:14px;color:var(--ink-soft);margin-top:8px;max-width:230px}
+.verdict-num{padding:26px 26px 26px 0;border-right:1px solid var(--rule-strong)}
+.vn-card{background:var(--red-soft);border:1px solid #E5C4BF;border-left:5px solid var(--red);
+  border-radius:0 12px 12px 0;padding:18px 20px 20px;box-shadow:0 10px 26px -18px rgba(166,57,46,.55)}
+:root[data-theme="dark"] .vn-card{border-color:#5C3A2E;border-left-color:var(--red)}
+.vn-eyebrow{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10.5px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
+.vn-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex:0 0 auto;animation:vnpulse 2s ease-in-out infinite}
+@keyframes vnpulse{0%,100%{box-shadow:0 0 0 0 rgba(166,57,46,.55)}50%{box-shadow:0 0 0 7px rgba(166,57,46,0)}}
+.verdict-num .big{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(66px,9.4vw,108px);line-height:.92;
+  color:var(--red);margin-top:6px;letter-spacing:-.02em}
+.verdict-num .big .pc{font-size:.44em;font-weight:600;margin-left:2px}
+.vn-bar{position:relative;height:11px;background:#EBDCD7;border-radius:99px;margin:12px 0 7px;overflow:hidden}
+:root[data-theme="dark"] .vn-bar{background:#3a2621}
+.vn-fill{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--red)}
+.vn-scale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--ink-soft)}
+.verdict-num .cap{font-size:13.5px;color:var(--ink-soft);margin-top:10px;line-height:1.5}
+@media(max-width:900px){.vn-card{border-radius:12px;border-left-width:5px}}
 .gates{padding:30px 0 30px 30px;display:flex;flex-direction:column;gap:14px}
 .gate{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:start}
 .gate .light{font-family:var(--mono);font-size:12px;font-weight:700;padding:5px 10px;border-radius:4px;text-align:center;white-space:nowrap}
@@ -332,8 +346,13 @@ footer li{padding-left:14px;text-indent:-14px}
 <div class="wrap">
   <div class="verdict">
     <div class="verdict-num">
-      <div class="big">21%</div>
-      <div class="cap">rasio swasembada volume 2025 — produksi 1,03 juta ton terhadap kebutuhan ±4,9 juta ton <span style="font-family:var(--mono);font-size:11px;color:#9B9484">[KKP, 30 Des 2025]</span></div>
+      <div class="vn-card">
+        <div class="vn-eyebrow"><span class="vn-dot"></span>Capaian swasembada saat ini</div>
+        <div class="big">21<span class="pc">%</span></div>
+        <div class="vn-bar"><div class="vn-fill" style="width:21%"></div></div>
+        <div class="vn-scale"><span>0%</span><span>sisa 79% ditutup impor</span><span>100%</span></div>
+        <div class="cap">Rasio swasembada volume 2025 — produksi <b>1,03 juta ton</b> terhadap kebutuhan <b>±4,9 juta ton</b>. <span style="font-family:var(--mono);font-size:11px;color:#9B9484">[KKP, 30 Des 2025]</span></div>
+      </div>
     </div>
     <div class="gates">
       <div class="gate">
@@ -389,8 +408,8 @@ footer li{padding-left:14px;text-indent:-14px}
 
 <div class="wrap"><div class="tabbar" id="tabbar">
   <button class="tabbtn active" type="button" data-tab="neraca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l3.5-4 3 2.6L20 7"/></svg>Neraca &amp; Impor</button>
-  <button class="tabbtn" type="button" data-tab="kualitas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3.6v5c0 4.4-3.1 8-7.5 9.4-4.4-1.4-7.5-5-7.5-9.4v-5L12 3z"/><path d="M9 12.2l2.2 2.2L15.2 10"/></svg>Kualitas</button>
   <button class="tabbtn" type="button" data-tab="lahan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M4 20V9l8-5 8 5v11"/><path d="M4 13h16"/></svg>Lahan NTT</button>
+  <button class="tabbtn" type="button" data-tab="kualitas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3.6v5c0 4.4-3.1 8-7.5 9.4-4.4-1.4-7.5-5-7.5-9.4v-5L12 3z"/><path d="M9 12.2l2.2 2.2L15.2 10"/></svg>Kualitas</button>
   <button class="tabbtn" type="button" data-tab="paritas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17.5c1.8-1.4 3.4-1.4 5.2 0 1.8 1.4 3.4 1.4 5.2 0 1.8-1.4 3.4-1.4 5.2 0"/><path d="M5 13.5V7h10l3 4"/><path d="M9 7V4.5h3"/></svg>Paritas Logistik</button>
   <button class="tabbtn" type="button" data-tab="kebijakan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5h7l4 4v13H7z"/><path d="M14 3.5V8h4"/><path d="M10 12.5h5M10 16h5"/></svg>Kebijakan &amp; KPI</button>
 </div></div>
@@ -481,6 +500,70 @@ footer li{padding-left:14px;text-indent:-14px}
 
 </div>
 
+<div class="tabpanel" data-panel="lahan">
+<!-- ============ SECTION D: EKSTENSIFIKASI ============ -->
+<section id="lahan">
+  <div class="wrap">
+    <div class="sec-head"><span class="no">D</span><h2>Ekstensifikasi NTT: Lahan, Run-Rate, dan Matematika Deadline</h2></div>
+    <p class="lede">Tiga lokasi ini adalah taruhan utama suplai baru. <span class="soft">Monitoringnya sederhana: mengukur berapa hektare produktif bertambah tiap bulan, dan berapa yang dibutuhkan agar deadline masuk akal.</span></p>
+
+    <div class="grid2">
+      <div>
+        <div class="loc">
+          <div class="loc-head"><b>K-SIGN Rote Ndao</b><span>616 / 10.764 ha kawasan (5,7%)</span></div>
+          <div class="bar"><div class="fill" style="width:5.7%"></div></div>
+          <div class="loc-sub">Tahap I <b>616 ha selesai 100%</b> (kontraktor Nindya Karya, APBN) — uji coba produksi, panen perdana target <b>Nov 2026</b>. Tahap II <b>751 ha</b> pengadaan tanah. Porsi KKP 2.000 ha (investasi <b>Rp2 T</b>); 8.000 ha berikutnya menunggu investor. Uji NaCl: <b>97%</b>.</div>
+        </div>
+        <div class="loc">
+          <div class="loc-head"><b>Kabupaten Kupang</b><span>±2.000 ha ekstensifikasi (KAK)</span></div>
+          <div class="bar"><div class="fill" style="width:30%;background:var(--sand)"></div></div>
+          <div class="loc-sub">Eksisting: PT Timor Livestock Lestari <b>600 ha</b> (Nunkurus), PT Tjakrawala Timor Sentosa (Babau), PT Garam Bipolo <b>225 ha</b>. Produksi historis fluktuatif — total korporasi NTT 2022 hanya <b>3,65 rb ton</b> (tahun basah). Porsi lahan sudah-produktif vs izin: ⬚ perlu data Dinas KP NTT.</div>
+        </div>
+        <div class="loc">
+          <div class="loc-head"><b>Kabupaten Nagekeo</b><span>±443 ha ekstensifikasi (KAK)</span></div>
+          <div class="bar"><div class="fill" style="width:12%;background:var(--sand)"></div></div>
+          <div class="loc-sub">PT Cheetham Garam Indonesia ±499 ha (56 ha berproduksi per 2022; HPL sisanya dalam proses). Rencana penuh 540–1.050 ha, kapasitas desain <b>150–200 rb ton/th</b>, investasi US$21 jt. Progres konstruksi terkini: ⬚ menunggu konfirmasi K/L.</div>
+        </div>
+        <div class="foot-src">Arsiran biru = terkonstruksi terverifikasi; kuning = estimasi porsi aktif dari lahan eksisting (belum terverifikasi, ⬚). Sumber: KKP/BAKOM (2 Sep 2026), dokumen perencanaan ekstensifikasi, Pemkab Rote Ndao, pemberitaan Kompas/Floresa/KatongNTT.</div>
+      </div>
+
+      <div>
+        <div class="formula" id="fx-runrate"></div>
+        <table>
+          <thead><tr><th>Skenario deadline</th><th class="num">Sisa waktu</th><th class="num">Butuh (ha/bln)</th><th class="num">vs run-rate ±31</th></tr></thead>
+          <tbody>
+            <tr><td>Perpres 17/2025 — swasembada <b>2027</b></td><td class="num">16 bln</td><td class="num">634</td><td class="num" style="color:var(--red);font-weight:700">20×</td></tr>
+            <tr><td>Glide path — nol impor <b>2029</b></td><td class="num">40 bln</td><td class="num">254</td><td class="num" style="color:var(--amber);font-weight:700">8×</td></tr>
+          </tbody>
+        </table>
+        <div class="foot-src" style="margin-top:8px">Run-rate historis: 616 ha sejak konstruksi efektif awal 2025 (≈20 bln) ≈ 31 ha/bln. Target lahan penuh memakai kawasan Rote 10.764 ha sebagai proxy kebutuhan lahan gap CAP (lihat kalkulator di bawah).</div>
+
+        <div class="note warn-n" style="margin-top:16px">
+          <h5>Simulasi suplai baru NTT — geser asumsinya</h5>
+          <div class="sliders" style="grid-template-columns:1fr">
+            <div class="sl">
+              <label>Lahan produktif NTT s.d. akhir 2027 <output id="o-ha">3.000 ha</output></label>
+              <input type="range" id="s-ha" min="616" max="10764" step="100" value="3000">
+            </div>
+            <div class="sl">
+              <label>Produktivitas rata-rata <output id="o-yield">150 t/ha</output></label>
+              <input type="range" id="s-yield" min="60" max="220" step="10" value="150">
+            </div>
+          </div>
+          <div class="result-line">
+            <div class="pill"><div class="pv" id="o-prod">450 rb ton</div><div class="pl">suplai baru per tahun</div></div>
+            <div class="pill"><div class="pv" id="o-gap">16%</div><div class="pl">dari gap kualitas ±3 jt ton (CAP + aneka pangan)</div></div>
+          </div>
+          <p style="font-size:13px;margin-top:10px;color:#6B4A08">Cek cepat: 616 ha × 200 t/ha = <b style="font-family:var(--mono)">123 rb ton/th</b> pada kapasitas penuh — bandingkan gap impor 2,6–2,8 jt ton. Kawasan penuh 10.764 ha × 200 t/ha ≈ <b style="font-family:var(--mono)">2,15 jt ton</b> — baru itu yang menutup gap CAP. Skala, bukan simbol.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+</div>
+
 <div class="tabpanel" data-panel="kualitas">
 <!-- ============ SECTION C: SEGMEN & KUALITAS ============ -->
 <section id="segmen">
@@ -555,70 +638,6 @@ footer li{padding-left:14px;text-indent:-14px}
       </div>
     </div>
 
-  </div>
-</section>
-
-
-</div>
-
-<div class="tabpanel" data-panel="lahan">
-<!-- ============ SECTION D: EKSTENSIFIKASI ============ -->
-<section id="lahan">
-  <div class="wrap">
-    <div class="sec-head"><span class="no">D</span><h2>Ekstensifikasi NTT: Lahan, Run-Rate, dan Matematika Deadline</h2></div>
-    <p class="lede">Tiga lokasi ini adalah taruhan utama suplai baru. <span class="soft">Monitoringnya sederhana: mengukur berapa hektare produktif bertambah tiap bulan, dan berapa yang dibutuhkan agar deadline masuk akal.</span></p>
-
-    <div class="grid2">
-      <div>
-        <div class="loc">
-          <div class="loc-head"><b>K-SIGN Rote Ndao</b><span>616 / 10.764 ha kawasan (5,7%)</span></div>
-          <div class="bar"><div class="fill" style="width:5.7%"></div></div>
-          <div class="loc-sub">Tahap I <b>616 ha selesai 100%</b> (kontraktor Nindya Karya, APBN) — uji coba produksi, panen perdana target <b>Nov 2026</b>. Tahap II <b>751 ha</b> pengadaan tanah. Porsi KKP 2.000 ha (investasi <b>Rp2 T</b>); 8.000 ha berikutnya menunggu investor. Uji NaCl: <b>97%</b>.</div>
-        </div>
-        <div class="loc">
-          <div class="loc-head"><b>Kabupaten Kupang</b><span>±2.000 ha ekstensifikasi (KAK)</span></div>
-          <div class="bar"><div class="fill" style="width:30%;background:var(--sand)"></div></div>
-          <div class="loc-sub">Eksisting: PT Timor Livestock Lestari <b>600 ha</b> (Nunkurus), PT Tjakrawala Timor Sentosa (Babau), PT Garam Bipolo <b>225 ha</b>. Produksi historis fluktuatif — total korporasi NTT 2022 hanya <b>3,65 rb ton</b> (tahun basah). Porsi lahan sudah-produktif vs izin: ⬚ perlu data Dinas KP NTT.</div>
-        </div>
-        <div class="loc">
-          <div class="loc-head"><b>Kabupaten Nagekeo</b><span>±443 ha ekstensifikasi (KAK)</span></div>
-          <div class="bar"><div class="fill" style="width:12%;background:var(--sand)"></div></div>
-          <div class="loc-sub">PT Cheetham Garam Indonesia ±499 ha (56 ha berproduksi per 2022; HPL sisanya dalam proses). Rencana penuh 540–1.050 ha, kapasitas desain <b>150–200 rb ton/th</b>, investasi US$21 jt. Progres konstruksi terkini: ⬚ menunggu konfirmasi K/L.</div>
-        </div>
-        <div class="foot-src">Arsiran biru = terkonstruksi terverifikasi; kuning = estimasi porsi aktif dari lahan eksisting (belum terverifikasi, ⬚). Sumber: KKP/BAKOM (2 Sep 2026), dokumen perencanaan ekstensifikasi, Pemkab Rote Ndao, pemberitaan Kompas/Floresa/KatongNTT.</div>
-      </div>
-
-      <div>
-        <div class="formula" id="fx-runrate"></div>
-        <table>
-          <thead><tr><th>Skenario deadline</th><th class="num">Sisa waktu</th><th class="num">Butuh (ha/bln)</th><th class="num">vs run-rate ±31</th></tr></thead>
-          <tbody>
-            <tr><td>Perpres 17/2025 — swasembada <b>2027</b></td><td class="num">16 bln</td><td class="num">634</td><td class="num" style="color:var(--red);font-weight:700">20×</td></tr>
-            <tr><td>Glide path — nol impor <b>2029</b></td><td class="num">40 bln</td><td class="num">254</td><td class="num" style="color:var(--amber);font-weight:700">8×</td></tr>
-          </tbody>
-        </table>
-        <div class="foot-src" style="margin-top:8px">Run-rate historis: 616 ha sejak konstruksi efektif awal 2025 (≈20 bln) ≈ 31 ha/bln. Target lahan penuh memakai kawasan Rote 10.764 ha sebagai proxy kebutuhan lahan gap CAP (lihat kalkulator di bawah).</div>
-
-        <div class="note warn-n" style="margin-top:16px">
-          <h5>Simulasi suplai baru NTT — geser asumsinya</h5>
-          <div class="sliders" style="grid-template-columns:1fr">
-            <div class="sl">
-              <label>Lahan produktif NTT s.d. akhir 2027 <output id="o-ha">3.000 ha</output></label>
-              <input type="range" id="s-ha" min="616" max="10764" step="100" value="3000">
-            </div>
-            <div class="sl">
-              <label>Produktivitas rata-rata <output id="o-yield">150 t/ha</output></label>
-              <input type="range" id="s-yield" min="60" max="220" step="10" value="150">
-            </div>
-          </div>
-          <div class="result-line">
-            <div class="pill"><div class="pv" id="o-prod">450 rb ton</div><div class="pl">suplai baru per tahun</div></div>
-            <div class="pill"><div class="pv" id="o-gap">16%</div><div class="pl">dari gap kualitas ±3 jt ton (CAP + aneka pangan)</div></div>
-          </div>
-          <p style="font-size:13px;margin-top:10px;color:#6B4A08">Cek cepat: 616 ha × 200 t/ha = <b style="font-family:var(--mono)">123 rb ton/th</b> pada kapasitas penuh — bandingkan gap impor 2,6–2,8 jt ton. Kawasan penuh 10.764 ha × 200 t/ha ≈ <b style="font-family:var(--mono)">2,15 jt ton</b> — baru itu yang menutup gap CAP. Skala, bukan simbol.</p>
-        </div>
-      </div>
-    </div>
   </div>
 </section>
 
