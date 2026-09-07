@@ -355,6 +355,30 @@ footer li{padding-left:14px;text-indent:-14px}
 .lbtn i.ld.dom{background:linear-gradient(90deg,#175E63 55%,transparent 55%);border-radius:1px;height:4px;width:16px}
 .lbtn.active i.ld.port{border-color:#FBF8F1}
 
+.fcost{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;fill:#191817;paint-order:stroke;stroke:#FBF8F1;stroke-width:3px;stroke-linejoin:round}
+:root[data-theme="dark"] .fcost{fill:#F2EDE2;stroke:#0b1a28}
+.clegend{display:flex;align-items:center;gap:14px;margin-top:10px;font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);flex-wrap:wrap}
+.clegend i{display:inline-block;width:20px;height:4px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.modesw{display:inline-flex;gap:6px}
+.mbtn2{appearance:none;border:1px solid var(--rule-strong);background:transparent;border-radius:999px;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink-soft);font-size:12.5px;padding:6px 13px;transition:all .15s}
+.mbtn2:hover{border-color:var(--sea);color:var(--ink)}
+.mbtn2.active{background:var(--sea);border-color:var(--sea);color:#FBF8F1}
+.banx{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
+  border:1px solid var(--rule-strong);border-radius:9px;padding:12px 15px;margin:0 0 14px;background:var(--panel)}
+.banx.ok{background:var(--green-soft);border-color:#BFD8CC}
+.banx.no{background:var(--red-soft);border-color:#E5C4BF}
+.banx .bx{font-size:13px;line-height:1.5}
+.banx .bv{font-family:var(--mono);font-size:19px;font-weight:700}
+.banx.ok .bv{color:var(--green)} .banx.no .bv{color:var(--red)}
+.banx a{color:var(--sea);font-family:var(--mono);font-size:11.5px;white-space:nowrap}
+.stat{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:999px;white-space:nowrap}
+.stat.g{background:var(--green-soft);color:var(--green);border:1px solid #BFD8CC}
+.stat.a{background:var(--amber-soft);color:var(--amber);border:1px solid #E3CE9E}
+.stat.r{background:var(--red-soft);color:var(--red);border:1px solid #E5C4BF}
+.mulin{width:58px;font-family:var(--mono);font-size:12px;padding:4px 7px;border:1px solid var(--rule-strong);
+  border-radius:6px;background:var(--panel);color:var(--ink);text-align:right}
+
 /* ---------- E2 asimetri muatan ---------- */
 .asym{margin:6px 0 2px}
 .arow{display:grid;grid-template-columns:190px 1fr;gap:14px;align-items:center;margin-bottom:12px}
@@ -382,6 +406,12 @@ footer li{padding-left:14px;text-indent:-14px}
 .tagx.semi{background:var(--amber-soft);border-color:#E3CE9E;color:var(--amber)}
 .tagx.sebar{background:var(--sea-soft);border-color:#C3D9D9;color:var(--sea)}
 .dtab td .minib{display:inline-block;height:7px;border-radius:2px;background:var(--sea);vertical-align:middle;margin-right:6px}
+.dtab .soft2{color:var(--ink-soft);font-family:var(--mono);font-size:10.5px;font-weight:400}
+.dtab.tight{min-width:0}
+.dtab.tight th,.dtab.tight td{padding:6px 6px}
+.dtab.tight td{font-size:12px}
+.dtab.tight td:first-child,.dtab.tight th:first-child{white-space:normal;max-width:150px;font-size:12.5px}
+.dtab.tight td:nth-child(3){white-space:normal;max-width:165px;line-height:1.35}
 .dtab tr.improw td{background:var(--red-soft)}
 .dtab tr.improw td:first-child{color:var(--red)}
 .viewsw{display:inline-flex;gap:6px}
@@ -933,11 +963,23 @@ footer li{padding-left:14px;text-indent:-14px}
         <button class="lbtn active" type="button" data-layer="dom"><i class="ld dom"></i>Arus domestik</button>
       </div>
       <div class="ctlgrp"><span class="ctllab">Tahun produksi</span><span id="flowYears"></span></div>
+      <div class="ctlgrp"><span class="ctllab">Tampilkan</span>
+        <span class="modesw">
+          <button class="mbtn2 active" type="button" data-mode="vol">Volume</button>
+          <button class="mbtn2" type="button" data-mode="cost">Biaya kirim</button>
+        </span>
+      </div>
     </div>
 
     <div class="flowwrap">
       <div id="flowmap"></div>
       <div class="maptip" id="flowtip"></div>
+    </div>
+    <div class="clegend" id="costLegend" style="display:none">
+      <span><i style="background:#2E6B4F"></i>biaya kirim masih di bawah ruang paritas</span>
+      <span><i style="background:#C79A3D"></i>lewat ruang paritas, selisih kurang dari Rp150/kg</span>
+      <span><i style="background:#A6392E"></i>jauh di atas ruang paritas</span>
+      <span>angka pada peta = biaya kirim Rp/kg, dihitung dari kalkulator E5</span>
     </div>
     <div class="foot-src">Sentra produksi &amp; ukurannya: Excel produksi garam KKP 2019–2025 (dijumlahkan per klaster kabupaten). Titik kebutuhan: klaster industri pemakai, ukuran mengikuti angka sektor nasional Kemenperin — rincian per pabrik ⬚. Arus impor: total 2,67 jt ton (2025), Australia ±75%, masuk melalui Tanjung Perak, Ciwandan, dan Belawan; rincian volume per pelabuhan ⬚ (perlu data Bea Cukai/BPS). Arus domestik: setiap sentra ditarik ke titik kebutuhan terdekat menurut jarak lingkaran besar — lihat E4.</div>
 
@@ -995,7 +1037,7 @@ footer li{padding-left:14px;text-indent:-14px}
 
     <figure class="secfig">
       <img src="../assets/img/garam-industri.jpg" alt="Kompleks pabrik pengolahan kimia pemakai garam industri" loading="lazy">
-      <figcaption>Pabrik klor-alkali melarutkan garam menjadi soda api, klorin, dan hidrogen. Sektor inilah pemakai garam terbesar — dan yang paling ketat syarat kemurniannya.</figcaption>
+      <figcaption>Pengolahan garam di fasilitas industri. Pemakai terbesar adalah pabrik klor-alkali yang melarutkan garam menjadi soda api, klorin, dan hidrogen — sektor dengan syarat kemurnian paling ketat.</figcaption>
     </figure>
 
     <div class="chart-card">
@@ -1026,19 +1068,27 @@ footer li{padding-left:14px;text-indent:-14px}
 <!-- ============ SECTION E4: JARAK KE PASAR ============ -->
 <section id="jarak">
   <div class="wrap">
-    <div class="sec-head" style="margin-top:46px"><span class="no">E4</span><h2>Jarak ke Pasar: Pencocokan Produsen dan Konsumen</h2></div>
-    <p class="lede">Setiap sentra produksi dipasangkan dengan titik kebutuhan terdekat, lalu dihitung jarak dan ton-kilometernya. <span class="soft">Baris terakhir adalah pembandingnya: garam Australia menempuh jarak dua kali lipat dari sentra NTT, tetapi mendarat lebih murah. Artinya masalahnya bukan jarak — melainkan ukuran kapal dan kesiapan dermaga.</span></p>
+    <div class="sec-head" style="margin-top:46px"><span class="no">E4</span><h2>Jarak dan Biaya Kirim ke Pasar</h2></div>
+    <p class="lede">Setiap sentra dipasangkan dengan titik kebutuhan terdekat, lalu jarak itu diubah menjadi rupiah memakai tarif dari kalkulator E5. <span class="soft">Geser asumsi mana pun di kalkulator dan seluruh tabel ini — juga peta E1 pada mode Biaya kirim — ikut berubah seketika. Baris terakhir adalah pembandingnya: garam Australia menempuh jarak dua kali lipat dari sentra NTT, tetapi mendarat lebih murah. Artinya masalahnya bukan jarak — melainkan ukuran kapal dan kesiapan dermaga.</span></p>
+
+    <div class="banx" id="biayaBan"></div>
 
     <div class="chart-card">
       <h4>Sentra produksi, pasar terdekat, dan beban angkut</h4>
       <div class="sub" id="jarakSub">jarak lingkaran besar antartitik pusat klaster · ton-km = produksi × jarak</div>
+      <div class="ctlbar" style="margin:0 0 12px">
+        <div class="ctlgrp"><span class="ctllab">Tarif laut</span><span id="rateSea" style="font-family:var(--mono);font-size:12.5px"></span></div>
+        <div class="ctlgrp"><span class="ctllab">Tarif darat</span>
+          <input class="mulin" id="landMul" type="number" min="0.5" max="6" step="0.1" value="1.8" aria-label="pengali tarif darat">
+          <span style="font-size:12px;color:var(--ink-soft)">× tarif laut per km</span></div>
+      </div>
       <div class="scrollx">
-        <table class="dtab">
-          <thead><tr><th>Sentra produksi</th><th>Produksi (ton)</th><th style="text-align:left">Pasar terdekat</th><th>Jarak (km)</th><th>Juta ton-km</th></tr></thead>
+        <table class="dtab tight">
+          <thead><tr><th>Sentra produksi</th><th>Produksi (ton)</th><th style="text-align:left">Pasar terdekat</th><th>Jarak (km)</th><th>Juta ton-km</th><th>Kirim (Rp/kg)</th><th>Landed (Rp/kg)</th><th style="text-align:left">Posisi vs impor</th></tr></thead>
           <tbody id="jarakRows"></tbody>
         </table>
       </div>
-      <div class="foot-src">Jarak dihitung sebagai garis lurus lingkaran besar antara titik pusat klaster — jarak pelayaran sebenarnya lebih panjang karena harus memutari daratan. Angka ini dipakai untuk membandingkan besaran, bukan untuk menghitung tarif. Produksi mengikuti tahun yang dipilih pada E1.</div>
+      <div class="foot-src">Jarak dihitung sebagai garis lurus lingkaran besar antara titik pusat klaster — jarak pelayaran sebenarnya lebih panjang karena harus memutari daratan. Biaya kirim = tarif per 1.000 km × jarak; tarif laut diturunkan dari isian <b>freight laut NTT→Surabaya</b> pada kalkulator E5 dibagi jarak sentra NTT, lalu tarif darat adalah kelipatannya. Harga tambak dan biaya first-mile diasumsikan seragam mengikuti kalkulator — dalam kenyataannya keduanya lebih rendah di sentra Jawa ⬚. Produksi mengikuti tahun yang dipilih pada E1.</div>
     </div>
 
     <div class="ins3" id="jarakIns"></div>
@@ -1387,6 +1437,7 @@ function calcParity(){
   else{ vd.className='verdict-chip bad'; vd.textContent='BELUM KOMPETITIF — selisih '+rp(diff)+'/kg di atas impor'; }
   const maxFreight = landedImp - (v.tambak+v.darat+v.bongkar);
   document.getElementById('o-maxfreight').textContent = (maxFreight>0? '≤ '+rp(maxFreight)+'/kg' : 'tidak ada ruang — struktur biaya lain harus turun dulu');
+  if(window.__logiCost) window.__logiCost();
 }
 ids.forEach(k=>el[k].addEventListener('input',calcParity));
 ids.forEach(k=>bindNum(k,calcParity));
@@ -1650,16 +1701,16 @@ const SALT={"years":[2019,2020,2021,2022,2023,2024,2025],"prov":{"ACEH":{"l":[59
 
   /* ---------- data ---------- */
   const PROD=[
-    {n:'Madura',x:113.55,y:-7.02,pr:'JAWA TIMUR',k:['SUMENEP','PAMEKASAN','SAMPANG','BANGKALAN']},
-    {n:'Pesisir Jawa Timur',x:112.35,y:-7.62,pr:'JAWA TIMUR',k:['KOTA SURABAYA','SIDOARJO','PASURUAN','KOTA PASURUAN','GRESIK','LAMONGAN','TUBAN','PROBOLINGGO']},
-    {n:'Pantura Jawa Tengah',x:110.95,y:-6.62,pr:'JAWA TENGAH',k:null},
-    {n:'Pantura Jawa Barat',x:108.35,y:-6.30,pr:'JAWA BARAT',k:null},
-    {n:'NTB (Bima–Sumbawa)',x:118.20,y:-8.50,pr:'NUSA TENGGARA BARAT',k:null},
-    {n:'Sulawesi Selatan',x:119.60,y:-5.45,pr:'SULAWESI SELATAN',k:null},
-    {n:'NTT (Nagekeo–Sabu–Kupang)',x:121.60,y:-9.20,pr:'NUSA TENGGARA TIMUR',k:null},
-    {n:'Aceh',x:96.60,y:5.05,pr:'ACEH',k:null},
-    {n:'Bali',x:115.10,y:-8.25,pr:'BALI',k:null},
-    {n:'Gorontalo',x:121.55,y:0.60,pr:'GORONTALO',k:null}
+    {n:'Madura',x:113.55,y:-7.02,sea:false,pr:'JAWA TIMUR',k:['SUMENEP','PAMEKASAN','SAMPANG','BANGKALAN']},
+    {n:'Pesisir Jawa Timur',x:112.35,y:-7.62,sea:false,pr:'JAWA TIMUR',k:['KOTA SURABAYA','SIDOARJO','PASURUAN','KOTA PASURUAN','GRESIK','LAMONGAN','TUBAN','PROBOLINGGO']},
+    {n:'Pantura Jawa Tengah',x:110.95,y:-6.62,sea:false,pr:'JAWA TENGAH',k:null},
+    {n:'Pantura Jawa Barat',x:108.35,y:-6.30,sea:false,pr:'JAWA BARAT',k:null},
+    {n:'NTB (Bima–Sumbawa)',x:118.20,y:-8.50,sea:true,pr:'NUSA TENGGARA BARAT',k:null},
+    {n:'Sulawesi Selatan',x:119.60,y:-5.45,sea:true,pr:'SULAWESI SELATAN',k:null},
+    {n:'NTT (Nagekeo–Sabu–Kupang)',x:121.60,y:-9.20,sea:true,pr:'NUSA TENGGARA TIMUR',k:null},
+    {n:'Aceh',x:96.60,y:5.05,sea:false,pr:'ACEH',k:null},
+    {n:'Bali',x:115.10,y:-8.25,sea:true,pr:'BALI',k:null},
+    {n:'Gorontalo',x:121.55,y:0.60,sea:true,pr:'GORONTALO',k:null}
   ];
   const DEM=[
     {n:'Cilegon–Serang, Banten',s:'Klor-alkali &amp; petrokimia',x:106.02,y:-6.02,v:1780000,note:'PT Asahimas Chemical sendiri menyerap ±800.000 t/th'},
@@ -1713,6 +1764,26 @@ const SALT={"years":[2019,2020,2021,2022,2023,2024,2025],"prov":{"ACEH":{"l":[59
     DEM.forEach(d=>{const k=hav(c.y,c.x,d.y,d.x);if(k<bd){bd=k;best=d;}});
     return {dem:best,km:bd};};
   PROD.forEach(c=>{const r=nearest(c);c._dem=r.dem;c._km=r.km;});
+  const NTTREF=PROD.find(c=>c.n.indexOf('NTT')===0)._km;
+
+  /* ---------- biaya kirim, diturunkan dari kalkulator E5 ---------- */
+  let MODE='vol';
+  const CIDS=['tambak','darat','freight','bongkar','cif','portimp'];
+  const readCalc=()=>{const o={};CIDS.forEach(k=>{const e=document.getElementById('s-'+k);o[k]=e?+e.value:0;});return o;};
+  const landMul=()=>{const e=document.getElementById('landMul');
+    const v=e?parseFloat(String(e.value).replace(',','.')):1.8;
+    return (isFinite(v)&&v>0)?v:1.8;};
+  const rp=n=>'Rp'+Math.round(n).toLocaleString('id-ID');
+  function costs(){
+    const v=readCalc(), rSea=NTTREF?v.freight/(NTTREF/1000):0, rLand=rSea*landMul();
+    const fixed=v.tambak+v.darat+v.bongkar, imp=v.cif+v.portimp, head=imp-fixed;
+    const of=c=>{const fr=(c.sea?rSea:rLand)*(c._km/1000);
+      const landed=fixed+fr, gap=landed-imp;
+      const tier=(head>0&&fr<=head)?'g':(gap<=150?'a':'r');
+      return {fr:fr,landed:landed,gap:gap,tier:tier};};
+    return {rSea:rSea,rLand:rLand,fixed:fixed,imp:imp,head:head,of:of};
+  }
+  const TIERC={g:'#2E6B4F',a:'#C79A3D',r:'#A6392E'};
 
   const arcPath=(x1,y1,x2,y2,bend)=>{
     const mx=(x1+x2)/2,my=(y1+y2)/2,dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1;
@@ -1743,9 +1814,11 @@ const SALT={"years":[2019,2020,2021,2022,2023,2024,2025],"prov":{"ACEH":{"l":[59
     g+='</g>';
 
     /* arus domestik */
+    const K=costs();
     g+='<g class="lay-dom'+(ON.dom?'':' flay-off')+'">';
     PROD.forEach((c,i)=>{if(!vals[i])return;
-      g+='<path class="farc dom" stroke-width="'+wOf(vals[i]).toFixed(2)+'" d="'
+      const st=MODE==='cost'?' style="stroke:'+TIERC[K.of(c).tier]+';opacity:1"':'';
+      g+='<path class="farc dom" stroke-width="'+wOf(vals[i]).toFixed(2)+'"'+st+' d="'
         +arcPath(PX(c.x),PY(c.y),PX(c._dem.x),PY(c._dem.y),-.11)+'"></path>';});
     g+='</g>';
 
@@ -1766,8 +1839,15 @@ const SALT={"years":[2019,2020,2021,2022,2023,2024,2025],"prov":{"ACEH":{"l":[59
     /* sentra produksi */
     g+='<g class="lay-prod'+(ON.prod?'':' flay-off')+'">';
     PROD.forEach((c,i)=>{const v=vals[i],r=4+18*Math.sqrt(v/mxp);
+      const k=K.of(c);
+      const tip=c.n+' · produksi '+Y[yi]+': '+f0(v)+' ton — pasar terdekat '+c._dem.n.replace(/&amp;/g,'dan')+', '+f0(c._km)+' km ('
+        +(c.sea?'laut':'darat')+')<br>biaya kirim '+rp(k.fr)+'/kg · landed '+rp(k.landed)+'/kg · impor '+rp(K.imp)+'/kg — '
+        +(k.gap<=0?'lebih murah '+rp(-k.gap)+'/kg':'lebih mahal '+rp(k.gap)+'/kg');
       g+='<circle class="fnode fprod" cx="'+PX(c.x).toFixed(1)+'" cy="'+PY(c.y).toFixed(1)+'" r="'+r.toFixed(1)
-        +'" data-tip="'+c.n+' · produksi '+Y[yi]+': '+f0(v)+' ton — pasar terdekat '+c._dem.n.replace(/&amp;/g,'dan')+', '+f0(c._km)+' km"></circle>';});
+        +'"'+(MODE==='cost'?' style="fill:'+TIERC[k.tier]+';fill-opacity:.85;stroke:'+TIERC[k.tier]+'"':'')
+        +' data-tip="'+tip+'"></circle>';
+      if(MODE==='cost'&&v)g+='<text class="fcost" x="'+PX(c.x).toFixed(1)+'" y="'+(PY(c.y)-r-6).toFixed(1)
+        +'" text-anchor="middle">'+rp(k.fr)+'</text>';});
     g+='</g>';
 
     host.innerHTML=g+'</svg>';
@@ -1786,17 +1866,41 @@ const SALT={"years":[2019,2020,2021,2022,2023,2024,2025],"prov":{"ACEH":{"l":[59
     const rows=PROD.map((c,i)=>({c:c,v:vals[i],km:c._km,tk:vals[i]*c._km/1e6}))
                    .filter(r=>r.v>0).sort((a,b)=>b.tk-a.tk);
     const mxtk=Math.max.apply(null,rows.map(r=>r.tk).concat([1]));
+    const K=costs();
+    const SL={g:'Kompetitif',a:'Nyaris',r:'Belum'};
     let h='';
-    rows.forEach(r=>{
-      h+='<tr><td>'+r.c.n+'</td><td>'+f0(r.v)+'</td><td style="text-align:left">'+r.c._dem.n+'</td><td>'+f0(r.km)+'</td>'
-        +'<td><span class="minib" style="width:'+Math.max(4,r.tk/mxtk*74).toFixed(0)+'px"></span>'+f1(r.tk)+'</td></tr>';});
+    rows.forEach(r=>{const k=K.of(r.c);
+      h+='<tr><td>'+r.c.n+'</td><td>'+f0(r.v)+'</td>'
+        +'<td style="text-align:left">'+r.c._dem.n+' <span class="soft2">'+(r.c.sea?'· laut':'· darat')+'</span></td><td>'+f0(r.km)+'</td>'
+        +'<td><span class="minib" style="width:'+Math.max(4,r.tk/mxtk*36).toFixed(0)+'px"></span>'+f1(r.tk)+'</td>'
+        +'<td>'+f0(k.fr)+'</td><td>'+f0(k.landed)+'</td>'
+        +'<td style="text-align:left"><span class="stat '+k.tier+'">'+SL[k.tier]+' · '
+        +(k.gap<=0?'−':'+')+f0(Math.abs(k.gap))+'</span></td></tr>';});
     const kmA=hav(DAMPIER.y,DAMPIER.x,DEM[0].y,DEM[0].x), tkA=2002500*kmA/1e6;
     h+='<tr class="improw"><td>⚑ Impor Australia (Dampier)</td><td>'+f0(2002500)+'</td>'
-      +'<td style="text-align:left">Cilegon–Serang, Banten</td><td>'+f0(kmA)+'</td><td>'+f1(tkA)+'</td></tr>';
+      +'<td style="text-align:left">Cilegon–Serang, Banten <span class="soft2">· laut</span></td><td>'+f0(kmA)+'</td>'
+      +'<td>'+f1(tkA)+'</td>'
+      +'<td>termasuk CIF</td><td>'+f0(K.imp)+'</td><td style="text-align:left">patokan</td></tr>';
     const totV=rows.reduce((a,r)=>a+r.v,0), totTk=rows.reduce((a,r)=>a+r.tk,0);
+    const wFr=totV?rows.reduce((a,r)=>a+r.v*K.of(r.c).fr,0)/totV:0;
     h+='<tr class="tot"><td>Total domestik '+Y[yi]+'</td><td>'+f0(totV)+'</td><td style="text-align:left">—</td>'
-      +'<td>'+(totV?f0(totTk*1e6/totV):'—')+' rata²</td><td>'+f1(totTk)+'</td></tr>';
+      +'<td>'+(totV?f0(totTk*1e6/totV):'—')+' rata²</td><td>'+f1(totTk)+'</td>'
+      +'<td>'+f0(wFr)+' rata²</td><td>'+f0(K.fixed+wFr)+'</td><td style="text-align:left">—</td></tr>';
     document.getElementById('jarakRows').innerHTML=h;
+
+    /* spanduk ruang paritas + tarif turunan */
+    const nOk=rows.filter(r=>K.of(r.c).gap<=0).length;
+    const ban=document.getElementById('biayaBan');
+    if(ban){
+      ban.className='banx '+(K.head>0?'ok':'no');
+      ban.innerHTML='<div class="bx"><div class="bv">'+(K.head>0?rp(K.head)+'/kg':'tidak ada ruang')+'</div>'
+        +'ruang biaya kirim yang tersisa sebelum garam domestik kalah dari impor — '
+        +(K.head>0?nOk+' dari '+rows.length+' sentra sudah masuk pada asumsi ini'
+                  :'harga tambak, first-mile, dan bongkar saja sudah melampaui landed impor '+rp(K.imp)+'/kg, jadi berapa pun ongkos kapalnya belum bisa menang')
+        +'</div><a href="#paritas">geser asumsinya di kalkulator E5 ↓</a>';
+    }
+    const rs=document.getElementById('rateSea');
+    if(rs)rs.innerHTML=rp(K.rSea)+'/kg per 1.000 km <span style="color:var(--ink-soft)">(dari isian freight E5 ÷ '+f0(NTTREF)+' km)</span>';
     document.getElementById('jarakSub').textContent='produksi '+Y[yi]+' · jarak lingkaran besar antartitik pusat klaster · ton-km = produksi × jarak';
 
     const top=rows[0];
@@ -1854,7 +1958,16 @@ const SALT={"years":[2019,2020,2021,2022,2023,2024,2025],"prov":{"ACEH":{"l":[59
     ['prod','port','dem','imp','dom'].forEach(x=>{
       const g=host.querySelector('.lay-'+x); if(g)g.classList.toggle('flay-off',!ON[x]);});}));
 
+  document.querySelectorAll('.modesw .mbtn2').forEach(b=>b.addEventListener('click',()=>{
+    MODE=b.dataset.mode;
+    document.querySelectorAll('.modesw .mbtn2').forEach(x=>x.classList.toggle('active',x===b));
+    const lg=document.getElementById('costLegend'); if(lg)lg.style.display=(MODE==='cost')?'flex':'none';
+    render();}));
+  const lm=document.getElementById('landMul');
+  if(lm)lm.addEventListener('input',render);
+
   function render(){const vals=drawMap();const st=drawJarak(vals);drawFlowIns(st);}
+  window.__logiCost=render;
   render();
 })();
 </script>
