@@ -320,6 +320,19 @@ footer li{padding-left:14px;text-indent:-14px}
 .inscard.up .i-v{color:var(--green)} .inscard.down .i-v{color:var(--red)}
 .inscard .i-n{font-size:12.5px;color:var(--ink-soft);line-height:1.45}
 .viewsw{display:inline-flex;gap:6px}
+.mrow{border:1px solid var(--rule);border-radius:10px;padding:14px 16px;margin-bottom:12px;background:var(--panel)}
+.mrow .m-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.mrow .m-k{font-family:var(--mono);font-size:12.5px;font-weight:700}
+.mrow .m-st{font-family:var(--mono);font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:4px;white-space:nowrap}
+.mrow .m-st.def{background:var(--red-soft);color:var(--red)}
+.mrow .m-st.sur{background:var(--green-soft);color:var(--green)}
+.mbar{display:grid;grid-template-columns:96px 1fr 104px;gap:9px;align-items:center;margin:5px 0;font-size:12px}
+.mbar .lab{color:var(--ink-soft);font-family:var(--mono);font-size:11px}
+.mbar .trk{height:17px;background:#EFEADF;border-radius:4px;overflow:hidden}
+:root[data-theme="dark"] .mbar .trk{background:#16304A}
+.mbar .fil{height:100%}
+.mbar .num{text-align:right;font-family:var(--mono);font-size:12.5px;font-weight:700}
+.mrow .m-n{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.5}
 .qband{margin-top:6px;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--panel)}
 .qrow{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--rule)}
 .qrow:last-child{border-bottom:none}
@@ -733,11 +746,47 @@ footer li{padding-left:14px;text-indent:-14px}
         <div class="s-v">1.036 rb ton</div>
         <div class="s-n">Mayoritas garam rakyat berkadar maksimum sekitar 94% — memadai untuk <b>K1 ke bawah</b>, yaitu konsumsi beriodium, pengasinan ikan, dan industri non-CAP.</div>
       </div>
-      <div class="supbox gap">
+      <div class="supbox gap" id="__anchor_supgap">
         <div class="s-h">Kelas di atas K1 · pasokan domestik</div>
         <div class="s-v">⬚ belum ada realisasi</div>
         <div class="s-n">Kebutuhan <b>3.010 rb ton</b> berkadar &#8805;97% praktis masih ditutup impor. Yang tersedia baru target: program KKP <b>400 rb ton/th</b> dan rencana Cheetham Nagekeo <b>150–200 rb ton</b>, dengan pembuktian pertama menunggu panen K-SIGN Rote <b>Nov 2026</b>. Rincian berapa ton produksi nasional yang jatuh di K1, K2, dan K3 ⬚ tidak dipublikasikan.</div>
       </div>
+    </div>
+
+    <div class="sec-head" style="margin-top:46px"><span class="no">C3</span><h2>Neraca per Kelas Mutu: Kurangnya di Jenis Apa</h2></div>
+    <p class="lede">Total ton nasional menyembunyikan persoalan sebenarnya. <span class="soft">Dipisah menurut kelas mutu, terlihat bahwa kekurangan kita bukan satu jenis — melainkan dua persoalan berbeda yang menuntut jalan keluar berbeda pula.</span></p>
+
+    <div class="ctlbar">
+      <div class="ctlgrp"><span class="ctllab">Tahun</span><span id="mutuYears"></span></div>
+    </div>
+
+    <div id="mutuRows"></div>
+
+    <div class="note warn-n" style="margin:4px 0 18px">
+      <h5>Cara angka ini disusun — dan batasnya</h5>
+      <b>Kebutuhan</b> memakai total kebutuhan nasional tahun berjalan (neraca komoditas), dibagi menurut komposisi segmen: <b>61,3% di atas K1</b> dan <b>38,7% K1 ke bawah</b>. Komposisi ini diperlakukan tetap sepanjang tahun — asumsi yang disederhanakan, karena rincian komposisi per tahun tidak dipublikasikan.<br>
+      <b>Produksi domestik</b> adalah angka resmi KKP, namun <b>hanya tersedia sebagai satu angka gabungan</b>. Penempatannya seluruhnya pada kelas "K1 ke bawah" bertumpu pada keterangan KKP bahwa garam rakyat umumnya berkadar maksimum sekitar 94% NaCl, serta belum adanya realisasi produksi ≥97% yang terverifikasi. <b>Bila sebagian produksi ternyata sudah menembus ≥97%, defisit struktural akan mengecil sebesar itu.</b><br>
+      Karena itu panel ini paling tepat dibaca sebagai <b>pemisahan dua jenis persoalan</b>, bukan sebagai angka neraca yang presisi per kelas.
+    </div>
+
+    <div class="chart-card" style="padding:16px 18px 14px">
+      <h4>Ketersediaan data per kelas mutu</h4>
+      <div class="sub">apa yang ada dan apa yang belum</div>
+      <table class="dtab" style="min-width:0;margin-top:8px">
+        <thead><tr><th>Kelas</th><th style="text-align:left">Kebutuhan</th><th style="text-align:left">Produksi domestik</th><th style="text-align:left">Impor</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--red)">Di atas K1</td>
+            <td style="text-align:left">tersedia — dari neraca komoditas per segmen</td>
+            <td style="text-align:left">⬚ belum ada realisasi terverifikasi</td>
+            <td style="text-align:left">tersedia — pos tarif <b>HS 25010093</b> (NaCl ≥97%)</td></tr>
+          <tr><td style="color:var(--green)">K1</td>
+            <td style="text-align:left">tersedia</td>
+            <td style="text-align:left" rowspan="2">⬚ hanya total, tidak dirinci per kelas</td>
+            <td style="text-align:left" rowspan="2">ditutup, kecuali keadaan tertentu</td></tr>
+          <tr><td style="color:var(--amber)">K2–K3</td><td style="text-align:left">tersedia</td></tr>
+        </tbody>
+      </table>
+      <div class="foot-src"><b>Yang perlu diminta ke KKP agar panel ini lengkap:</b> rincian produksi garam nasional menurut kelas mutu K1, K2, dan K3 dalam ton — hasil uji mutu per lokasi per panen dari Balai Besar Produksi Garam. Tanpa itu, produksi domestik hanya dapat dibaca sebagai satu angka gabungan.</div>
     </div>
   </div>
 </section>
@@ -1256,6 +1305,59 @@ const SALT={"years":[2019,2020,2021,2022,2023,2024,2025],"prov":{"ACEH":{"l":[59
   render();
 })();
 
+
+/* ================= C3. Neraca per kelas mutu ================= */
+(function(){
+  const host=document.getElementById('mutuRows'); if(!host)return;
+  const Y=[2019,2020,2021,2022,2023,2024,2025];
+  const PROD=[2898125,1365711,1092104,700635,2551731,2043978,1035895];      // KKP
+  const DEM =[4200000,4460000,4600000,4500000,4900000,4900000,4900000];     // neraca komoditas
+  const SH_ATAS=3010/4910, SH_BAWAH=1900/4910;
+  let yi=Y.length-1;
+  const f=v=>Math.round(v).toLocaleString('id-ID');
+  document.getElementById('mutuYears').innerHTML=Y.map((y,i)=>
+    '<button class="ybtn'+(i===yi?' active':'')+'" type="button" data-mi="'+i+'">'+y+'</button>').join(' ');
+
+  function bar(lab,val,max,colr){
+    return '<div class="mbar"><span class="lab">'+lab+'</span>'
+      +'<div class="trk"><div class="fil" style="width:'+Math.max(0.5,val/max*100).toFixed(1)+'%;background:'+colr+'"></div></div>'
+      +'<span class="num">'+f(val)+' t</span></div>';
+  }
+  function draw(){
+    const tot=DEM[yi], prod=PROD[yi], atas=tot*SH_ATAS, bawah=tot*SH_BAWAH;
+    const sisa=prod-bawah, max=Math.max(atas,bawah,prod);
+    let h='';
+    // di atas K1
+    h+='<div class="mrow"><div class="m-h"><span class="m-k" style="color:var(--red)">DI ATAS K1 &middot; NaCl &#8805;97%</span>'
+      +'<span class="m-st def">defisit '+f(atas)+' t &middot; praktis 100%</span></div>'
+      +bar('kebutuhan',atas,max,'var(--red)')
+      +'<div class="mbar"><span class="lab">produksi</span><div class="trk"></div><span class="num">\u2b1a \u2248 0</span></div>'
+      +'<div class="m-n">Industri CAP, aneka pangan, dan farmasi. <b>Tidak ada realisasi produksi domestik yang terverifikasi</b> pada kelas ini — kebutuhannya praktis ditutup impor melalui pos tarif HS 25010093. Inilah kekurangan yang bersifat <b>struktural</b>: bukan soal jumlah ton, melainkan kemurnian yang belum mampu dicapai.</div></div>';
+    // K1 ke bawah
+    const sur=sisa>=0;
+    h+='<div class="mrow"><div class="m-h"><span class="m-k" style="color:'+(sur?'var(--green)':'var(--amber)')+'">K1 KE BAWAH &middot; NaCl 85\u201394%</span>'
+      +'<span class="m-st '+(sur?'sur':'def')+'">'+(sur?'surplus ':'defisit ')+f(Math.abs(sisa))+' t</span></div>'
+      +bar('kebutuhan',bawah,max,'var(--sand)')
+      +bar('produksi',prod,max,sur?'var(--green)':'var(--amber)')
+      +'<div class="m-n">Konsumsi beriodium, pengasinan ikan, dan industri non-CAP. '
+      +(sur?'Pada tahun ini produksi domestik <b>melampaui</b> kebutuhan kelas ini.'
+           :'Pada tahun ini produksi domestik <b>belum menutup</b> kebutuhan kelas ini.')
+      +' Kekurangan di kelas ini bersifat <b>musiman</b> — mengikuti curah hujan, bukan keterbatasan teknologi.</div></div>';
+    // ringkasan
+    h+='<div class="ins" style="margin-top:4px">'
+      +'<div class="inscard down"><div class="i-h">Kekurangan struktural</div><div class="i-v">'+f(atas)+' t</div>'
+      +'<div class="i-n">kelas di atas K1 — tiap tahun, tanpa terpengaruh cuaca</div></div>'
+      +'<div class="inscard '+(sur?'up':'down')+'"><div class="i-h">Kekurangan musiman</div><div class="i-v">'
+      +(sur?'nihil':f(-sisa)+' t')+'</div><div class="i-n">kelas K1 ke bawah pada '+Y[yi]+(sur?' — tercukupi':'')+'</div></div>'
+      +'<div class="inscard"><div class="i-h">Total kebutuhan '+Y[yi]+'</div><div class="i-v">'+f(tot)+' t</div>'
+      +'<div class="i-n">produksi domestik '+f(prod)+' t</div></div></div>';
+    host.innerHTML=h;
+  }
+  document.getElementById('mutuYears').addEventListener('click',e=>{
+    const b=e.target.closest('.ybtn'); if(!b)return; yi=+b.dataset.mi;
+    document.querySelectorAll('#mutuYears .ybtn').forEach(x=>x.classList.toggle('active',x===b)); draw();});
+  draw();
+})();
 </script>
 </body>
 </html>
