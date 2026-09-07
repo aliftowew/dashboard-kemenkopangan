@@ -319,6 +319,71 @@ footer li{padding-left:14px;text-indent:-14px}
 .inscard .i-v{font-family:var(--mono);font-size:19px;font-weight:700;margin:4px 0 2px}
 .inscard.up .i-v{color:var(--green)} .inscard.down .i-v{color:var(--red)}
 .inscard .i-n{font-size:12.5px;color:var(--ink-soft);line-height:1.45}
+.ins3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+@media(max-width:820px){.ins3{grid-template-columns:1fr}}
+
+/* ---------- E1 peta alur logistik ---------- */
+.flowwrap{position:relative;background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:12px}
+.flowwrap svg{width:100%;height:auto;display:block}
+.fprov{fill:#EAE4D5;stroke:var(--panel);stroke-width:.6}
+:root[data-theme="dark"] .fprov{fill:#152838;stroke:#0b1a28}
+.farc{fill:none;stroke-linecap:round;pointer-events:none}
+.farc.imp{stroke:#A6392E;opacity:.8;stroke-dasharray:9 7;animation:fdash 1.6s linear infinite}
+.farc.dom{stroke:#175E63;opacity:.85;stroke-dasharray:9 7;animation:fdash 2.6s linear infinite}
+@keyframes fdash{to{stroke-dashoffset:-32}}
+@media(prefers-reduced-motion:reduce){.farc{animation:none}}
+.fnode{cursor:pointer;transition:opacity .15s}
+.fnode:hover{opacity:.72}
+.fprod{fill:#C79A3D;fill-opacity:.82;stroke:#8A6A22;stroke-width:1}
+.fdem{fill:#A6392E;fill-opacity:.85;stroke:#7A241B;stroke-width:1}
+.fport-imp{fill:#FBF8F1;stroke:#A6392E;stroke-width:1.8}
+.fport-mua{fill:#FBF8F1;stroke:#175E63;stroke-width:1.8}
+.forig{fill:#191817;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.06em}
+:root[data-theme="dark"] .forig{fill:#E8E2D4}
+.forigsub{fill:#5A554B;font-family:'JetBrains Mono',monospace;font-size:10.5px}
+:root[data-theme="dark"] .forigsub{fill:#9aa6b4}
+.flay-off{display:none}
+.lbtn{appearance:none;border:1px solid var(--rule-strong);background:transparent;border-radius:999px;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink-soft);font-size:12.5px;padding:6px 13px;
+  display:inline-flex;align-items:center;gap:7px;transition:all .15s}
+.lbtn:hover{border-color:var(--sea);color:var(--ink)}
+.lbtn.active{background:var(--sea);border-color:var(--sea);color:#FBF8F1}
+.lbtn i.ld{width:10px;height:10px;border-radius:50%;flex:0 0 auto;display:block}
+.lbtn i.ld.prod{background:#C79A3D} .lbtn i.ld.dem{background:#A6392E}
+.lbtn i.ld.port{background:transparent;border:2px solid #7B8794;border-radius:2px}
+.lbtn i.ld.imp{background:linear-gradient(90deg,#A6392E 55%,transparent 55%);border-radius:1px;height:4px;width:16px}
+.lbtn i.ld.dom{background:linear-gradient(90deg,#175E63 55%,transparent 55%);border-radius:1px;height:4px;width:16px}
+.lbtn.active i.ld.port{border-color:#FBF8F1}
+
+/* ---------- E2 asimetri muatan ---------- */
+.asym{margin:6px 0 2px}
+.arow{display:grid;grid-template-columns:190px 1fr;gap:14px;align-items:center;margin-bottom:12px}
+.arow .albl{font-size:12.5px;color:var(--ink-soft);line-height:1.4}
+.arow .albl b{color:var(--ink);font-size:13.5px}
+.abar{position:relative;height:34px;background:var(--paper);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+.abar span{position:absolute;left:0;top:0;bottom:0;display:block}
+.abar.out span{background:linear-gradient(90deg,#175E63,#2E8C93)}
+.abar.back span{background:linear-gradient(90deg,#A6392E,#C4614F)}
+.abar b{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink)}
+.abar .empt{position:absolute;top:0;bottom:0;right:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;color:var(--ink-soft);letter-spacing:.04em;
+  background:repeating-linear-gradient(135deg,transparent,transparent 5px,var(--rule) 5px,var(--rule) 6px)}
+@media(max-width:700px){.arow{grid-template-columns:1fr}}
+.kpi4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+.kpi4 .k{background:var(--panel);border:1px solid var(--rule);border-radius:9px;padding:12px 14px}
+.kpi4 .k .kv{font-family:var(--mono);font-size:21px;font-weight:700;line-height:1.1}
+.kpi4 .k .kl{font-size:11.5px;color:var(--ink-soft);margin-top:4px;line-height:1.4}
+@media(max-width:820px){.kpi4{grid-template-columns:repeat(2,1fr)}}
+
+/* ---------- E3/E4 tabel logistik ---------- */
+.tagx{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:999px;
+  border:1px solid var(--rule-strong);color:var(--ink-soft);white-space:nowrap}
+.tagx.pusat{background:var(--red-soft);border-color:#E5C4BF;color:var(--red)}
+.tagx.semi{background:var(--amber-soft);border-color:#E3CE9E;color:var(--amber)}
+.tagx.sebar{background:var(--sea-soft);border-color:#C3D9D9;color:var(--sea)}
+.dtab td .minib{display:inline-block;height:7px;border-radius:2px;background:var(--sea);vertical-align:middle;margin-right:6px}
+.dtab tr.improw td{background:var(--red-soft)}
+.dtab tr.improw td:first-child{color:var(--red)}
 .viewsw{display:inline-flex;gap:6px}
 .mrow{border:1px solid var(--rule);border-radius:10px;padding:14px 16px;margin-bottom:12px;background:var(--panel)}
 .mrow .m-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:9px}
@@ -490,7 +555,7 @@ footer li{padding-left:14px;text-indent:-14px}
   <button class="tabbtn active" type="button" data-tab="neraca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l3.5-4 3 2.6L20 7"/></svg>Neraca &amp; Impor</button>
   <button class="tabbtn" type="button" data-tab="lahan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M4 20V9l8-5 8 5v11"/><path d="M4 13h16"/></svg>Lahan NTT</button>
   <button class="tabbtn" type="button" data-tab="kualitas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3.6v5c0 4.4-3.1 8-7.5 9.4-4.4-1.4-7.5-5-7.5-9.4v-5L12 3z"/><path d="M9 12.2l2.2 2.2L15.2 10"/></svg>Kualitas</button>
-  <button class="tabbtn" type="button" data-tab="paritas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17.5c1.8-1.4 3.4-1.4 5.2 0 1.8 1.4 3.4 1.4 5.2 0 1.8-1.4 3.4-1.4 5.2 0"/><path d="M5 13.5V7h10l3 4"/><path d="M9 7V4.5h3"/></svg>Paritas Logistik</button>
+  <button class="tabbtn" type="button" data-tab="paritas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17.5c1.8-1.4 3.4-1.4 5.2 0 1.8 1.4 3.4 1.4 5.2 0 1.8-1.4 3.4-1.4 5.2 0"/><path d="M5 13.5V7h10l3 4"/><path d="M9 7V4.5h3"/></svg>Logistik &amp; Paritas</button>
   <button class="tabbtn" type="button" data-tab="kebijakan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5h7l4 4v13H7z"/><path d="M14 3.5V8h4"/><path d="M10 12.5h5M10 16h5"/></svg>Kebijakan &amp; KPI</button>
 </div></div>
 <div class="tabpanel active" data-panel="neraca">
@@ -852,10 +917,143 @@ footer li{padding-left:14px;text-indent:-14px}
 </div>
 
 <div class="tabpanel" data-panel="paritas">
+
+<!-- ============ SECTION E1: PETA ALUR LOGISTIK ============ -->
+<section id="alur">
+  <div class="wrap">
+    <div class="sec-head"><span class="no">E1</span><h2>Peta Alur Garam Nasional</h2></div>
+    <p class="lede">Garam Indonesia diproduksi jauh dari tempat garam dipakai. <span class="soft">Tambak menumpuk di Madura, pantura Jawa, NTB, Sulsel, dan NTT — sementara pabrik pemakainya berkumpul di Cilegon, Gresik, dan Riau. Garam impor mendarat langsung di depan pintu pabrik itu. Nyalakan dan matikan lapisannya untuk membandingkan arah muatan; tebal garis sebanding dengan volume.</span></p>
+
+    <div class="ctlbar">
+      <div class="ctlgrp"><span class="ctllab">Lapisan</span>
+        <button class="lbtn active" type="button" data-layer="prod"><i class="ld prod"></i>Sentra produksi</button>
+        <button class="lbtn active" type="button" data-layer="port"><i class="ld port"></i>Pelabuhan</button>
+        <button class="lbtn active" type="button" data-layer="dem"><i class="ld dem"></i>Titik kebutuhan</button>
+        <button class="lbtn active" type="button" data-layer="imp"><i class="ld imp"></i>Arus impor</button>
+        <button class="lbtn active" type="button" data-layer="dom"><i class="ld dom"></i>Arus domestik</button>
+      </div>
+      <div class="ctlgrp"><span class="ctllab">Tahun produksi</span><span id="flowYears"></span></div>
+    </div>
+
+    <div class="flowwrap">
+      <div id="flowmap"></div>
+      <div class="maptip" id="flowtip"></div>
+    </div>
+    <div class="foot-src">Sentra produksi &amp; ukurannya: Excel produksi garam KKP 2019–2025 (dijumlahkan per klaster kabupaten). Titik kebutuhan: klaster industri pemakai, ukuran mengikuti angka sektor nasional Kemenperin — rincian per pabrik ⬚. Arus impor: total 2,67 jt ton (2025), Australia ±75%, masuk melalui Tanjung Perak, Ciwandan, dan Belawan; rincian volume per pelabuhan ⬚ (perlu data Bea Cukai/BPS). Arus domestik: setiap sentra ditarik ke titik kebutuhan terdekat menurut jarak lingkaran besar — lihat E4.</div>
+
+    <div class="ins3" id="flowIns"></div>
+  </div>
+</section>
+
+<!-- ============ SECTION E2: ASIMETRI MUATAN ============ -->
+<section id="asimetri">
+  <div class="wrap">
+    <div class="sec-head" style="margin-top:46px"><span class="no">E2</span><h2>Asimetri Muatan: Kapal Pulang Kosong</h2></div>
+    <p class="lede">Kapal tol laut berangkat penuh ke timur dan pulang nyaris kosong. <span class="soft">Ruang kosong itu sudah dibayar negara lewat subsidi. Garam adalah kandidat muatan balik yang nyaris sempurna — tidak busuk, tidak perlu pendingin, tahan disimpan lama, dan volumenya besar.</span></p>
+
+    <div class="chart-card">
+      <h4>Muatan tol laut, Januari–September 2025</h4>
+      <div class="sub">523 voyage · 104 pelabuhan · 39 kapal pada 39 trayek</div>
+      <div class="asym">
+        <div class="arow">
+          <div class="albl"><b>Muatan berangkat</b><br>Jawa → Indonesia Timur</div>
+          <div class="abar out"><span style="width:100%"></span><b style="color:#FBF8F1">19.713 TEUs</b></div>
+        </div>
+        <div class="arow">
+          <div class="albl"><b>Muatan balik</b><br>Indonesia Timur → Jawa</div>
+          <div class="abar back"><span style="width:28.5%"></span><div class="empt" style="width:71.5%">ruang kosong 71,5% — sudah disubsidi</div><b>5.624 TEUs</b></div>
+        </div>
+      </div>
+      <div class="kpi4">
+        <div class="k"><div class="kv" style="color:var(--red)">28,5%</div><div class="kl">rasio muatan balik terhadap muatan berangkat</div></div>
+        <div class="k"><div class="kv" style="color:var(--red)">8 dari 12</div><div class="kl">trayek pelabuhan pengumpul dengan muatan balik <b>0 TEUs</b></div></div>
+        <div class="k"><div class="kv">13,8 : 6,2</div><div class="kl">juta ton bongkar vs muat di 7 pelabuhan strategis Indonesia Timur (2020)</div></div>
+        <div class="k"><div class="kv">14,29%</div><div class="kl">biaya logistik nasional terhadap PDB — target 12% pada 2029</div></div>
+      </div>
+      <div class="foot-src">Kemenhub/Ditjen Hubla, capaian tol laut s.d. September 2025 · Kajian pelabuhan strategis Indonesia Timur 2020 · Target biaya logistik: Kemenko Perekonomian 2025. Volume garam yang benar-benar terangkut sebagai muatan balik ⬚ — belum dipisahkan dalam statistik publik.</div>
+    </div>
+
+    <div class="grid2" style="margin-top:22px">
+      <div class="note">
+        <h5>Garam cocok mengisi ruang kosong itu</h5>
+        Muatan balik tol laut selama ini didominasi hasil bumi yang mudah rusak dan bervolume kecil — jagung, kopra, ikan beku. Garam berbeda: tidak ada risiko busuk, tidak perlu <i>reefer</i>, dan bisa ditumpuk. Satu trayek Tanjung Perak–Larantuka–Lewoleba pernah membawa 19 kontainer balik; kapasitas yang tersedia jauh lebih besar dari itu.
+        <br><br><b>Usulan konkret:</b> masukkan garam ke daftar komoditas muatan balik prioritas, dan pastikan trayek tol laut menyinggahi pelabuhan yang dekat sentra garam NTT — Marapokot (Nagekeo), Ba'a (Rote), dan Tenau (Kupang).
+      </div>
+      <div class="note warn-n">
+        <h5>Skema subsidi sedang berubah</h5>
+        Mulai 2026 sebagian trayek beralih dari subsidi operasional kapal menjadi <b>subsidi titip muatan</b> per kontainer. Perubahan ini justru membuka pintu: subsidi mengikuti barang, bukan kapal — sehingga garam dari NTT bisa ikut skema tanpa harus menunggu penambahan armada. Momentum ini perlu dimanfaatkan pada penyusunan trayek tahun berjalan.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION E3: PETA KEBUTUHAN ============ -->
+<section id="kebutuhan">
+  <div class="wrap">
+    <div class="sec-head" style="margin-top:46px"><span class="no">E3</span><h2>Peta Kebutuhan: Di Mana Garam Dipakai</h2></div>
+    <p class="lede">Sisi permintaan jauh lebih terpusat daripada sisi produksi. <span class="soft">Satu pabrik saja — PT Asahimas Chemical di Cilegon — menyerap sekitar 800.000 ton garam per tahun, hampir setengah dari seluruh produksi garam nasional 2025. Terpusatnya permintaan adalah kabar baik: cukup memenangkan beberapa titik, bukan ribuan pembeli.</span></p>
+
+    <figure class="secfig">
+      <img src="../assets/img/garam-industri.jpg" alt="Kompleks pabrik pengolahan kimia pemakai garam industri" loading="lazy">
+      <figcaption>Pabrik klor-alkali melarutkan garam menjadi soda api, klorin, dan hidrogen. Sektor inilah pemakai garam terbesar — dan yang paling ketat syarat kemurniannya.</figcaption>
+    </figure>
+
+    <div class="chart-card">
+      <h4>Kebutuhan garam menurut sektor dan klaster lokasinya</h4>
+      <div class="sub">profil sektor Kemenperin — dipakai sebagai struktur permintaan</div>
+      <div class="scrollx">
+        <table class="dtab">
+          <thead><tr><th>Sektor pemakai</th><th>Kebutuhan (ton/th)</th><th>Porsi</th><th style="text-align:left">Klaster lokasi</th><th style="text-align:left">Sifat sebaran</th></tr></thead>
+          <tbody id="sektorRows"></tbody>
+        </table>
+      </div>
+      <div class="foot-src">Kemenperin, profil kebutuhan garam industri. Sektor yang sifatnya <b>terpusat</b> adalah target pasar paling realistis untuk garam domestik berskala besar; sektor <b>tersebar</b> sudah lama dilayani garam rakyat setempat. Volume aktual per pabrik ⬚.</div>
+    </div>
+
+    <div class="grid2" style="margin-top:22px">
+      <div class="note red-n">
+        <h5>Dua klaster memegang dua pertiga permintaan</h5>
+        Klor-alkali dan petrokimia di Cilegon–Serang (1,78 jt ton) ditambah pulp &amp; kertas di Riau–Sumsel–Jambi (0,71 jt ton) mencakup <b>68%</b> kebutuhan garam industri nasional. Keduanya berada di pesisir barat, berhadapan langsung dengan jalur kapal curah internasional — posisi geografis yang menguntungkan impor.
+      </div>
+      <div class="note">
+        <h5>Yang tersebar sudah dimenangkan</h5>
+        Pengasinan ikan (460 rb ton), pakan ternak, dan penyamakan kulit tersebar mengikuti pesisir dan sudah dilayani garam rakyat. Menambah produksi untuk segmen ini tidak mengurangi impor — karena segmen ini memang tidak diimpor. Fokus penambahan produksi harus diarahkan ke klaster terpusat yang bermutu tinggi.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION E4: JARAK KE PASAR ============ -->
+<section id="jarak">
+  <div class="wrap">
+    <div class="sec-head" style="margin-top:46px"><span class="no">E4</span><h2>Jarak ke Pasar: Pencocokan Produsen dan Konsumen</h2></div>
+    <p class="lede">Setiap sentra produksi dipasangkan dengan titik kebutuhan terdekat, lalu dihitung jarak dan ton-kilometernya. <span class="soft">Baris terakhir adalah pembandingnya: garam Australia menempuh jarak dua kali lipat dari sentra NTT, tetapi mendarat lebih murah. Artinya masalahnya bukan jarak — melainkan ukuran kapal dan kesiapan dermaga.</span></p>
+
+    <div class="chart-card">
+      <h4>Sentra produksi, pasar terdekat, dan beban angkut</h4>
+      <div class="sub" id="jarakSub">jarak lingkaran besar antartitik pusat klaster · ton-km = produksi × jarak</div>
+      <div class="scrollx">
+        <table class="dtab">
+          <thead><tr><th>Sentra produksi</th><th>Produksi (ton)</th><th style="text-align:left">Pasar terdekat</th><th>Jarak (km)</th><th>Juta ton-km</th></tr></thead>
+          <tbody id="jarakRows"></tbody>
+        </table>
+      </div>
+      <div class="foot-src">Jarak dihitung sebagai garis lurus lingkaran besar antara titik pusat klaster — jarak pelayaran sebenarnya lebih panjang karena harus memutari daratan. Angka ini dipakai untuk membandingkan besaran, bukan untuk menghitung tarif. Produksi mengikuti tahun yang dipilih pada E1.</div>
+    </div>
+
+    <div class="ins3" id="jarakIns"></div>
+
+    <div class="note warn-n" style="margin-top:20px">
+      <h5>Jarak bukan penyebab kekalahan — skala kapal penyebabnya</h5>
+      Garam Australia berlayar sekitar 2.000 km dari Dampier ke Ciwandan dengan kapal curah 30–50 ribu DWT, sehingga komponen angkutnya hanya sekitar US$10–15 per ton. Sentra NTT berlayar sekitar setengah jarak itu, tetapi dengan armada jauh lebih kecil dan bongkar-muat karung, sehingga biaya per kilogramnya justru lebih tinggi. <b>Menurunkan biaya angkut garam domestik berarti menaikkan ukuran kapal — dan menaikkan ukuran kapal berarti membangun dermaga curah.</b> Spesifikasi draft dan panjang dermaga Ba'a, Tenau, serta Marapokot ⬚ perlu diminta ke Ditjen Perhubungan Laut.
+    </div>
+  </div>
+</section>
+
 <!-- ============ SECTION E: PARITAS LOGISTIK ============ -->
 <section id="paritas">
   <div class="wrap">
-    <div class="sec-head"><span class="no">E</span><h2>Gerbang Harga: Kalkulator Paritas Logistik NTT → Jawa</h2></div>
+    <div class="sec-head"><span class="no">E5</span><h2>Gerbang Harga: Kalkulator Paritas Logistik NTT → Jawa</h2></div>
     <p class="lede">Garam adalah komoditas <b>nilai-rendah-per-kilogram</b> (Rp600–900/kg di tambak) — sehingga toleransinya terhadap biaya angkut sangat tipis. <span class="soft">Impor Australia tiba di pelabuhan Jawa dengan CIF ±US$48/ton (≈Rp750–800/kg) berkat kapal curah 30–50 rb DWT. Garam NTT harus menempuh 1.500 km dengan armada jauh lebih kecil — dan tetap harus mendarat lebih murah, atau setidaknya setara dengan premium kualitas.</span></p>
 
     <figure class="secfig">
@@ -1436,6 +1634,228 @@ const SALT={"years":[2019,2020,2021,2022,2023,2024,2025],"prov":{"ACEH":{"l":[59
     const b=e.target.closest('.ybtn'); if(!b)return; yi=+b.dataset.mi;
     document.querySelectorAll('#mutuYears .ybtn').forEach(x=>x.classList.toggle('active',x===b)); draw();});
   draw();
+})();
+
+/* ================= E1–E4 · LOGISTIK GARAM ================= */
+(function(){
+  const host=document.getElementById('flowmap');
+  if(!host||typeof GEO==='undefined'||typeof SALT==='undefined')return;
+
+  const Y=SALT.years;
+  let YI=Y.length-1;
+  const ON={prod:1,port:1,dem:1,imp:1,dom:1};
+
+  const f0=v=>Math.round(v).toLocaleString('id-ID');
+  const f1=v=>v.toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1});
+
+  /* ---------- data ---------- */
+  const PROD=[
+    {n:'Madura',x:113.55,y:-7.02,pr:'JAWA TIMUR',k:['SUMENEP','PAMEKASAN','SAMPANG','BANGKALAN']},
+    {n:'Pesisir Jawa Timur',x:112.35,y:-7.62,pr:'JAWA TIMUR',k:['KOTA SURABAYA','SIDOARJO','PASURUAN','KOTA PASURUAN','GRESIK','LAMONGAN','TUBAN','PROBOLINGGO']},
+    {n:'Pantura Jawa Tengah',x:110.95,y:-6.62,pr:'JAWA TENGAH',k:null},
+    {n:'Pantura Jawa Barat',x:108.35,y:-6.30,pr:'JAWA BARAT',k:null},
+    {n:'NTB (Bima–Sumbawa)',x:118.20,y:-8.50,pr:'NUSA TENGGARA BARAT',k:null},
+    {n:'Sulawesi Selatan',x:119.60,y:-5.45,pr:'SULAWESI SELATAN',k:null},
+    {n:'NTT (Nagekeo–Sabu–Kupang)',x:121.60,y:-9.20,pr:'NUSA TENGGARA TIMUR',k:null},
+    {n:'Aceh',x:96.60,y:5.05,pr:'ACEH',k:null},
+    {n:'Bali',x:115.10,y:-8.25,pr:'BALI',k:null},
+    {n:'Gorontalo',x:121.55,y:0.60,pr:'GORONTALO',k:null}
+  ];
+  const DEM=[
+    {n:'Cilegon–Serang, Banten',s:'Klor-alkali &amp; petrokimia',x:106.02,y:-6.02,v:1780000,note:'PT Asahimas Chemical sendiri menyerap ±800.000 t/th'},
+    {n:'Riau (Pangkalan Kerinci–Perawang)',s:'Pulp &amp; kertas',x:101.95,y:0.38,v:354250,note:'separuh angka sektor pulp &amp; kertas nasional'},
+    {n:'Sumatera Selatan (OKI)',s:'Pulp &amp; kertas',x:105.35,y:-3.35,v:354250,note:'separuh angka sektor pulp &amp; kertas nasional'},
+    {n:'Jabodetabek',s:'Aneka pangan, farmasi, sabun',x:107.35,y:-6.42,v:285923,note:'separuh angka sektor aneka pangan &amp; farmasi'},
+    {n:'Gresik–Surabaya',s:'Aneka pangan &amp; pakan ternak',x:112.68,y:-7.22,v:285923,note:'separuh angka sektor aneka pangan &amp; farmasi'}
+  ];
+  const PORT=[
+    {n:'Ciwandan, Banten',t:'imp',x:105.95,y:-6.01,d:'pintu masuk garam impor'},
+    {n:'Tanjung Perak, Surabaya',t:'imp',x:112.73,y:-7.20,d:'pintu masuk garam impor'},
+    {n:'Belawan, Medan',t:'imp',x:98.68,y:3.79,d:'pintu masuk garam impor'},
+    {n:'Tenau, Kupang',t:'mua',x:123.58,y:-10.18,d:'pelabuhan muat NTT'},
+    {n:'Ba’a, Rote Ndao',t:'mua',x:123.07,y:-10.74,d:'pelabuhan muat NTT — dermaga curah ⬚'},
+    {n:'Marapokot, Nagekeo',t:'mua',x:121.72,y:-8.44,d:'pelabuhan muat NTT'}
+  ];
+  const ORIG=[
+    {n:'AUSTRALIA',sub:'±75% impor · ±2,00 jt ton',x:133.2,y:-10.35,v:2002500,an:'middle'},
+    {n:'INDIA &amp; LAINNYA',sub:'±25% impor · ±0,67 jt ton',x:96.6,y:-3.4,v:667500,an:'start'}
+  ];
+  const SEK=[
+    ['Petrokimia &amp; klor-alkali (CAP)',1780000,'Cilegon–Serang, Banten','pusat','Terpusat'],
+    ['Pulp &amp; kertas (CAP)',708500,'Riau, Sumsel, Jambi','pusat','Terpusat'],
+    ['Aneka pangan',535000,'Jabodetabek &amp; Jawa Timur','semi','Semi-terpusat'],
+    ['Pengasinan ikan',460000,'Pesisir nasional','sebar','Tersebar'],
+    ['Pakan ternak',60000,'Jawa Barat, Lampung','semi','Semi-terpusat'],
+    ['Penyamakan kulit',60000,'Jawa Tengah, Jawa Timur','semi','Semi-terpusat'],
+    ['Sabun &amp; deterjen',30000,'Jabodetabek','semi','Semi-terpusat'],
+    ['Pengeboran minyak',20000,'Riau, Kalimantan Timur','sebar','Tersebar'],
+    ['Farmasi &amp; kosmetik',6846,'Jawa','pusat','Terpusat']
+  ];
+  const DAMPIER={n:'Dampier, Australia Barat',x:117.18,y:-20.66};
+
+  /* ---------- proyeksi (sama dengan peta A2) ---------- */
+  const eachPoly=(f,cb)=>{const g=f.geometry;if(!g)return;
+    const ps=g.type==='MultiPolygon'?g.coordinates:[g.coordinates];ps.forEach(p=>p.forEach(r=>cb(r)));};
+  let mnx=1e9,mxx=-1e9,mny=1e9,mxy=-1e9;
+  GEO.features.forEach(f=>eachPoly(f,r=>r.forEach(p=>{
+    if(p[0]<mnx)mnx=p[0];if(p[0]>mxx)mxx=p[0];if(p[1]<mny)mny=p[1];if(p[1]>mxy)mxy=p[1];})));
+  const W=1000,pad=8,ls=mxx-mnx,as=mxy-mny,H=Math.round(W*as/ls);
+  const PX=l=>pad+(l-mnx)/ls*(W-2*pad), PY=l=>pad+(mxy-l)/as*(H-2*pad);
+
+  /* ---------- hitungan ---------- */
+  const hav=(la1,lo1,la2,lo2)=>{const R=6371,t=Math.PI/180,dp=(la2-la1)*t,dl=(lo2-lo1)*t;
+    const h=Math.sin(dp/2)**2+Math.cos(la1*t)*Math.cos(la2*t)*Math.sin(dl/2)**2;
+    return 2*R*Math.asin(Math.sqrt(h));};
+  const prodVal=(c,yi)=>{
+    if(c.k){let s=0;(SALT.kab[c.pr]||[]).forEach(r=>{if(c.k.indexOf(r[0])>=0)s+=(r[1][yi]||0);});return s;}
+    const d=SALT.prov[c.pr];return d?(d.p[yi]||0):0;};
+  const nearest=c=>{let best=null,bd=1e9;
+    DEM.forEach(d=>{const k=hav(c.y,c.x,d.y,d.x);if(k<bd){bd=k;best=d;}});
+    return {dem:best,km:bd};};
+  PROD.forEach(c=>{const r=nearest(c);c._dem=r.dem;c._km=r.km;});
+
+  const arcPath=(x1,y1,x2,y2,bend)=>{
+    const mx=(x1+x2)/2,my=(y1+y2)/2,dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1;
+    const cx=mx-dy*bend,cy=my+dx*bend;
+    return 'M'+x1.toFixed(1)+' '+y1.toFixed(1)+' Q'+cx.toFixed(1)+' '+cy.toFixed(1)+' '+x2.toFixed(1)+' '+y2.toFixed(1);};
+  const wOf=v=>1.3+7.2*Math.sqrt(Math.max(v,0)/2100000);
+
+  /* ---------- gambar peta ---------- */
+  function drawMap(){
+    const yi=YI;
+    const vals=PROD.map(c=>prodVal(c,yi));
+    const mxp=Math.max.apply(null,vals.concat([1]));
+    const mxd=1780000;
+    let g='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">';
+    GEO.features.forEach(f=>{let d='';eachPoly(f,r=>{r.forEach((p,i)=>{d+=(i?'L':'M')+PX(p[0]).toFixed(1)+' '+PY(p[1]).toFixed(1);});d+='Z';});
+      g+='<path class="fprov" d="'+d+'"></path>';});
+
+    /* arus impor */
+    g+='<g class="lay-imp'+(ON.imp?'':' flay-off')+'">';
+    ORIG.forEach(o=>{
+      const gates=PORT.filter(p=>p.t==='imp');
+      gates.forEach(p=>{
+        g+='<path class="farc imp" stroke-width="'+wOf(o.v/gates.length).toFixed(2)+'" d="'
+          +arcPath(PX(o.x),PY(o.y),PX(p.x),PY(p.y),.13)+'"></path>';});
+      g+='<circle cx="'+PX(o.x).toFixed(1)+'" cy="'+PY(o.y).toFixed(1)+'" r="5" fill="#A6392E"></circle>'
+        +'<text class="forig" x="'+PX(o.x).toFixed(1)+'" y="'+(PY(o.y)+20).toFixed(1)+'" text-anchor="'+o.an+'">'+o.n+'</text>'
+        +'<text class="forigsub" x="'+PX(o.x).toFixed(1)+'" y="'+(PY(o.y)+34).toFixed(1)+'" text-anchor="'+o.an+'">'+o.sub+'</text>';});
+    g+='</g>';
+
+    /* arus domestik */
+    g+='<g class="lay-dom'+(ON.dom?'':' flay-off')+'">';
+    PROD.forEach((c,i)=>{if(!vals[i])return;
+      g+='<path class="farc dom" stroke-width="'+wOf(vals[i]).toFixed(2)+'" d="'
+        +arcPath(PX(c.x),PY(c.y),PX(c._dem.x),PY(c._dem.y),-.11)+'"></path>';});
+    g+='</g>';
+
+    /* titik kebutuhan */
+    g+='<g class="lay-dem'+(ON.dem?'':' flay-off')+'">';
+    DEM.forEach(d=>{const r=5.5+13*Math.sqrt(d.v/mxd);
+      g+='<rect class="fnode fdem" x="'+(PX(d.x)-r).toFixed(1)+'" y="'+(PY(d.y)-r).toFixed(1)+'" width="'+(2*r).toFixed(1)
+        +'" height="'+(2*r).toFixed(1)+'" rx="3" data-tip="'+d.n+' · '+d.s+' · '+f0(d.v)+' ton/th — '+d.note+'"></rect>';});
+    g+='</g>';
+
+    /* pelabuhan */
+    g+='<g class="lay-port'+(ON.port?'':' flay-off')+'">';
+    PORT.forEach(p=>{const X=PX(p.x),Yy=PY(p.y),s=6.5;
+      g+='<path class="fnode fport-'+p.t+'" d="M'+X.toFixed(1)+' '+(Yy-s).toFixed(1)+'L'+(X+s).toFixed(1)+' '+Yy.toFixed(1)
+        +'L'+X.toFixed(1)+' '+(Yy+s).toFixed(1)+'L'+(X-s).toFixed(1)+' '+Yy.toFixed(1)+'Z" data-tip="'+p.n+' · '+p.d+'"></path>';});
+    g+='</g>';
+
+    /* sentra produksi */
+    g+='<g class="lay-prod'+(ON.prod?'':' flay-off')+'">';
+    PROD.forEach((c,i)=>{const v=vals[i],r=4+18*Math.sqrt(v/mxp);
+      g+='<circle class="fnode fprod" cx="'+PX(c.x).toFixed(1)+'" cy="'+PY(c.y).toFixed(1)+'" r="'+r.toFixed(1)
+        +'" data-tip="'+c.n+' · produksi '+Y[yi]+': '+f0(v)+' ton — pasar terdekat '+c._dem.n.replace(/&amp;/g,'dan')+', '+f0(c._km)+' km"></circle>';});
+    g+='</g>';
+
+    host.innerHTML=g+'</svg>';
+    const tip=document.getElementById('flowtip'),wrap=host.closest('.flowwrap');
+    host.querySelectorAll('.fnode').forEach(n=>{
+      n.addEventListener('mousemove',e=>{const b=wrap.getBoundingClientRect();
+        tip.style.left=(e.clientX-b.left)+'px';tip.style.top=(e.clientY-b.top)+'px';});
+      n.addEventListener('mouseenter',()=>{tip.style.opacity=1;tip.innerHTML=n.dataset.tip;});
+      n.addEventListener('mouseleave',()=>{tip.style.opacity=0;});});
+    return vals;
+  }
+
+  /* ---------- tabel E4 + wawasan ---------- */
+  function drawJarak(vals){
+    const yi=YI;
+    const rows=PROD.map((c,i)=>({c:c,v:vals[i],km:c._km,tk:vals[i]*c._km/1e6}))
+                   .filter(r=>r.v>0).sort((a,b)=>b.tk-a.tk);
+    const mxtk=Math.max.apply(null,rows.map(r=>r.tk).concat([1]));
+    let h='';
+    rows.forEach(r=>{
+      h+='<tr><td>'+r.c.n+'</td><td>'+f0(r.v)+'</td><td style="text-align:left">'+r.c._dem.n+'</td><td>'+f0(r.km)+'</td>'
+        +'<td><span class="minib" style="width:'+Math.max(4,r.tk/mxtk*74).toFixed(0)+'px"></span>'+f1(r.tk)+'</td></tr>';});
+    const kmA=hav(DAMPIER.y,DAMPIER.x,DEM[0].y,DEM[0].x), tkA=2002500*kmA/1e6;
+    h+='<tr class="improw"><td>⚑ Impor Australia (Dampier)</td><td>'+f0(2002500)+'</td>'
+      +'<td style="text-align:left">Cilegon–Serang, Banten</td><td>'+f0(kmA)+'</td><td>'+f1(tkA)+'</td></tr>';
+    const totV=rows.reduce((a,r)=>a+r.v,0), totTk=rows.reduce((a,r)=>a+r.tk,0);
+    h+='<tr class="tot"><td>Total domestik '+Y[yi]+'</td><td>'+f0(totV)+'</td><td style="text-align:left">—</td>'
+      +'<td>'+(totV?f0(totTk*1e6/totV):'—')+' rata²</td><td>'+f1(totTk)+'</td></tr>';
+    document.getElementById('jarakRows').innerHTML=h;
+    document.getElementById('jarakSub').textContent='produksi '+Y[yi]+' · jarak lingkaran besar antartitik pusat klaster · ton-km = produksi × jarak';
+
+    const top=rows[0];
+    const totVv=rows.reduce((a,r)=>a+r.v,0);
+    const sig=rows.filter(r=>r.v>=totVv*0.01);
+    const far=(sig.length?sig:rows).slice().sort((a,b)=>b.km-a.km)[0];
+    document.getElementById('jarakIns').innerHTML=
+      '<div class="inscard"><div class="i-h">Beban angkut terbesar</div><div class="i-v">'+(top?top.c.n:'—')+'</div>'
+      +'<div class="i-n">'+(top?f1(top.tk)+' juta ton-km — '+Math.round(top.tk/totTk*100)+'% dari seluruh beban angkut garam domestik':'')+'</div></div>'
+      +'<div class="inscard down"><div class="i-h">Sentra berarti yang terjauh dari pasarnya</div><div class="i-v">'+(far?f0(far.km)+' km':'—')+'</div>'
+      +'<div class="i-n">'+(far?far.c.n+' → '+far.c._dem.n:'')+'</div></div>'
+      +'<div class="inscard"><div class="i-h">Pembanding rute impor</div><div class="i-v">'+f0(kmA)+' km</div>'
+      +'<div class="i-n">Dampier → Ciwandan, ditempuh kapal curah 30–50 rb DWT dengan biaya angkut ±US$10–15/ton</div></div>';
+    return {rows:rows,totV:totV,totTk:totTk,kmA:kmA};
+  }
+
+  /* ---------- wawasan E1 ---------- */
+  function drawFlowIns(st){
+    const yi=YI, jawa=['Madura','Pesisir Jawa Timur','Pantura Jawa Tengah','Pantura Jawa Barat'];
+    const vJawa=st.rows.filter(r=>jawa.indexOf(r.c.n)>=0).reduce((a,r)=>a+r.v,0);
+    const shJ=st.totV?vJawa/st.totV*100:0;
+    const rata=st.totV?st.totTk*1e6/st.totV:0;
+    document.getElementById('flowIns').innerHTML=
+      '<div class="inscard"><div class="i-h">Produksi '+Y[yi]+'</div><div class="i-v">'+f0(st.totV)+' t</div>'
+      +'<div class="i-n">'+f1(shJ)+'% berasal dari Jawa dan Madura — dekat pasar, tetapi mutunya belum mencukupi kebutuhan industri</div></div>'
+      +'<div class="inscard down"><div class="i-h">Jarak rata-rata ke pasar</div><div class="i-v">'+f0(rata)+' km</div>'
+      +'<div class="i-n">tertimbang volume; garam NTT harus menempuh '+f0(PROD.find(c=>c.n.indexOf('NTT')===0)._km)+' km ke pasar terdekatnya</div></div>'
+      +'<div class="inscard"><div class="i-h">Permintaan terpusat</div><div class="i-v">68%</div>'
+      +'<div class="i-n">kebutuhan garam industri hanya berkumpul di dua klaster: Cilegon–Serang dan Riau–Sumsel</div></div>';
+  }
+
+  /* ---------- tabel sektor E3 ---------- */
+  (function(){
+    const host=document.getElementById('sektorRows'); if(!host)return;
+    const tot=SEK.reduce((a,r)=>a+r[1],0), mx=SEK[0][1];
+    let h='';
+    SEK.forEach(r=>{
+      h+='<tr><td>'+r[0]+'</td><td>'+f0(r[1])+'</td><td>'+f1(r[1]/tot*100)+'%</td>'
+        +'<td style="text-align:left"><span class="minib" style="width:'+Math.max(4,r[1]/mx*66).toFixed(0)+'px"></span>'+r[2]+'</td>'
+        +'<td style="text-align:left"><span class="tagx '+r[3]+'">'+r[4]+'</span></td></tr>';});
+    h+='<tr class="tot"><td>Total kebutuhan industri</td><td>'+f0(tot)+'</td><td>100%</td>'
+      +'<td style="text-align:left">—</td><td style="text-align:left">—</td></tr>';
+    host.innerHTML=h;
+  })();
+
+  /* ---------- kendali ---------- */
+  document.getElementById('flowYears').innerHTML=Y.map((y,i)=>
+    '<button class="ybtn'+(i===YI?' active':'')+'" type="button" data-fy="'+i+'">'+y+'</button>').join('');
+  document.getElementById('flowYears').addEventListener('click',e=>{
+    const b=e.target.closest('.ybtn'); if(!b)return; YI=+b.dataset.fy;
+    document.querySelectorAll('#flowYears .ybtn').forEach(x=>x.classList.toggle('active',x===b));
+    render();});
+  document.querySelectorAll('.lbtn').forEach(b=>b.addEventListener('click',()=>{
+    const k=b.dataset.layer; ON[k]=!ON[k]; b.classList.toggle('active',!!ON[k]);
+    ['prod','port','dem','imp','dom'].forEach(x=>{
+      const g=host.querySelector('.lay-'+x); if(g)g.classList.toggle('flay-off',!ON[x]);});}));
+
+  function render(){const vals=drawMap();const st=drawJarak(vals);drawFlowIns(st);}
+  render();
 })();
 </script>
 </body>
