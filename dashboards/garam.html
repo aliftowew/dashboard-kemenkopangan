@@ -333,6 +333,24 @@ footer li{padding-left:14px;text-indent:-14px}
 .mbar .fil{height:100%}
 .mbar .num{text-align:right;font-family:var(--mono);font-size:12.5px;font-weight:700}
 .mrow .m-n{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.5}
+.simgrp{border:1px solid var(--rule-strong);border-radius:10px;padding:13px 15px;margin-bottom:12px;background:var(--panel)}
+.simgrp .sg-h{font-family:var(--mono);font-size:11px;letter-spacing:.11em;text-transform:uppercase;font-weight:700;margin-bottom:9px}
+.simgrp .sg-n{font-size:12px;color:var(--ink-soft);margin-top:6px;line-height:1.45}
+.preset{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.preset button{appearance:none;border:1px solid var(--rule-strong);background:transparent;border-radius:999px;
+  font-family:var(--mono);font-size:10.5px;padding:3px 9px;cursor:pointer;color:var(--ink-soft)}
+.preset button:hover{border-color:var(--sea);color:var(--ink)}
+.zres{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:4px}
+@media(max-width:760px){.zres{grid-template-columns:1fr}}
+.zcard{border:1px solid var(--rule);border-radius:10px;padding:13px 15px;background:var(--panel)}
+.zcard .z-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-soft)}
+.zcard .z-v{font-family:var(--mono);font-size:20px;font-weight:700;margin:4px 0 3px}
+.zcard .z-n{font-size:12px;color:var(--ink-soft);line-height:1.45}
+.zcard.ok{border-left:4px solid var(--green)} .zcard.ok .z-v{color:var(--green)}
+.zcard.no{border-left:4px solid var(--red)}  .zcard.no .z-v{color:var(--red)}
+.zverdict{margin-top:12px;padding:13px 16px;border-radius:10px;font-family:var(--mono);font-size:13.5px;font-weight:700;line-height:1.5}
+.zverdict.no{background:var(--red-soft);color:var(--red);border:1px solid #E5C4BF}
+.zverdict.ok{background:var(--green-soft);color:var(--green);border:1px solid #BFD8CC}
 .qband{margin-top:6px;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--panel)}
 .qrow{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--rule)}
 .qrow:last-child{border-bottom:none}
@@ -635,22 +653,61 @@ footer li{padding-left:14px;text-indent:-14px}
         <div class="foot-src" style="margin-top:8px">Run-rate historis: 616 ha sejak konstruksi efektif awal 2025 (≈20 bln) ≈ 31 ha/bln. Target lahan penuh memakai kawasan Rote 10.764 ha sebagai proxy kebutuhan lahan gap CAP (lihat kalkulator di bawah).</div>
 
         <div class="note warn-n" style="margin-top:16px">
-          <h5>Simulasi suplai baru NTT — geser asumsinya</h5>
-          <div class="sliders" style="grid-template-columns:1fr">
-            <div class="sl">
-              <label>Lahan produktif NTT s.d. akhir 2027 <span class="valwrap"><input type="number" class="numin" id="o-ha" inputmode="numeric" aria-label="nilai"><span class="unit">ha</span></span></label>
-              <input type="range" id="s-ha" min="616" max="10764" step="100" value="3000">
+          <h5>Simulasi menuju zero impor — geser asumsinya</h5>
+          <p style="font-size:13px;margin:2px 0 12px;color:#6B4A08">Bukan hanya lahan baru NTT. Zero impor menuntut <b>dua hal sekaligus</b>: lahan existing memenuhi kelas K1 ke bawah, dan lahan baru berspesifikasi tinggi memenuhi kelas di atas K1.</p>
+
+          <div class="simgrp">
+            <div class="sg-h" style="color:var(--sand)">1 · Lahan existing (garam rakyat, kelas K1 ke bawah)</div>
+            <div class="sliders" style="grid-template-columns:1fr">
+              <div class="sl">
+                <label>Luas lahan existing <span class="valwrap"><input type="number" class="numin" id="o-eha" inputmode="numeric"><span class="unit">ha</span></span></label>
+                <input type="range" id="s-eha" min="20000" max="80000" step="500" value="32204">
+              </div>
+              <div class="sl">
+                <label>Produktivitas rata-rata <span class="valwrap"><input type="number" class="numin" id="o-eyield" inputmode="numeric"><span class="unit">t/ha</span></span></label>
+                <input type="range" id="s-eyield" min="20" max="140" step="1" value="32">
+              </div>
             </div>
-            <div class="sl">
-              <label>Produktivitas rata-rata <span class="valwrap"><input type="number" class="numin" id="o-yield" inputmode="numeric" aria-label="nilai"><span class="unit">t/ha</span></span></label>
-              <input type="range" id="s-yield" min="60" max="220" step="10" value="150">
+            <div class="preset">
+              <span style="font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);align-self:center">produktivitas riil:</span>
+              <button type="button" data-ey="32">2025 · 32</button>
+              <button type="button" data-ey="90">2024 · 90</button>
+              <button type="button" data-ey="111">2023 · 111</button>
+              <button type="button" data-ey="127">2019 · 127</button>
+            </div>
+            <div class="sg-n">Nilai awal adalah kondisi 2025: <b>32.204 ha</b> dengan produktivitas <b>32 ton/ha</b> — tahun basah. Bandingkan dengan tahun kering 2023 (111 ton/ha) untuk melihat betapa besar pengaruh cuaca.</div>
+          </div>
+
+          <div class="simgrp">
+            <div class="sg-h" style="color:var(--sea)">2 · Lahan baru berspesifikasi tinggi (K-SIGN, kelas di atas K1)</div>
+            <div class="sliders" style="grid-template-columns:1fr">
+              <div class="sl">
+                <label>Luas lahan baru <span class="valwrap"><input type="number" class="numin" id="o-ha" inputmode="numeric"><span class="unit">ha</span></span></label>
+                <input type="range" id="s-ha" min="0" max="30000" step="100" value="3000">
+              </div>
+              <div class="sl">
+                <label>Produktivitas rata-rata <span class="valwrap"><input type="number" class="numin" id="o-yield" inputmode="numeric"><span class="unit">t/ha</span></span></label>
+                <input type="range" id="s-yield" min="60" max="220" step="10" value="200">
+              </div>
+            </div>
+            <div class="sg-n">Kawasan K-SIGN Rote seluruhnya <b>10.764 ha</b>; target produktivitas <b>200 ton/ha</b>. Hanya lahan kelas inilah yang dapat menggantikan impor garam industri.</div>
+          </div>
+
+          <div class="zres">
+            <div class="zcard" id="zc-bawah">
+              <div class="z-h">Kelas K1 ke bawah · butuh 1.900 rb ton</div>
+              <div class="z-v" id="z-bawah">—</div>
+              <div class="z-n" id="zn-bawah">—</div>
+            </div>
+            <div class="zcard" id="zc-atas">
+              <div class="z-h">Kelas di atas K1 · butuh 3.010 rb ton</div>
+              <div class="z-v" id="z-atas">—</div>
+              <div class="z-n" id="zn-atas">—</div>
             </div>
           </div>
-          <div class="result-line">
-            <div class="pill"><div class="pv" id="o-prod">450 rb ton</div><div class="pl">suplai baru per tahun</div></div>
-            <div class="pill"><div class="pv" id="o-gap">16%</div><div class="pl">dari gap kualitas ±3 jt ton (CAP + aneka pangan)</div></div>
-          </div>
-          <p style="font-size:13px;margin-top:10px;color:#6B4A08">Cek cepat: 616 ha × 200 t/ha = <b style="font-family:var(--mono)">123 rb ton/th</b> pada kapasitas penuh — bandingkan gap impor 2,6–2,8 jt ton. Kawasan penuh 10.764 ha × 200 t/ha ≈ <b style="font-family:var(--mono)">2,15 jt ton</b> — baru itu yang menutup gap CAP. Skala, bukan simbol.</p>
+
+          <div class="zverdict no" id="z-verdict">—</div>
+          <div class="sg-n" style="margin-top:10px">Kebutuhan nasional dipakai <b>4,91 juta ton</b> — 3.010 rb ton menuntut kadar ≥97% dan 1.900 rb ton dapat dipenuhi kelas K1 ke bawah. <b>Menembus 5 juta ton saja tidak cukup:</b> bila seluruh tambahannya berkelas rendah, impor garam industri tetap berjalan.</div>
         </div>
       </div>
     </div>
@@ -1074,16 +1131,38 @@ function bindNum(key,onChange){
 }
 
 const sHa=document.getElementById('s-ha'), sY=document.getElementById('s-yield');
+const sEha=document.getElementById('s-eha'), sEy=document.getElementById('s-eyield');
+const NEED_BAWAH=1900000, NEED_ATAS=3010000;
 function fmtID(n){return n.toLocaleString('id-ID')}
+function rbton(v){return v>=1e6?(v/1e6).toFixed(2).replace('.',',')+' jt ton':Math.round(v/1000).toLocaleString('id-ID')+' rb ton';}
 function calcExt(){
-  const ha=+sHa.value, y=+sY.value;
-  const prod = ha*y; // ton
-  setNum('o-ha', ha); setNum('o-yield', y);
-  document.getElementById('o-prod').textContent = prod>=1000000 ? (prod/1000000).toFixed(2).replace('.',',')+' jt ton' : Math.round(prod/1000)+' rb ton';
-  document.getElementById('o-gap').textContent = Math.round(prod/3000000*100)+'%';
+  const eha=+sEha.value, ey=+sEy.value, nha=+sHa.value, ny=+sY.value;
+  setNum('o-eha',eha); setNum('o-eyield',ey); setNum('o-ha',nha); setNum('o-yield',ny);
+  const pBawah=eha*ey, pAtas=nha*ny, total=pBawah+pAtas;
+  const okB=pBawah>=NEED_BAWAH, okA=pAtas>=NEED_ATAS;
+  const cb=document.getElementById('zc-bawah'), ca=document.getElementById('zc-atas');
+  cb.className='zcard '+(okB?'ok':'no'); ca.className='zcard '+(okA?'ok':'no');
+  document.getElementById('z-bawah').textContent=rbton(pBawah);
+  document.getElementById('zn-bawah').innerHTML=okB
+    ? 'Tercukupi — surplus <b>'+rbton(pBawah-NEED_BAWAH)+'</b>.'
+    : 'Kurang <b>'+rbton(NEED_BAWAH-pBawah)+'</b>. Pada produktivitas '+ey+' t/ha dibutuhkan <b>'+fmtID(Math.round(NEED_BAWAH/ey))+' ha</b>.';
+  document.getElementById('z-atas').textContent=rbton(pAtas);
+  document.getElementById('zn-atas').innerHTML=okA
+    ? 'Tercukupi — surplus <b>'+rbton(pAtas-NEED_ATAS)+'</b>.'
+    : 'Kurang <b>'+rbton(NEED_ATAS-pAtas)+'</b>. Pada produktivitas '+ny+' t/ha dibutuhkan <b>'+fmtID(Math.round(NEED_ATAS/ny))+' ha</b> lahan berspesifikasi tinggi.';
+  const v=document.getElementById('z-verdict');
+  const sisa=Math.max(0,NEED_BAWAH-pBawah)+Math.max(0,NEED_ATAS-pAtas);
+  if(okB&&okA){v.className='zverdict ok';
+    v.innerHTML='ZERO IMPOR TERCAPAI \u2014 total produksi '+rbton(total)+', kedua kelas mutu terpenuhi.';}
+  else{v.className='zverdict no';
+    v.innerHTML='MASIH IMPOR '+rbton(sisa)+' \u2014 total produksi '+rbton(total)
+      +(total>=4910000?' sudah melampaui kebutuhan 4,91 jt ton, tetapi komposisi mutunya belum sesuai.':'.');}
 }
+sEha.addEventListener('input',calcExt); sEy.addEventListener('input',calcExt);
 sHa.addEventListener('input',calcExt); sY.addEventListener('input',calcExt);
-bindNum('ha',calcExt); bindNum('yield',calcExt);
+bindNum('eha',calcExt); bindNum('eyield',calcExt); bindNum('ha',calcExt); bindNum('yield',calcExt);
+document.querySelectorAll('.preset button').forEach(b=>b.addEventListener('click',()=>{
+  sEy.value=b.dataset.ey; calcExt();}));
 calcExt();
 
 /* ================= E. Paritas calculator ================= */
