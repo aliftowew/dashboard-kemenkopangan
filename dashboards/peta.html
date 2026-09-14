@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Neraca Pangan Regional — Surplus, Defisit & Pemasok Terdekat</title>
+<title>Rantai Pasok Pangan — Neraca, Pemasok Terdekat &amp; Jaringan Logistik</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -190,17 +190,17 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-fa
 })();</script>
 <div class="wrap">
 <header>
-  <div class="brand"><span class="dot"></span> <b>#SemuaBisaDihitung</b> &nbsp;•&nbsp; NERACA PANGAN REGIONAL</div>
+  <div class="brand"><span class="dot"></span> <b>#SemuaBisaDihitung</b> &nbsp;•&nbsp; RANTAI PASOK PANGAN</div>
   <h1>Mana yang <em>surplus</em>, mana yang <em>defisit</em> — dan dari mana sebaiknya dipasok.</h1>
-  <p class="sub">Pasokan dialokasikan dengan <b>optimal transport</b> — meminimalkan total jarak·tonase pengiriman se-Indonesia, bukan sekadar mencocokkan pasangan terdekat. Klik sebuah provinsi: garis pasokan beranimasi mengalir ke arah pengiriman, dan tabel di bawah ikut menyoroti pasangannya.</p>
+  <p class="sub"><b>Neraca &amp; Pemasok</b> mengalokasikan pasokan antar provinsi dengan <em>optimal transport</em> — meminimalkan total jarak·tonase se-Indonesia, bukan sekadar mencocokkan pasangan terdekat. <b>Jaringan Logistik</b> menampilkan rute pelayaran Tol Laut yang menopangnya. Klik sebuah provinsi untuk membuka rinciannya. Sinyal harga terhadap HET dan HAP berada pada dasbor <a href="harga.html" style="color:var(--gold)">Peringatan Dini Harga</a>.</p>
   <div class="meta">
-    <span>📅 Data per <b>26 Mei 2026</b></span>
+    <span>📅 Neraca per <b>26 Mei 2026</b> · basis <b>2025</b></span>
     <span>🗺️ <b>38 provinsi</b></span>
-    <span>📊 Basis tahun <b>2025</b> (sementara)</span>
     <span>🏛️ <b>Kemenko Pangan RI</b> · KSA · Ditjen PKH Kementan · Susenas BPS</span>
   </div>
 </header>
 
+<div class="viewbar" id="viewbar"></div>
 <div class="tabbar"><span class="tlab">Komoditas</span><div class="tabs" id="tabs"></div></div>
 
 <div class="kpis" id="kpis"></div>
@@ -209,7 +209,7 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-fa
   <div class="panel" style="position:relative">
     <div class="phead"><h2 id="mapTitle">Peta Neraca</h2><span class="hint">klik provinsi → animasi aliran pasokan</span></div>
     <div id="map"></div>
-    <div class="legend">
+    <div class="legend" id="legend">
       <div class="row"><span class="grad gp"></span><b>Surplus</b> (makin tua = makin besar)</div>
       <div class="row"><span class="grad gd"></span><b>Defisit</b> (perlu pasokan masuk)</div>
       <div class="row"><span class="ln"></span> Aliran pasok domestik (optimal)</div>
@@ -217,32 +217,44 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-fa
     </div>
   </div>
   <div class="panel">
-    <div class="phead"><h2>Rincian & Pemasok</h2><span class="hint" id="detailHint">pilih provinsi</span></div>
+    <div class="phead"><h2 id="hDetail">Rincian &amp; Pemasok</h2><span class="hint" id="detailHint">pilih provinsi</span></div>
     <div class="detail" id="detail">
       <div class="placeholder"><div class="big">⌖</div>Klik salah satu provinsi di peta untuk melihat neraca dan rekomendasi pemasok terdekatnya.</div>
     </div>
   </div>
 </div>
 
-<div class="lower">
-  <div class="panel"><div class="phead"><h2>Defisit Terbesar</h2><span class="hint" id="hintDef">butuh pasokan masuk</span></div><div class="rank-list" id="rankDef"></div></div>
-  <div class="panel"><div class="phead"><h2>Surplus Terbesar</h2><span class="hint" id="hintSur">kandidat pemasok</span></div><div class="rank-list" id="rankSur"></div></div>
+<div class="lower" id="lowerRow">
+  <div class="panel"><div class="phead"><h2 id="hDef">Defisit Terbesar</h2><span class="hint" id="hintDef">butuh pasokan masuk</span></div><div class="rank-list" id="rankDef"></div></div>
+  <div class="panel"><div class="phead"><h2 id="hSur">Surplus Terbesar</h2><span class="hint" id="hintSur">kandidat pemasok</span></div><div class="rank-list" id="rankSur"></div></div>
 </div>
 
-<div class="panel" style="margin-top:18px">
-  <div class="phead"><h2>Tabel Neraca Lengkap</h2><span class="hint">klik judul kolom untuk urut · satuan ton</span></div>
+<div class="panel" id="tablePanel" style="margin-top:18px">
+  <div class="phead"><h2 id="hTbl">Tabel Neraca Lengkap</h2><span class="hint" id="hintTbl">klik judul kolom untuk urut · satuan ton</span></div>
   <div class="tablewrap"><table id="tbl"><thead></thead><tbody></tbody></table></div>
 </div>
 
-<div class="note-box">
+<div class="note-box" id="noteNeraca">
   <h3>Bagaimana alokasi dihitung — optimal transport</h3>
   <p>Untuk tiap komoditas: <code>neraca = produksi − kebutuhan</code>. Provinsi neraca positif jadi <b>pemasok</b>, negatif jadi <b>peminta</b>. Alokasi diselesaikan sebagai masalah <em>optimal transport</em> (program linear): mencari kombinasi pengiriman yang <b>meminimalkan total ton·km nasional</b>, dengan kendala tiap pemasok tak melebihi surplusnya dan tiap peminta menerima sesuai kebutuhannya (atau sebanyak yang tersedia bila pasok nasional kurang).</p>
   <p>Ini menggantikan pendekatan <em>greedy</em> sebelumnya yang memproses defisit terbesar lebih dulu — yang bisa menguras surplus sebuah provinsi sebelum tetangga terdekatnya sempat meminta, lalu memaksa tetangga itu memasok dari jauh (persis kasus Kalsel→Kalteng pada beras). Optimal transport menghilangkan artefak itu. Penghematan total jarak·tonase vs greedy: <b>beras −4,6%</b>, <b>daging sapi −44%</b>, <b>ayam −9,2%</b>, <b>telur −14,6%</b>.</p>
   <p>Sisa kebutuhan yang tak bisa ditutup surplus domestik dihitung sebagai <b>impor</b>: untuk komoditas yang surplus nasionalnya negatif (mis. daging sapi/kerbau, ±390 rb ton atau ~48% kebutuhan), impor mengisi kekurangan setelah pasok domestik dialokasikan optimal. Komoditas dengan surplus nasional positif (beras, ayam, telur) tidak butuh impor bila didistribusi ulang. Konsekuensi penting: karena yang diminimalkan adalah <b>total</b> se-Indonesia, sesekali sebuah provinsi tidak dipasok oleh surplus terdekatnya — bila surplus itu lebih bernilai memasok daerah terpencil (mis. Papua/Maluku) yang tak punya alternatif dekat. Itu disengaja dan tetap optimal nasional. Catatan: jarak memakai garis lurus antar-titik tengah provinsi, belum rute laut/darat & biaya logistik riil.</p>
-  <p><b>Pembaruan rute nyata.</b> Garis lurus antar-titik tengah provinsi di atas adalah <em>abstraksi model</em> alokasi optimal (ton·km great-circle), <b>bukan rute fisik</b>. Rute pelayaran sebenarnya kini ditampilkan sebagai lapisan <b>Jaringan Tol Laut</b> — 41 trayek (H/S/T) sesuai <b>SK Dirjen Hubla KP-DJPL 590 Tahun 2025</b> (TA 2026), lengkap dengan pelabuhan singgah dan animasi kapal per trayek. Lapisan <b>Cadangan Beras Pemerintah</b> (CBPP provinsi & CPPD kab/kota, sumber Bapanas CPP 03 Juni 2026) dapat diaktifkan dari kontrol di kanan-atas peta; angkanya juga muncul saat sebuah provinsi diklik. Catatan: koordinat pelabuhan kecil bersifat perkiraan dan mudah disunting.</p>
+  <p><b>Pembaruan rute nyata.</b> Garis lurus antar-titik tengah provinsi di atas adalah <em>abstraksi model</em> alokasi optimal (ton·km great-circle), <b>bukan rute fisik</b>. Rute pelayaran sebenarnya ditampilkan pada tampilan <b>Jaringan Logistik</b> — 41 trayek (H/S/T) sesuai <b>SK Dirjen Hubla KP-DJPL 590 Tahun 2025</b> (TA 2026), lengkap dengan pelabuhan singgah dan animasi kapal per trayek. Lapisan <b>Cadangan Beras Pemerintah</b> (CBPP provinsi & CPPD kab/kota, sumber Bapanas CPP 03 Juni 2026) juga berada pada tampilan tersebut; angkanya juga muncul saat sebuah provinsi diklik. Catatan: koordinat pelabuhan kecil bersifat perkiraan dan mudah disunting.</p>
 </div>
 
-<footer><span>NERACA PANGAN REGIONAL · basis 2025</span><span id="footSrc"></span></footer>
+
+<div class="panel" id="logistikPanel" hidden style="margin-top:18px">
+  <div class="phead"><h2>Kendali Jaringan Tol Laut</h2><span class="hint">pilih trayek untuk menganimasikan pelayaran</span></div>
+  <div style="padding:6px 18px 18px" id="logistikCtrl"></div>
+</div>
+
+<div class="note-box" id="noteLogistik" hidden>
+  <h3>Jaringan pelayaran yang menopang distribusi</h3>
+  <p>Lapisan ini menampilkan <b>41 trayek Tol Laut</b> (Hub, Spoke, dan Perintis) sesuai <b>SK Dirjen Hubla KP-DJPL 590 Tahun 2025</b> untuk TA 2026, beserta pelabuhan singgahnya. Berbeda dari garis alokasi pada tampilan Neraca — yang merupakan abstraksi model ton·km garis lurus — jalur di sini mengikuti rute pelayaran sebenarnya melalui simpul laut.</p>
+  <p>Klik sebuah provinsi untuk melihat <b>cadangan beras daerah</b> (CBPP provinsi dan CPPD kabupaten/kota, sumber Bapanas CPP 03 Juni 2026) sekaligus daftar trayek yang melayaninya; kapal akan menyusuri jalurnya. Aktifkan lapisan Cadangan CBP untuk melihat sebarannya di seluruh Indonesia. Catatan: koordinat pelabuhan kecil bersifat perkiraan.</p>
+</div>
+
+<footer><span>RANTAI PASOK PANGAN · neraca basis 2025</span><span id="footSrc"></span></footer>
 </div>
 
 <script>
@@ -444,6 +456,30 @@ function refresh(){
 }
 initMap();refresh();
 </script>
+<style id="ews-style">
+/* ===== tombol tampilan (menggantikan panel centang di atas peta) ===== */
+.viewbar{display:flex;gap:10px;flex-wrap:wrap;margin:26px 0 0}
+.vbtn{appearance:none;background:var(--card);border:1px solid var(--line2);border-radius:999px;padding:10px 17px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;font-weight:600;color:var(--ink2);cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;transition:.15s;box-shadow:var(--shadow)}
+.vbtn:hover{color:var(--ink);border-color:var(--gold);transform:translateY(-1px)}
+.vbtn.active{background:var(--ink);border-color:var(--ink);color:var(--cream)}
+.vbtn svg{width:16px;height:16px;flex:0 0 auto}
+.vbtn .cnt{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;background:#B32E22;color:#fff;border-radius:20px;padding:2px 7px;line-height:1.4}
+.vbtn.active .cnt{background:#E06A6A;color:#2a0d0a}
+
+.vbtn.xlink{text-decoration:none}
+.vbtn.xlink .ext{font-family:'JetBrains Mono',monospace;font-size:11px;opacity:.7}
+
+/* ===== kendali tol laut dipindah dari peta ke panel bawah ===== */
+#logistikCtrl .map-ctrl{width:100%;max-width:none;background:transparent;border:none;box-shadow:none;padding:0;font-size:13px}
+#logistikCtrl .map-ctrl .mc-h{display:none}
+#logistikCtrl .map-ctrl label{display:inline-flex;margin:0 18px 10px 0;font-size:13px}
+#logistikCtrl .map-ctrl select{max-width:560px}
+#logistikCtrl .map-ctrl #trayekStop{max-width:220px}
+#logistikCtrl .map-ctrl .mc-note{max-height:none;font-size:12px}
+#logistikCtrl .map-ctrl .mc-leg{font-size:11px;gap:14px}
+</style>
 <style id="tladdon-style">
 .map-ctrl{background:rgba(13,28,48,.94);border:1px solid var(--line2);border-radius:7px;padding:10px 11px;font-size:11.5px;width:214px;box-shadow:var(--shadow);color:var(--ink)}
 .map-ctrl .mc-h{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);margin-bottom:7px}
@@ -782,6 +818,7 @@ initMap();refresh();
     if(note)note.innerHTML=label+`<br><span style="color:var(--ink2)">${t.seq.join(' → ')}</span>`+(t.ket?`<br><span style="color:var(--ink2)">${t.ket}</span>`:'');
   }
   window.playTrayek=playTrayek;
+  window.stopShipGlobal=stopShip;
 
   // ===== sync layer & ringkasan =====
   function natSummary(){return `Total CBPP nasional <b>${NAT.cbppTotal.toLocaleString('id-ID')}</b> ton (33 prov + 5 belum regulasi). `+
@@ -818,8 +855,9 @@ initMap();refresh();
     const tgModel=document.getElementById('tgModel');if(tgModel&&!tgModel.checked)clearFlows();
     resetHighlight();(TRAYEK_BY_PROV[id]||[]).forEach(c=>{if(polyByCode[c])polyByCode[c].setStyle({weight:2.4,opacity:.78});});
     const det=document.getElementById('detail');if(det)det.insertAdjacentHTML('beforeend',reserveHTML(id)+trayekChipsHTML(id));
-    // simulasi pengiriman lewat jalur tol laut nyata (untuk provinsi yang dilayani)
-    const port=provPort(id);if(port){const code=primaryTrayek(id,port);if(code)playTrayek(code,port);} else {stopShip();}
+    // simulasi pengiriman lewat jalur tol laut nyata (hanya pada tampilan Jaringan Logistik)
+    if(window.__view==='logistik'){const port=provPort(id);if(port){const code=primaryTrayek(id,port);if(code)playTrayek(code,port);} else {stopShip();}}
+    else {stopShip();}
   };
 
   // ===== kontrol (Leaflet, kanan-atas) =====
@@ -837,7 +875,9 @@ initMap();refresh();
       <button id="trayekStop" style="display:none">■ Hentikan kapal</button>
       <div class="mc-note" id="tlNote"></div>`;
     L.DomEvent.disableClickPropagation(d);L.DomEvent.disableScrollPropagation(d);return d;};
-  ctrl.addTo(map);
+  // kendali dipindah dari overlay peta ke panel "Jaringan Logistik" agar peta bersih
+  (function(){const host=document.getElementById("logistikCtrl");
+    if(host)host.appendChild(ctrl.onAdd());else ctrl.addTo(map);})();
 
   drawNetwork();drawPorts();drawCBP();
   document.getElementById('tgTL').addEventListener('change',syncLayers);
@@ -850,6 +890,90 @@ initMap();refresh();
   syncLayers();
 })();
 
+</script>
+<script>
+/* ==========================================================================
+   Dua tampilan berbagi satu peta. Tombol tampilan menggantikan panel centang
+   yang dulu menumpuk di atas peta; lapisan mengikuti tampilan yang dipilih.
+   Sinyal harga terhadap HET/HAP berada pada dasbor tersendiri (harga.html).
+   ========================================================================== */
+let view='neraca';
+
+/* ---------- legenda per tampilan ---------- */
+function drawLegend(){const el=document.getElementById('legend');if(!el)return;
+  if(view==='logistik'){
+    el.innerHTML='<div class="row"><span class="ln" style="border-top-color:#D8B362"></span> Trayek Hub (H)</div>'
+      +'<div class="row"><span class="ln" style="border-top-color:#5FB892"></span> Trayek Spoke (S)</div>'
+      +'<div class="row"><span class="ln" style="border-top-color:#6FA8DC"></span> Trayek Perintis (T)</div>'
+      +'<div class="row"><i style="background:#E6C46A;width:11px;height:11px;border-radius:50%;display:inline-block;flex:none"></i> Pelabuhan hub</div>';}
+  else{
+    el.innerHTML='<div class="row"><span class="grad gp"></span><b>Surplus</b> (makin tua = makin besar)</div>'
+      +'<div class="row"><span class="grad gd"></span><b>Defisit</b> (perlu pasokan masuk)</div>'
+      +'<div class="row"><span class="ln"></span> Aliran pasok domestik (optimal)</div>'
+      +'<div class="row"><span class="ln" style="border-top-color:#C28A2B"></span> Impor dari luar negeri</div>';}}
+
+/* ---------- peta netral pada tampilan logistik ---------- */
+const _styleFeat=styleFeat;
+styleFeat=function(f){const pid=f.properties.pid,sel=selected===pid;
+  if(view==='logistik')return {fillColor:'#7d8994',fillOpacity:sel?.4:.2,
+    color:sel?'#E9C46A':'rgba(233,240,248,.25)',weight:sel?2.2:.7};
+  return _styleFeat(f);};
+
+/* ---------- tombol tampilan ---------- */
+const VIEWS=[
+ {k:'neraca',lab:'Neraca & Pemasok',ic:'<path d="M3 3v18h18"/><path d="M7 15l3.5-4 3 2.6L20 7"/>'},
+ {k:'logistik',lab:'Jaringan Logistik',ic:'<path d="M3 17.5c1.8-1.4 3.4-1.4 5.2 0 1.8 1.4 3.4 1.4 5.2 0 1.8-1.4 3.4-1.4 5.2 0"/><path d="M5 13.5V7h10l3 4"/><path d="M9 7V4.5h3"/>'}
+];
+function drawViewbar(){
+  document.getElementById('viewbar').innerHTML=VIEWS.map(v=>
+    '<button class="vbtn '+(v.k===view?'active':'')+'" type="button" data-v="'+v.k+'">'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+v.ic+'</svg>'
+    +v.lab+'</button>').join('')
+    +'<a class="vbtn xlink" href="harga.html" title="Buka dasbor Peringatan Dini Harga">'
+    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 16.5H2.5z"/><path d="M12 9.5v4"/><path d="M12 16.8h.01"/></svg>'
+    +'Peringatan Harga <span class="ext">↗</span></a>';
+  document.querySelectorAll('.vbtn[data-v]').forEach(b=>b.onclick=()=>setView(b.dataset.v));}
+
+function setLayers(){
+  const tl=document.getElementById('tgTL'),pt=document.getElementById('tgPort'),
+        cb=document.getElementById('tgCBP'),md=document.getElementById('tgModel');
+  if(!tl)return;
+  const log=view==='logistik';
+  tl.checked=log; pt.checked=log; if(!log)cb.checked=false;
+  md.checked=!log;
+  const ml=md.closest('label'); if(ml)ml.style.display='none'; // kini otomatis mengikuti tampilan
+  window.__view=view;
+  if(window._tlSync)window._tlSync();}
+
+function setView(v){if(v===view)return;
+  view=v;selected=null;clearFlows();
+  if(window.stopShipGlobal)window.stopShipGlobal();
+  setLayers();refresh();}
+
+/* ---------- refresh terpadu ---------- */
+const _refresh=refresh;
+refresh=function(){
+  recompute();
+  drawViewbar();setLayers();drawLegend();
+  document.getElementById('logistikPanel').hidden=(view!=='logistik');
+  document.getElementById('lowerRow').hidden=(view==='logistik');
+  document.getElementById('tablePanel').hidden=(view==='logistik');
+  document.getElementById('noteNeraca').hidden=(view!=='neraca');
+  document.getElementById('noteLogistik').hidden=(view!=='logistik');
+  const tb=document.querySelector('.tabbar'); if(tb)tb.hidden=(view==='logistik');
+  if(view==='logistik'){
+    document.getElementById('mapTitle').textContent='Jaringan Tol Laut — 41 trayek';
+    document.querySelector('#mapTitle').nextElementSibling.textContent='klik provinsi atau garis trayek';
+    document.getElementById('hDetail').textContent='Cadangan & Trayek';
+    document.getElementById('detailHint').textContent='pilih provinsi';
+    document.getElementById('detail').innerHTML='<div class="placeholder"><div class="big">⚓</div>Klik provinsi untuk melihat cadangan beras daerah dan trayek Tol Laut yang melayaninya — kapal akan menyusuri jalur pelayaran sebenarnya.</div>';
+    drawTabs();drawKPI();drawMap();
+  }else{
+    document.getElementById('hDetail').textContent='Rincian & Pemasok';
+    _refresh();
+  }};
+
+drawViewbar();setLayers();refresh();
 </script>
 </body>
 </html>
