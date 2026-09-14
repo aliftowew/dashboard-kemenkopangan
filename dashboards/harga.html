@@ -56,13 +56,15 @@ h1 em{font-style:italic;color:var(--awas)}
   backdrop-filter:blur(8px);padding:12px 0 10px;margin-top:18px;border-bottom:1px solid var(--line)}
 @supports not (background:color-mix(in srgb,red 50%,blue)){.picker{background:var(--cream)}}
 .plab{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2);margin-bottom:7px}
-.krow{display:flex;gap:0;overflow-x:auto;border:1.5px solid var(--ink);border-radius:3px;scrollbar-width:thin}
-.kbtn{appearance:none;flex:0 0 auto;border:none;border-right:1.5px solid var(--ink);background:var(--card);
-  font-family:inherit;font-weight:600;font-size:13px;color:var(--ink2);padding:10px 15px;cursor:pointer;white-space:nowrap;transition:.15s}
-.kbtn:last-child{border-right:none}
-.kbtn:hover{color:var(--ink)}
-.kbtn.active{background:var(--ink);color:var(--cream)}
-.kbtn .n{font-family:var(--mono);font-size:10px;opacity:.72;margin-left:7px}
+.krow2{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kwrap{position:relative;display:inline-block;max-width:100%}
+.ksel{appearance:none;-webkit-appearance:none;background:var(--card);border:1.5px solid var(--ink);border-radius:6px;
+  padding:11px 40px 11px 14px;font-family:inherit;font-size:14px;font-weight:600;color:var(--ink);
+  cursor:pointer;min-width:min(430px,100%);max-width:100%;line-height:1.3}
+.ksel:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.kchev{position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--ink2);font-size:12px}
+.ksum{font-family:var(--mono);font-size:12px;color:var(--ink2)}
+.ksum b{color:var(--ink);font-weight:700}
 .mrow{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:12px}
 .mbtn{appearance:none;background:var(--card);border:1px solid var(--line2);border-radius:6px;padding:6px 11px;
   font-family:var(--mono);font-size:11.5px;color:var(--ink2);cursor:pointer;transition:.12s}
@@ -237,11 +239,38 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);display
 
 <div class="tabbar2" id="tabbar"></div>
 
-<!-- ============ PAPAN PERINGATAN ============ -->
-<div class="pane on" data-pane="papan">
+<!-- ============ MATRIKS & TREN ============ -->
+<div class="pane on" data-pane="matriks">
   <div class="picker">
-    <div class="plab">Komoditas · angka = provinsi di atas acuan</div>
-    <div class="krow" id="krow"></div>
+    <div class="mrow" id="mrow2"></div>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <div class="phead"><h2>Matriks Sinyal — 38 Provinsi × 13 Komoditas</h2><span class="hint" id="mxHint">angka = deviasi terhadap acuan · klik sel untuk membuka rinciannya</span></div>
+    <div class="mxwrap" id="mx"></div>
+    <div class="mleg" id="mleg2"></div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:1.3fr 1fr">
+    <div class="panel">
+      <div class="phead"><h2 id="trenTitle">Komposisi Sinyal per Bulan</h2><span class="hint">jumlah provinsi menurut tingkat sinyal</span></div>
+      <div class="chartbox"><canvas id="trenChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="phead"><h2>Peringkat Kerawanan</h2><span class="hint">provinsi di atas acuan</span></div>
+      <div class="pbody" id="rank"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAPAN PERINGATAN ============ -->
+<div class="pane" data-pane="papan">
+  <div class="picker">
+    <div class="plab">Komoditas</div>
+    <div class="krow2">
+      <div class="kwrap"><select class="ksel" id="ksel" aria-label="Pilih komoditas"></select><span class="kchev">▾</span></div>
+      <span class="ksum" id="ksum"></span>
+    </div>
     <div class="mrow" id="mrow"></div>
   </div>
   <div class="refbar" id="refbar"></div>
@@ -267,30 +296,6 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);display
   <div class="panel" style="margin-top:18px">
     <div class="phead"><h2 id="tblTitle">Tabel Sinyal Harga</h2><span class="hint" id="tblHint">klik judul kolom untuk urut</span></div>
     <div class="tablewrap"><table id="tbl"><thead></thead><tbody></tbody></table></div>
-  </div>
-</div>
-
-<!-- ============ MATRIKS & TREN ============ -->
-<div class="pane" data-pane="matriks">
-  <div class="picker">
-    <div class="mrow" id="mrow2"></div>
-  </div>
-
-  <div class="panel" style="margin-top:18px">
-    <div class="phead"><h2>Matriks Sinyal — 38 Provinsi × 13 Komoditas</h2><span class="hint" id="mxHint">angka = deviasi terhadap acuan · klik sel untuk membuka rinciannya</span></div>
-    <div class="mxwrap" id="mx"></div>
-    <div class="mleg" id="mleg2"></div>
-  </div>
-
-  <div class="grid" style="grid-template-columns:1.3fr 1fr">
-    <div class="panel">
-      <div class="phead"><h2 id="trenTitle">Komposisi Sinyal per Bulan</h2><span class="hint">jumlah provinsi menurut tingkat sinyal</span></div>
-      <div class="chartbox"><canvas id="trenChart"></canvas></div>
-    </div>
-    <div class="panel">
-      <div class="phead"><h2>Peringkat Kerawanan</h2><span class="hint">provinsi di atas acuan</span></div>
-      <div class="pbody" id="rank"></div>
-    </div>
   </div>
 </div>
 
@@ -421,7 +426,7 @@ function ambangTeks(com){const r=HETHAP[com],u=' per '+r.sat.split('/')[1];
 
 
 /* ===================== keadaan ===================== */
-let tab='papan', mi=HARGA.months.length-1, curH='Beras Medium', SEL=null;
+let tab='matriks', mi=HARGA.months.length-1, curH='Beras Medium', SEL=null;
 let sortKey='dev', sortDir=-1, chart=null;
 
 const byId=Object.fromEntries(PROV.map(p=>[p.id,p]));
@@ -488,11 +493,17 @@ function drawLeg(id){const el=document.getElementById(id);if(!el)return;
 
 /* ===================== pemilih ===================== */
 function drawPicker(){
-  document.getElementById('krow').innerHTML=KOM.map(k=>{const t=ringkas(k,mi);
-    return '<button class="kbtn'+(k===curH?' active':'')+'" type="button" data-k="'+esc(k)+'">'+HETHAP[k].em+' '+k
-      +(HETHAP[k].hati?' <span style="color:var(--gold)" title="perbandingan perlu kehati-hatian">⚠</span>':'')
-      +'<span class="n">'+t.diAtas+'/'+t.n+'</span></button>';}).join('');
-  document.querySelectorAll('#krow .kbtn').forEach(b=>b.onclick=()=>{curH=b.dataset.k;SEL=null;render();});
+  const sel=document.getElementById('ksel');
+  if(sel){
+    sel.innerHTML=KOM.map(k=>{const t=ringkas(k,mi);
+      return '<option value="'+esc(k)+'"'+(k===curH?' selected':'')+'>'+HETHAP[k].em+'  '+k
+        +(HETHAP[k].hati?' \u26a0':'')+' \u2014 '+t.diAtas+'/'+t.n+' provinsi di atas acuan</option>';}).join('');
+    sel.value=curH;
+    sel.onchange=()=>{curH=sel.value;SEL=null;render();};
+    const t=ringkas(curH,mi);
+    document.getElementById('ksum').innerHTML='<b>'+t.diAtas+'</b> dari '+t.n+' provinsi di atas acuan'
+      +(t.cnt.AWAS?' \u00b7 <b style="color:var(--awas)">'+t.cnt.AWAS+'</b> berstatus Awas':'');
+  }
   ['mrow','mrow2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;
     el.innerHTML='<span class="plab" style="margin:0 5px 0 0">Bulan data</span>'
       +HARGA.months.map((m,i)=>'<button class="mbtn'+(i===mi?' active':'')+'" type="button" data-i="'+i+'">'+mLab(m)+'</button>').join('');
@@ -677,8 +688,8 @@ function drawAcuan(){
 
 /* ===================== tab ===================== */
 const TABS=[
- {k:'papan',lab:'Papan Peringatan',ic:'<path d="M12 3l9.5 16.5H2.5z"/><path d="M12 9.5v4"/><path d="M12 16.8h.01"/>'},
  {k:'matriks',lab:'Matriks & Tren',ic:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'},
+ {k:'papan',lab:'Peta & Rincian',ic:'<path d="M12 3l9.5 16.5H2.5z"/><path d="M12 9.5v4"/><path d="M12 16.8h.01"/>'},
  {k:'acuan',lab:'Acuan HET & HAP',ic:'<path d="M7 3.5h7l4 4v13H7z"/><path d="M14 3.5V8h4"/><path d="M10 12.5h5M10 16h5"/>'}
 ];
 function totalAwas(){return KOM.reduce((n,k)=>n+ringkas(k,mi).cnt.AWAS,0);}
@@ -705,7 +716,7 @@ function render(){
     drawAcuan();
   }}
 window.__redraw=function(){if(tab==='matriks')drawChart();};
-setTab('papan');render();
+setTab(tab);render();
 </script>
 </body>
 </html>
