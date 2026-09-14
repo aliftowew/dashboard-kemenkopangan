@@ -249,7 +249,7 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
           <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
           <span class="gno">Deputi I</span>
           <span class="gtitle">Bidang Koordinasi Tata Niaga &amp; Distribusi Pangan</span>
-          <span class="gcount">5 dasbor</span>
+          <span class="gcount">4 dasbor</span>
         </button>
       <div class="grid">
         <button class="dash-card fade" style="--accent:var(--coral);animation-delay:.05s" data-dash="cv">
@@ -263,22 +263,12 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding-top:18px;color:v
           </div>
         </button>
         <button class="dash-card fade" style="--accent:var(--teal);animation-delay:.12s" data-dash="peta">
-          <img class="thumb" src="assets/menu/peta.jpg" alt="Pelabuhan peti kemas — distribusi antar wilayah" loading="lazy">
+          <img class="thumb" src="assets/menu/peta.jpg" alt="Pasar tradisional — tempat harga pangan terpantau" loading="lazy">
           <div class="body">
             <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v17"/><path d="M5.5 20.5h13" opacity=".5"/><path d="M4 7.5h16"/><path d="M4 7.5L1.6 12.7a2.6 2.6 0 0 0 4.8 0L4 7.5z"/><path d="M20 7.5l-2.4 5.2a2.6 2.6 0 0 0 4.8 0L20 7.5z"/></svg></div>
             <div class="eyebrow">Rantai Pasok</div>
-            <h3>Neraca Pangan &amp; Pemasok Terdekat</h3>
-            <p>Surplus–defisit 38 provinsi dengan pemetaan transportasi optimal dan jaringan pelayaran Tol Laut.</p>
-            <span class="go">Buka dasbor <span class="ar">→</span></span>
-          </div>
-        </button>
-        <button class="dash-card fade" style="--accent:var(--alert);animation-delay:.16s" data-dash="harga">
-          <img class="thumb" src="assets/menu/harga.jpg" alt="Pasar tradisional dengan lapak sayur dan bahan pangan" loading="lazy">
-          <div class="body">
-            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2l9.3 16.1a1 1 0 0 1-.87 1.5H3.57a1 1 0 0 1-.87-1.5L12 3.2z"/><path d="M12 9.6v4.2"/><path d="M12 17.1h.01"/></svg></div>
-            <div class="eyebrow">Harga vs HET &amp; HAP</div>
-            <h3>Peringatan Dini Harga Pangan</h3>
-            <p>Harga 13 komoditas di 38 provinsi diuji terhadap HET dan HAP resmi, lengkap dengan sinyal Aman sampai Awas.</p>
+            <h3>Rantai Pasok &amp; Peringatan Harga</h3>
+            <p>Sinyal harga 13 komoditas terhadap HET/HAP di 38 provinsi, lalu rekomendasi provinsi surplus yang bisa memasoknya.</p>
             <span class="go">Buka dasbor <span class="ar">→</span></span>
           </div>
         </button>
@@ -502,8 +492,7 @@ const SEED_USERS = [
 
 const DASH = {
   cv:   { file:"dashboards/cv.html",   title:"Koefisien Variasi Harga Beras", sub:"Volatilitas Harga" },
-  peta: { file:"dashboards/peta.html", title:"Rantai Pasok Pangan",           sub:"Rantai Pasok" },
-  harga:{ file:"dashboards/harga.html",title:"Peringatan Dini Harga",         sub:"Harga vs HET & HAP" },
+  peta: { file:"dashboards/peta.html", title:"Rantai Pasok & Peringatan Harga", sub:"Rantai Pasok" },
   rice: { file:"dashboards/rice.html", title:"Rice Journey · Sawah ke Meja",  sub:"Distribusi" },
   kdmp: { file:"dashboards/kdmp.html", title:"Dampak Ekonomi Pembangunan KDMP", sub:"Ekonomi Desa" },
   garam:{ file:"dashboards/garam.html",title:"Neraca Garam Nasional",          sub:"Swasembada Garam" }
