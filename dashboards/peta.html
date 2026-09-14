@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rantai Pasok Pangan — Neraca, Pemasok Terdekat &amp; Jaringan Logistik</title>
+<title>Rantai Pasok Pangan — Sinyal Harga, Pemasok Terdekat &amp; Jaringan Logistik</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="vendor/chart.umd.min.js"></script>
 <style>
 :root{
   --cream:#091422; --paper:#0d1f33; --card:#102338; --ink:#E9F0F8; --ink2:#90A4BF;
@@ -190,21 +191,34 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-fa
 })();</script>
 <div class="wrap">
 <header>
-  <div class="brand"><span class="dot"></span> <b>#SemuaBisaDihitung</b> &nbsp;•&nbsp; RANTAI PASOK PANGAN</div>
-  <h1>Mana yang <em>surplus</em>, mana yang <em>defisit</em> — dan dari mana sebaiknya dipasok.</h1>
-  <p class="sub"><b>Neraca &amp; Pemasok</b> mengalokasikan pasokan antar provinsi dengan <em>optimal transport</em> — meminimalkan total jarak·tonase se-Indonesia, bukan sekadar mencocokkan pasangan terdekat. <b>Jaringan Logistik</b> menampilkan rute pelayaran Tol Laut yang menopangnya. Klik sebuah provinsi untuk membuka rinciannya. Sinyal harga terhadap HET dan HAP berada pada dasbor <a href="harga.html" style="color:var(--gold)">Peringatan Dini Harga</a>.</p>
+  <div class="brand"><span class="dot"></span> <b>#SemuaBisaDihitung</b> &nbsp;•&nbsp; RANTAI PASOK &amp; PERINGATAN HARGA</div>
+  <h1>Di mana harga <em>melewati batas</em> — dan dari mana sebaiknya dipasok.</h1>
+  <p class="sub">Satu alur kerja: <b>Matriks Sinyal</b> menunjukkan di mana harga melampaui HET atau HAP, lalu <b>Peta &amp; Intervensi</b> menjawab pertanyaan berikutnya — provinsi mana yang harganya lebih murah, cukup dekat, dan punya surplus untuk memasok wilayah itu. <b>Jaringan Logistik</b> menampilkan rute pelayaran Tol Laut yang menopangnya, dan <b>Acuan HET &amp; HAP</b> memuat seluruh ketentuan harganya.</p>
   <div class="meta">
     <span>📅 Neraca per <b>26 Mei 2026</b> · basis <b>2025</b></span>
-    <span>🗺️ <b>38 provinsi</b></span>
+    <span>💰 Harga <b>Jan–Jun 2026</b> · SP2KP</span>
+    <span>⚖️ Ambang HET/HAP ditelusuri <b>14 Sep 2026</b></span>
+    <span>🗺️ <b>38 provinsi</b> · <b>13 komoditas</b></span>
     <span>🏛️ <b>Kemenko Pangan RI</b> · KSA · Ditjen PKH Kementan · Susenas BPS</span>
   </div>
 </header>
 
 <div class="viewbar" id="viewbar"></div>
+<div class="picker2" id="pickerBar">
+  <div class="plab">Komoditas · ● = neraca tonase tersedia</div>
+  <div class="krow2">
+    <div class="kwrap"><select class="ksel" id="ksel" aria-label="Pilih komoditas"></select><span class="kchev">▾</span></div>
+    <span class="ksum" id="ksum"></span>
+  </div>
+  <div class="mrow" id="mrow"></div>
+</div>
+<div class="refbar" id="refbar" hidden></div>
+<div class="picker2" id="warnaBar" hidden><div class="plab">Pewarnaan peta</div><div class="wrow" id="wrow"></div></div>
 <div class="tabbar"><span class="tlab">Komoditas</span><div class="tabs" id="tabs"></div></div>
 
 <div class="kpis" id="kpis"></div>
 
+<div id="mapRow">
 <div class="grid">
   <div class="panel" style="position:relative">
     <div class="phead"><h2 id="mapTitle">Peta Neraca</h2><span class="hint">klik provinsi → animasi aliran pasokan</span></div>
@@ -223,6 +237,7 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-fa
     </div>
   </div>
 </div>
+</div>
 
 <div class="lower" id="lowerRow">
   <div class="panel"><div class="phead"><h2 id="hDef">Defisit Terbesar</h2><span class="hint" id="hintDef">butuh pasokan masuk</span></div><div class="rank-list" id="rankDef"></div></div>
@@ -232,6 +247,48 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-fa
 <div class="panel" id="tablePanel" style="margin-top:18px">
   <div class="phead"><h2 id="hTbl">Tabel Neraca Lengkap</h2><span class="hint" id="hintTbl">klik judul kolom untuk urut · satuan ton</span></div>
   <div class="tablewrap"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+</div>
+
+<div id="matriksPane" hidden>
+  <div class="panel" style="margin-top:18px">
+    <div class="phead"><h2>Matriks Sinyal — 38 Provinsi × 13 Komoditas</h2><span class="hint" id="mxHint"></span></div>
+    <div class="mxwrap" id="mx"></div>
+    <div class="mleg legend-flat" id="mleg2" style="display:flex;flex-wrap:wrap;gap:6px 16px;padding:0 18px 16px;font-size:12px;color:var(--ink2)"></div>
+  </div>
+  <div class="lower" style="grid-template-columns:1.3fr 1fr">
+    <div class="panel">
+      <div class="phead"><h2 id="trenTitle">Komposisi Sinyal per Bulan</h2><span class="hint">jumlah provinsi menurut tingkat sinyal</span></div>
+      <div class="chartbox"><canvas id="trenChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="phead"><h2>Bulan Data</h2><span class="hint">berlaku untuk seluruh tampilan</span></div>
+      <div style="padding:16px 18px"><div class="mrow" id="mrow2" style="margin-top:0"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="prioPanel" hidden style="margin-top:18px">
+  <div class="phead"><h2>Papan Prioritas Nasional</h2><span class="hint" id="prioHint">deviasi terbesar lintas komoditas</span></div>
+  <div class="prio" id="prio"></div>
+</div>
+
+<div id="acuanPane" hidden>
+  <div class="panel" style="margin-top:18px">
+    <div class="phead"><h2>Acuan Tingkat Konsumen</h2><span class="hint">HET dan HAP penjualan</span></div>
+    <div class="tablewrap"><table id="tKon"><thead></thead><tbody></tbody></table></div>
+  </div>
+  <div class="panel" style="margin-top:18px">
+    <div class="phead"><h2>Acuan Tingkat Produsen dan Input Peternakan</h2><span class="hint">HAP pembelian</span></div>
+    <div class="tablewrap"><table id="tPro"><thead></thead><tbody></tbody></table></div>
+  </div>
+  <div class="panel" style="margin-top:18px">
+    <div class="phead"><h2>Pangan yang Belum Memiliki HET atau HAP Nasional</h2><span class="hint">jangan memakai acuan komoditas lain</span></div>
+    <div class="tablewrap"><table id="tBelum"><thead></thead><tbody></tbody></table></div>
+  </div>
+  <div class="panel" style="margin-top:18px">
+    <div class="phead"><h2>Cakupan dan Cara Membaca</h2><span class="hint">catatan penggunaan data</span></div>
+    <div class="notegrid" id="catatan"></div>
+  </div>
 </div>
 
 <div class="note-box" id="noteNeraca">
@@ -248,13 +305,22 @@ footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-fa
   <div style="padding:6px 18px 18px" id="logistikCtrl"></div>
 </div>
 
+<div class="note-box" id="noteHarga" hidden>
+  <h3>Dari alarm harga ke rekomendasi pengiriman</h3>
+  <p>Harga eceran bulanan tiap provinsi berasal dari pemantauan pasar <b>SP2KP</b> — sumber yang sama dengan dasbor Koefisien Variasi Harga. Tiap angka diuji terhadap ambang <b>HET</b> atau <b>HAP</b> yang berlaku bagi komoditas dan wilayahnya: <code>deviasi = (harga − ambang) ÷ ambang × 100%</code>. Empat tingkat sinyal: <span class="sig AMAN">Aman</span> pada atau di bawah ambang · <span class="sig WASPADA">Waspada</span> 0–5% di atas · <span class="sig SIAGA">Siaga</span> 5–15% di atas · <span class="sig AWAS">Awas</span> lebih dari 15% di atas.</p>
+  <p><b>Ambang tidak seragam nasional.</b> HET beras dibagi tiga zona wilayah; HAP gula konsumsi dan bawang putih memakai angka lebih tinggi untuk Maluku, Papua, dan wilayah 3TP. Status 3TP di luar Maluku–Papua belum tercakup karena penetapannya per lokasi. Untuk komoditas yang acuannya berupa rentang — bawang merah, cabai merah keriting, cabai rawit merah — ambang peringatan memakai <b>batas atas</b>.</p>
+  <p><b>Cara kandidat pemasok disusun.</b> Untuk provinsi yang dipilih, sistem mencari provinsi lain yang harganya <b>lebih murah</b>, menghitung jaraknya (garis besar antar titik tengah provinsi), lalu mengurangi selisih harga dengan perkiraan ongkos angkut: <code>keuntungan bersih = selisih harga − ongkos × jarak</code>. Tarif ongkos adalah <b>asumsi yang bisa Anda ubah sendiri</b> lewat penggeser, bukan tarif resmi — karena tarif angkut curah antar provinsi belum tersedia terbuka. Yang bernilai positif berarti pengiriman masih menyisakan ruang harga.</p>
+  <p><b>Dua lapis bukti, dan batasnya.</b> Untuk <b>beras, daging sapi, daging ayam, dan telur</b> neraca produksi–kebutuhan provinsi tersedia, sehingga kandidat disaring hanya pada provinsi yang benar-benar <b>surplus</b> dan tonase yang tersedia ikut ditampilkan. Untuk sembilan komoditas lainnya neraca provinsi belum tersedia, sehingga peringkat disusun <b>dari sisi harga dan jarak saja</b> — ketersediaan barang di provinsi asal belum terverifikasi. Komoditas yang neracanya tersedia ditandai <b>●</b> pada pemilih komoditas.</p>
+  <p><b>HET dan HAP adalah instrumen berbeda.</b> HET adalah batas harga jual eceran yang ditegakkan; HAP adalah harga acuan stabilisasi, sehingga melampauinya tidak otomatis berarti pelanggaran. Tiga komoditas ditandai <b style="color:var(--gold)">⚠</b> karena tingkat pembelinya berbeda dari harga eceran yang dipantau: <b>jagung</b> (HAP untuk industri pakan dan peternak), <b>kedelai</b> (mencakup pengrajin tahu dan tempe), dan <b>daging sapi</b> (acuan dibedakan per potongan). Rincian tiap ambang ada pada tampilan <b>Acuan HET &amp; HAP</b>.</p>
+</div>
+
 <div class="note-box" id="noteLogistik" hidden>
   <h3>Jaringan pelayaran yang menopang distribusi</h3>
   <p>Lapisan ini menampilkan <b>41 trayek Tol Laut</b> (Hub, Spoke, dan Perintis) sesuai <b>SK Dirjen Hubla KP-DJPL 590 Tahun 2025</b> untuk TA 2026, beserta pelabuhan singgahnya. Berbeda dari garis alokasi pada tampilan Neraca — yang merupakan abstraksi model ton·km garis lurus — jalur di sini mengikuti rute pelayaran sebenarnya melalui simpul laut.</p>
   <p>Klik sebuah provinsi untuk melihat <b>cadangan beras daerah</b> (CBPP provinsi dan CPPD kabupaten/kota, sumber Bapanas CPP 03 Juni 2026) sekaligus daftar trayek yang melayaninya; kapal akan menyusuri jalurnya. Aktifkan lapisan Cadangan CBP untuk melihat sebarannya di seluruh Indonesia. Catatan: koordinat pelabuhan kecil bersifat perkiraan.</p>
 </div>
 
-<footer><span>RANTAI PASOK PANGAN · neraca basis 2025</span><span id="footSrc"></span></footer>
+<footer><span>RANTAI PASOK &amp; PERINGATAN HARGA · neraca basis 2025 · harga Jan–Jun 2026</span><span id="footSrc"></span></footer>
 </div>
 
 <script>
@@ -479,6 +545,131 @@ initMap();refresh();
 #logistikCtrl .map-ctrl #trayekStop{max-width:220px}
 #logistikCtrl .map-ctrl .mc-note{max-height:none;font-size:12px}
 #logistikCtrl .map-ctrl .mc-leg{font-size:11px;gap:14px}
+</style>
+<style id="merge-style">
+/* atribut hidden harus mengalahkan display:grid/flex pada panel */
+[hidden]{display:none!important}
+
+/* ===== pemilih komoditas & bulan ===== */
+.picker2{margin:16px 0 0}
+.plab{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2);margin-bottom:7px}
+.krow2{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kwrap{position:relative;display:inline-block;max-width:100%}
+.ksel{appearance:none;-webkit-appearance:none;background:var(--card);border:1.5px solid var(--ink);border-radius:6px;
+  padding:11px 40px 11px 14px;font-family:inherit;font-size:14px;font-weight:600;color:var(--ink);
+  cursor:pointer;min-width:min(430px,100%);max-width:100%;line-height:1.3}
+.ksel:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.kchev{position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--ink2);font-size:12px}
+.ksum{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink2)}
+.ksum b{color:var(--ink);font-weight:700}
+.mrow{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.mbtn{appearance:none;background:var(--card);border:1px solid var(--line2);border-radius:6px;padding:6px 11px;
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink2);cursor:pointer;transition:.12s}
+.mbtn:hover{color:var(--ink);border-color:var(--gold)}
+.mbtn.active{background:var(--gold);border-color:var(--gold);color:#1a1206;font-weight:700}
+
+/* ===== sakelar pewarnaan peta ===== */
+.wrow{display:inline-flex;border:1.5px solid var(--ink);border-radius:6px;overflow:hidden}
+.wbtn{appearance:none;border:none;border-right:1.5px solid var(--ink);background:var(--card);
+  font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink2);padding:8px 14px;cursor:pointer;white-space:nowrap}
+.wbtn:last-child{border-right:none}
+.wbtn.active{background:var(--ink);color:var(--cream)}
+.wbtn:disabled{opacity:.42;cursor:not-allowed}
+
+/* ===== lencana sinyal ===== */
+.sig{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  padding:3px 8px;border-radius:20px;color:#fff;white-space:nowrap;display:inline-block}
+.sig.AMAN{background:#3E8E63}.sig.WASPADA{background:#B8860B}.sig.SIAGA{background:#CC6B22}.sig.AWAS{background:#B32E22}
+.sig.NA{background:var(--line2);color:var(--ink2)}
+.legend.harga .row i{width:15px;height:11px;border-radius:3px;display:inline-block;flex:none}
+
+/* ===== keterangan ambang ===== */
+.refbar{margin:14px 0 0;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--gold);
+  border-radius:5px;padding:12px 15px;font-size:13px;line-height:1.65;color:var(--ink2);box-shadow:var(--shadow)}
+.refbar b{color:var(--ink)}
+.refbar .amb{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--gold)}
+.refbar a{color:var(--gold)}
+.refbar .warn{display:block;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);color:var(--ink)}
+.refbar .warn b{color:var(--gold)}
+
+/* ===== panel rincian ===== */
+.pricebig{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}
+.pricebig .b{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:11px 12px}
+.pricebig .lab{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);line-height:1.4}
+.pricebig .num{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;margin-top:5px;font-variant-numeric:tabular-nums}
+.sparkbox{margin-top:15px;background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:12px}
+.sparkbox .sh{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-bottom:8px;display:flex;justify-content:space-between;gap:8px}
+.comrow{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px dashed var(--line);cursor:pointer;transition:.12s}
+.comrow:last-child{border-bottom:none}
+.comrow:hover{padding-left:4px}
+.comrow .cn{flex:1;font-size:13px;font-weight:500}
+.comrow .cp{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink2);width:70px;text-align:right;font-variant-numeric:tabular-nums}
+.comrow .cd{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:700;width:56px;text-align:right;font-variant-numeric:tabular-nums}
+.caveat{margin-top:12px;background:rgba(216,179,98,.10);border:1px solid rgba(216,179,98,.38);border-radius:5px;padding:10px 12px;font-size:12.5px;line-height:1.6;color:var(--ink)}
+.caveat b{color:var(--gold)}
+
+/* ===== kandidat pemasok (inti integrasi) ===== */
+.kand{margin-top:8px}
+.kand .ki{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line);cursor:pointer;transition:.12s}
+.kand .ki:last-child{border-bottom:none}
+.kand .ki:hover{padding-left:4px}
+.kand .rank{width:22px;height:22px;border-radius:50%;background:var(--surplus);color:#fff;display:grid;place-items:center;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;flex:none;margin-top:2px}
+.kand .ki.neg .rank{background:var(--line2);color:var(--ink2)}
+.kand .info{flex:1;min-width:0}
+.kand .nm{font-size:13.5px;font-weight:600}
+.kand .meta2{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink2);margin-top:3px;line-height:1.6}
+.kand .val{text-align:right;flex:none;font-family:'JetBrains Mono',monospace}
+.kand .val .big{font-size:14px;font-weight:700;color:var(--surplus-deep)}
+.kand .ki.neg .val .big{color:var(--ink2)}
+.kand .val small{display:block;font-size:10px;color:var(--ink2);margin-top:2px}
+.ongkos{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:11px 13px;margin:12px 0 4px}
+.ongkos label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);margin-bottom:7px}
+.ongkos .oin{display:flex;align-items:center;gap:10px}
+.ongkos input[type=range]{flex:1;accent-color:var(--gold)}
+.ongkos input[type=number]{width:78px;background:var(--card);border:1px solid var(--line2);border-radius:5px;
+  color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12px;padding:5px 7px;text-align:right}
+.ongkos .oh{font-size:11.5px;color:var(--ink2);margin-top:7px;line-height:1.55}
+
+/* ===== matriks ===== */
+.mxwrap{overflow-x:auto;padding:4px 18px 18px}
+table.mx{border-collapse:separate;border-spacing:2px;font-size:11px;width:auto;min-width:100%}
+table.mx th{padding:6px 4px;border:none;text-align:center;font-size:9px;cursor:default;vertical-align:bottom;color:var(--ink2);
+  font-family:'JetBrains Mono',monospace;letter-spacing:.02em;text-transform:uppercase}
+table.mx th.kom{height:132px;padding:0 0 7px}
+table.mx th.kom span{writing-mode:vertical-rl;transform:rotate(180deg);display:inline-block;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:11.5px;font-weight:600;color:var(--ink);
+  text-transform:none;letter-spacing:0;white-space:nowrap}
+table.mx th.prov{text-align:left;padding-right:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;
+  text-transform:none;letter-spacing:0;color:var(--ink);font-weight:500;white-space:nowrap;position:sticky;left:0;background:var(--card);z-index:2}
+table.mx td{padding:0;border:none}
+.cell{width:100%;min-width:34px;height:26px;border-radius:3px;display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:#fff;cursor:pointer;transition:.1s}
+.cell:hover{outline:2px solid var(--gold);outline-offset:1px}
+.cell.na{color:var(--ink2)}
+.chartbox{padding:16px 18px 20px}
+.chartbox canvas{max-height:290px}
+
+/* ===== papan prioritas ===== */
+.prio{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;padding:16px 18px}
+.pcard{background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--deficit);border-radius:5px;padding:12px 14px;cursor:pointer;transition:.14s}
+.pcard:hover{transform:translateY(-2px);border-color:var(--gold)}
+.pcard .pk{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:7px}
+.pcard .pp{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.pcard .pd{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;margin-top:7px;font-variant-numeric:tabular-nums}
+.pcard .px{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink2);margin-top:2px}
+
+/* ===== acuan ===== */
+td.wrapcell{white-space:normal;font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;text-align:left;line-height:1.55;min-width:180px}
+td.numc{color:var(--gold);font-weight:700}
+.badge{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.06em;padding:3px 7px;border-radius:4px;
+  background:rgba(216,179,98,.16);color:var(--gold);white-space:nowrap}
+.badge.het{background:rgba(192,73,47,.14);color:var(--deficit-deep)}
+.notegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;padding:16px 18px}
+.ncard{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:12px 14px}
+.ncard h5{font-size:13px;font-weight:700;margin-bottom:5px}
+.ncard p{font-size:12.5px;color:var(--ink2);line-height:1.6}
+@media(max-width:860px){.pricebig{grid-template-columns:1fr}}
 </style>
 <style id="tladdon-style">
 .map-ctrl{background:rgba(13,28,48,.94);border:1px solid var(--line2);border-radius:7px;padding:10px 11px;font-size:11.5px;width:214px;box-shadow:var(--shadow);color:var(--ink)}
@@ -819,6 +1010,8 @@ initMap();refresh();
   }
   window.playTrayek=playTrayek;
   window.stopShipGlobal=stopShip;
+  window.reserveHTML=reserveHTML;
+  window.trayekChipsHTML=trayekChipsHTML;
 
   // ===== sync layer & ringkasan =====
   function natSummary(){return `Total CBPP nasional <b>${NAT.cbppTotal.toLocaleString('id-ID')}</b> ton (33 prov + 5 belum regulasi). `+
@@ -892,46 +1085,525 @@ initMap();refresh();
 
 </script>
 <script>
+const HARGA = {"months":["2026-01","2026-02","2026-03","2026-04","2026-05","2026-06"],"data":{"Beras Premium":{"ACEH":[15736,15734,15662,15628,15636,15730],"BALI":[15538,15310,15378,15526,15821,16010],"BANTEN":[14489,14465,14490,14462,14455,14467],"BENGKULU":[15533,15442,15398,15463,15538,15539],"DI YOGYAKARTA":[14643,14733,14779,14785,14864,15005],"DKI JAKARTA":[15104,15204,15108,15101,15179,15298],"JAMBI":[15050,15076,15073,15083,15117,15160],"JAWA BARAT":[14629,14635,14678,14664,14704,14783],"JAWA TENGAH":[14645,14698,14790,14885,14890,14992],"JAWA TIMUR":[14767,14794,14803,14835,14859,14916],"KALIMANTAN BARAT":[17178,17293,17296,17519,17853,17917],"KALIMANTAN SELATAN":[16473,16441,16503,16567,16808,16930],"KALIMANTAN TENGAH":[16729,16686,16747,16823,16955,17182],"KALIMANTAN TIMUR":[16747,16843,16698,16643,16884,17097],"KALIMANTAN UTARA":[17433,17469,17389,17291,17386,17556],"KEP BANGKA BELITUNG":[15460,15422,15470,15708,15960,15960],"KEP RIAU":[14984,15360,15419,15390,15445,15437],"LAMPUNG":[14741,14693,14730,14762,14820,14857],"MALUKU":[17910,17947,18087,18162,18062,18212],"MALUKU UTARA":[17518,17412,17367,17404,17421,17474],"NUSA TENGGARA BARAT":[14766,14661,14637,14630,14660,14655],"NUSA TENGGARA TIMUR":[15699,15634,15684,15732,15896,15845],"PAPUA":[18156,18042,18007,18088,18138,18110],"PAPUA BARAT":[18278,18359,18341,18582,18737,18618],"PAPUA BARAT DAYA":[17564,18032,18115,17986,18108,18116],"PAPUA SELATAN":[16579,16107,15926,15952,16260,16524],"PAPUA TENGAH":[22018,26362,24709,21921,24644,19456],"RIAU":[15379,15375,15400,15412,15478,15490],"SULAWESI BARAT":[15132,15148,15186,15192,15395,15558],"SULAWESI SELATAN":[14576,14590,14601,14629,14655,14707],"SULAWESI TENGAH":[15352,15602,15728,15842,15916,16014],"SULAWESI TENGGARA":[14906,15120,15470,15676,15728,15796],"SULAWESI UTARA":[15308,15221,15298,15406,15548,15965],"SUMATERA BARAT":[15921,15797,15808,16135,16000,16000],"SUMATERA SELATAN":[14651,14602,14682,14734,14763,14736],"SUMATERA UTARA":[15856,15727,15691,15712,15746,15937]},"Beras Medium":{"ACEH":[14332,13917,13823,13810,13760,13886],"BALI":[13329,13005,12902,13117,13209,13295],"BANTEN":[12787,12701,12756,12723,12776,12803],"BENGKULU":[13346,13262,13228,13262,13310,13344],"DI YOGYAKARTA":[13083,13088,13136,13104,13226,13364],"DKI JAKARTA":[13228,13298,13274,13265,13685,13625],"GORONTALO":[13541,13264,13166,13193,13261,13364],"JAMBI":[13076,12919,12822,12736,12715,12676],"JAWA BARAT":[12973,12936,12995,13035,13026,13025],"JAWA TENGAH":[12969,12916,12989,13017,13064,13112],"JAWA TIMUR":[12778,12602,12634,12650,12660,12718],"KALIMANTAN BARAT":[14154,14168,14037,14160,14253,14362],"KALIMANTAN SELATAN":[13270,13299,13301,13417,13412,13508],"KALIMANTAN TENGAH":[13736,13692,13686,13726,13875,13867],"KALIMANTAN TIMUR":[14337,14134,14118,14235,14412,14542],"KALIMANTAN UTARA":[14268,13998,14050,14212,14102,14142],"KEP BANGKA BELITUNG":[13299,13249,13301,13317,13299,13353],"KEP RIAU":[12906,12953,12924,12894,12956,12923],"LAMPUNG":[12973,12844,12844,12887,12992,13059],"MALUKU":[14754,14487,14527,14657,14667,14729],"MALUKU UTARA":[15459,14926,14859,14850,15092,15253],"NUSA TENGGARA BARAT":[13053,12749,12777,12781,12808,12793],"NUSA TENGGARA TIMUR":[13744,13669,13645,13683,13733,13731],"PAPUA":[15438,15602,15501,15609,15580,15303],"PAPUA BARAT":[16709,16539,16673,16620,16772,16722],"PAPUA BARAT DAYA":[15248,15312,15156,14984,15125,14978],"PAPUA PEGUNUNGAN":[null,null,null,20000,20000,20000],"PAPUA SELATAN":[14912,14366,14567,14358,14630,14790],"PAPUA TENGAH":[15747,15619,15642,15397,16057,15887],"RIAU":[13636,13405,13404,13438,13444,13419],"SULAWESI BARAT":[13447,13086,13144,13139,13247,13337],"SULAWESI SELATAN":[12778,12689,12684,12668,12684,12718],"SULAWESI TENGAH":[13511,13521,13560,13571,13603,13835],"SULAWESI TENGGARA":[13106,12992,13155,13363,13316,13299],"SULAWESI UTARA":[13629,13407,13371,13261,13370,13661],"SUMATERA BARAT":[12998,12952,13050,13025,13043,13038],"SUMATERA SELATAN":[12767,12811,12839,12857,12878,12885],"SUMATERA UTARA":[14109,13860,13790,13853,13917,14070]},"Kedelai":{"ACEH":[11177,10986,10963,11154,11335,11384],"BALI":[11153,11157,11170,11276,11717,11689],"BANTEN":[11388,11263,11263,11741,11889,12022],"BENGKULU":[10594,10706,10983,11220,11427,11528],"DI YOGYAKARTA":[9755,9970,10348,10773,10859,11056],"DKI JAKARTA":[11000,null,null,null,null,null],"GORONTALO":[10190,10287,10458,10751,10768,10780],"JAMBI":[11336,11037,11008,11223,11321,11313],"JAWA BARAT":[9763,9839,9999,10556,10713,10904],"JAWA TENGAH":[9792,9882,10063,10434,10615,10775],"JAWA TIMUR":[9930,10126,10189,10545,10678,10824],"KALIMANTAN BARAT":[11016,11170,11309,11788,12094,12234],"KALIMANTAN SELATAN":[10798,10634,10700,10904,11082,11348],"KALIMANTAN TENGAH":[10525,10456,10365,10905,11142,11139],"KALIMANTAN TIMUR":[11511,11529,11635,11905,11985,12201],"KALIMANTAN UTARA":[11881,11946,11942,12217,12143,12340],"KEP BANGKA BELITUNG":[10910,10940,11022,11366,11286,11450],"KEP RIAU":[11411,11572,11728,11949,12549,12580],"LAMPUNG":[10412,10699,10808,11042,11105,11148],"MALUKU":[13215,12750,12749,12903,13042,13162],"MALUKU UTARA":[13034,13084,12898,12934,13096,13502],"NUSA TENGGARA BARAT":[10737,11123,11339,11751,11916,12098],"NUSA TENGGARA TIMUR":[12130,12242,12078,12142,12154,12383],"PAPUA":[14518,15001,15125,15151,15279,15220],"PAPUA BARAT":[11300,11080,11478,11256,11513,11786],"PAPUA BARAT DAYA":[13104,12963,12990,12961,12901,12973],"PAPUA SELATAN":[14500,14500,14500,14500,14500,14500],"PAPUA TENGAH":[12000,11977,12258,12269,12151,12054],"RIAU":[11249,11217,11266,11595,11780,11884],"SULAWESI BARAT":[11639,11594,11532,11879,12229,12283],"SULAWESI SELATAN":[10460,10659,10686,10919,11092,11384],"SULAWESI TENGAH":[12152,12122,12184,12331,12422,12729],"SULAWESI TENGGARA":[12228,12140,12046,12360,12550,12486],"SULAWESI UTARA":[11620,11535,11435,11584,11749,11766],"SUMATERA BARAT":[11413,11450,11544,11926,12156,12307],"SUMATERA SELATAN":[10300,10371,10429,10660,10807,10858],"SUMATERA UTARA":[11113,11236,11275,11322,11488,11688]},"Jagung":{"ACEH":[7000,6875,6552,6783,7000,7000],"BALI":[7404,7480,7506,7442,7318,7316],"BANTEN":[7241,7266,7288,7255,7458,7707],"DI YOGYAKARTA":[6312,6053,6104,6136,6318,6425],"JAMBI":[6738,6393,5775,6116,6272,6241],"JAWA BARAT":[6251,6168,6027,6038,6160,6026],"JAWA TENGAH":[6447,6226,6157,6230,6365,6440],"JAWA TIMUR":[6237,6182,6120,6112,6270,6381],"KALIMANTAN BARAT":[6762,6629,6500,6853,7200,6943],"KALIMANTAN SELATAN":[6593,7139,7500,7500,7500,7500],"KALIMANTAN TENGAH":[14000,null,null,null,null,null],"KALIMANTAN TIMUR":[8879,9054,8932,8462,7915,7928],"KEP RIAU":[7873,8000,7966,7810,8336,8273],"LAMPUNG":[6833,6406,6403,6368,6470,6444],"MALUKU":[8192,8406,8427,8283,8270,8035],"MALUKU UTARA":[8640,8803,8543,8032,7752,7780],"NUSA TENGGARA BARAT":[6363,6228,6201,6121,6077,6321],"NUSA TENGGARA TIMUR":[7602,7847,7724,7509,7445,7134],"PAPUA":[7000,6795,6746,6746,6750,6750],"PAPUA BARAT":[8200,8200,8214,8118,8881,10472],"PAPUA BARAT DAYA":[7187,7755,8166,7045,6171,7107],"PAPUA SELATAN":[8500,8383,8500,8500,8500,8500],"PAPUA TENGAH":[8452,8423,8536,8306,8078,8072],"RIAU":[7068,7103,7311,7583,7554,7846],"SULAWESI BARAT":[7517,7473,7630,7524,7417,7639],"SULAWESI SELATAN":[6722,6710,6569,6586,6554,6615],"SULAWESI TENGAH":[6809,6969,7154,6996,7124,7120],"SULAWESI TENGGARA":[7654,7516,7297,7190,7431,7370],"SULAWESI UTARA":[7107,7054,7045,7196,7044,7086],"SUMATERA BARAT":[6527,6448,6562,6698,6730,6619],"SUMATERA SELATAN":[7203,6657,6729,6745,6998,7150],"SUMATERA UTARA":[7139,6855,6900,6831,6752,6921]},"Cabai Merah Keriting":{"ACEH":[30697,36900,32326,28272,38751,44964],"BALI":[30719,36749,40988,39718,46083,45225],"BANTEN":[38378,44058,42089,42522,50749,46401],"BENGKULU":[38605,45183,37630,34987,52797,51258],"DI YOGYAKARTA":[33692,39625,39635,36181,44841,40504],"DKI JAKARTA":[46421,53418,53830,51603,57289,56294],"GORONTALO":[26330,33795,38320,44494,46084,60694],"JAMBI":[34261,41761,36687,30536,43009,43262],"JAWA BARAT":[38585,42762,44124,41929,49579,48554],"JAWA TENGAH":[32334,37348,38417,36471,44297,41231],"JAWA TIMUR":[28418,33436,34316,34246,44114,40628],"KALIMANTAN BARAT":[76385,68690,71021,72847,68348,68974],"KALIMANTAN SELATAN":[37836,39820,55797,47758,55942,64715],"KALIMANTAN TENGAH":[57956,59335,69596,61586,66219,73467],"KALIMANTAN TIMUR":[45455,46114,52266,49736,57376,64846],"KALIMANTAN UTARA":[58382,59425,69922,61342,68404,84620],"KEP BANGKA BELITUNG":[52031,53262,52195,47004,59743,54567],"KEP RIAU":[68201,61709,57407,54132,60501,66200],"LAMPUNG":[38391,40492,34551,35385,49606,48835],"MALUKU":[57635,62628,74999,70354,62441,74794],"MALUKU UTARA":[41656,45499,52498,56196,60971,78957],"NUSA TENGGARA BARAT":[39612,41338,43502,43947,50000,53698],"NUSA TENGGARA TIMUR":[51702,50228,57706,56448,50130,60189],"PAPUA":[67935,75086,70589,55223,63822,83303],"PAPUA BARAT":[64646,61312,67798,67204,61372,70522],"PAPUA BARAT DAYA":[71094,66092,83830,78659,74316,74767],"PAPUA PEGUNUNGAN":[null,null,null,85000,69318,93333],"PAPUA SELATAN":[75451,83690,99571,81503,87243,92958],"PAPUA TENGAH":[69536,60402,60772,55235,63771,77361],"RIAU":[52595,53541,47297,38018,47854,52621],"SULAWESI BARAT":[26134,26269,33278,35290,43700,45287],"SULAWESI SELATAN":[24674,24980,29841,30416,39682,41824],"SULAWESI TENGAH":[32580,36103,38513,40134,44583,49176],"SULAWESI TENGGARA":[35831,38427,44488,40428,49498,63006],"SULAWESI UTARA":[25476,28945,35887,40387,43610,59018],"SUMATERA BARAT":[41866,46662,40614,34400,45189,49091],"SUMATERA SELATAN":[39339,42937,39321,37077,50528,48362],"SUMATERA UTARA":[33609,37798,30038,25112,35236,41896]},"Cabai Rawit Merah":{"ACEH":[58778,61325,56387,39476,41936,48824],"BALI":[42738,78936,86647,64526,67556,65071],"BANTEN":[53266,86923,91485,70832,73499,66317],"BENGKULU":[59330,70610,59722,49740,65374,70790],"DI YOGYAKARTA":[42240,82348,87846,63806,73278,57739],"DKI JAKARTA":[59102,100353,109393,84174,83985,79480],"GORONTALO":[32669,56258,66392,66542,50809,88970],"JAMBI":[62925,73598,67123,57805,63013,71934],"JAWA BARAT":[52852,84258,90849,69870,74254,67744],"JAWA TENGAH":[43028,76498,82580,62097,68757,58370],"JAWA TIMUR":[41680,83268,81212,57882,66134,55887],"KALIMANTAN BARAT":[80419,75054,86847,92539,72164,81653],"KALIMANTAN SELATAN":[58727,78918,89050,86034,77007,87712],"KALIMANTAN TENGAH":[74283,89503,102776,97634,91567,93914],"KALIMANTAN TIMUR":[58275,71612,91364,80869,76705,72760],"KALIMANTAN UTARA":[70754,80388,115039,95657,91017,109539],"KEP BANGKA BELITUNG":[71177,86352,80452,80996,76021,66674],"KEP RIAU":[81959,81642,78105,75578,73402,77763],"LAMPUNG":[47919,60980,58695,52460,60630,59893],"MALUKU":[79298,76442,101756,99059,72640,89371],"MALUKU UTARA":[65320,65051,72305,79928,66836,98430],"NUSA TENGGARA BARAT":[50527,92375,96196,80736,76853,65483],"NUSA TENGGARA TIMUR":[58120,63618,72268,73822,67955,68164],"PAPUA":[82356,90694,105804,83432,72963,102312],"PAPUA BARAT":[75719,72148,81802,85120,70735,78021],"PAPUA BARAT DAYA":[105110,88854,110764,98314,88893,87056],"PAPUA PEGUNUNGAN":[null,null,null,108571,103636,127046],"PAPUA SELATAN":[76885,89180,110345,109563,90698,97894],"PAPUA TENGAH":[107166,101533,97268,85986,87830,113152],"RIAU":[70254,77370,69594,58060,59283,65193],"SULAWESI BARAT":[37908,44834,55157,55374,46005,54207],"SULAWESI SELATAN":[29980,46673,58619,53556,46620,46228],"SULAWESI TENGAH":[39454,48197,61004,63093,49516,66412],"SULAWESI TENGGARA":[41773,41277,48626,45275,44436,48101],"SULAWESI UTARA":[35416,57037,68771,71796,51355,94165],"SUMATERA BARAT":[71640,61611,52855,47763,49250,52382],"SUMATERA SELATAN":[51969,66562,61943,53801,62601,60734],"SUMATERA UTARA":[58807,50238,43710,39072,41168,48059]},"Bawang Merah":{"ACEH":[41078,37398,36909,37705,40436,42639],"BALI":[33969,34243,36246,36719,34538,43182],"BANTEN":[38104,42570,41021,39528,44537,47678],"BENGKULU":[42167,39922,37838,41606,43926,44307],"DI YOGYAKARTA":[37911,39356,39556,39430,44250,48471],"DKI JAKARTA":[46044,49829,51830,50250,55545,57730],"GORONTALO":[47060,42501,46974,48178,46347,68904],"JAMBI":[35876,32035,30725,31361,34288,34548],"JAWA BARAT":[36884,41022,40611,39456,43768,47142],"JAWA TENGAH":[36998,40153,40829,39422,42970,45834],"JAWA TIMUR":[34681,36489,36300,35671,39656,43325],"KALIMANTAN BARAT":[47608,58445,48068,45438,53449,54155],"KALIMANTAN SELATAN":[42760,37836,41855,45308,43189,52264],"KALIMANTAN TENGAH":[47681,42425,44622,47873,47134,56303],"KALIMANTAN TIMUR":[49243,45544,46921,48871,48403,54954],"KALIMANTAN UTARA":[52482,48340,49214,52234,50744,57784],"KEP BANGKA BELITUNG":[43608,45341,45324,46770,50693,52914],"KEP RIAU":[45449,40699,39046,36746,36403,39117],"LAMPUNG":[36579,37513,37374,38974,41804,44466],"MALUKU":[56022,49950,50408,54608,52938,61021],"MALUKU UTARA":[58074,54398,54247,56777,54387,61592],"NUSA TENGGARA BARAT":[42658,39875,39972,40574,39851,41788],"NUSA TENGGARA TIMUR":[45239,42610,42097,43691,42515,43926],"PAPUA":[69974,61463,60848,61500,59750,75042],"PAPUA BARAT":[56023,56185,57544,59312,58826,65841],"PAPUA BARAT DAYA":[54172,60324,61578,61985,63666,67665],"PAPUA SELATAN":[63456,62292,60286,59494,61434,62743],"PAPUA TENGAH":[80550,83814,79128,84135,81276,75500],"RIAU":[41668,39042,37655,40195,42538,43224],"SULAWESI BARAT":[43022,38682,41040,43889,42819,51674],"SULAWESI SELATAN":[39869,36400,38179,39963,38634,44433],"SULAWESI TENGAH":[47623,44060,44633,48001,44940,54859],"SULAWESI TENGGARA":[45627,42402,43034,46063,44489,50613],"SULAWESI UTARA":[52382,45553,48206,50471,46978,66770],"SUMATERA BARAT":[36434,33710,32224,36310,39114,38526],"SUMATERA SELATAN":[39258,38707,38290,40332,42799,43622],"SUMATERA UTARA":[41204,36222,35400,38093,41114,41197]},"Bawang Putih":{"ACEH":[40147,38597,37833,37197,37298,39202],"BALI":[34060,33068,32972,32122,30961,37799],"BANTEN":[36598,38163,36926,36405,36038,37968],"BENGKULU":[37776,38181,37388,37199,36441,38122],"DI YOGYAKARTA":[32759,32513,32635,32129,30860,34057],"DKI JAKARTA":[41867,42751,42470,40960,41253,42607],"GORONTALO":[43307,43627,43423,43227,41097,44690],"JAMBI":[36006,35593,34195,34223,33726,36302],"JAWA BARAT":[36142,36446,36234,35124,34243,37338],"JAWA TENGAH":[33767,33783,33603,32778,31616,34635],"JAWA TIMUR":[32800,32184,31063,30113,28650,33209],"KALIMANTAN BARAT":[36439,45087,42001,40160,41018,40514],"KALIMANTAN SELATAN":[36735,36687,36559,36184,35092,38863],"KALIMANTAN TENGAH":[39441,39714,39967,39478,39266,41464],"KALIMANTAN TIMUR":[42347,41858,41332,40980,39609,41431],"KALIMANTAN UTARA":[40928,40555,40486,40824,40439,40464],"KEP BANGKA BELITUNG":[37305,37717,37039,36825,35718,37443],"KEP RIAU":[35103,33946,33526,31708,30494,30929],"LAMPUNG":[34918,35106,35158,34511,33036,34754],"MALUKU":[45911,45705,46256,47086,46290,47808],"MALUKU UTARA":[53728,53357,52897,53211,53157,56532],"NUSA TENGGARA BARAT":[37523,36346,35915,36135,34602,37458],"NUSA TENGGARA TIMUR":[43018,42935,42497,42750,41242,43405],"PAPUA":[53652,52212,53765,53930,53657,55075],"PAPUA BARAT":[55528,53725,54461,55035,55867,59246],"PAPUA BARAT DAYA":[54081,56781,59346,58506,60727,59507],"PAPUA PEGUNUNGAN":[null,null,null,60000,60000,60000],"PAPUA SELATAN":[59358,59700,56345,55697,53260,56204],"PAPUA TENGAH":[66523,77355,74346,72012,74510,66723],"RIAU":[36942,36446,36146,36262,36046,37358],"SULAWESI BARAT":[39273,39153,39271,39436,39069,40220],"SULAWESI SELATAN":[38461,38547,38425,37680,37270,38376],"SULAWESI TENGAH":[43729,44521,43811,42853,42075,44679],"SULAWESI TENGGARA":[42857,42412,43399,43483,42827,43718],"SULAWESI UTARA":[42131,42352,42856,42390,41091,45210],"SUMATERA BARAT":[35254,35141,34706,34362,33818,36385],"SUMATERA SELATAN":[35911,36136,36118,35677,34458,36921],"SUMATERA UTARA":[38380,36984,35982,35495,35405,38849]},"Minyakita":{"ACEH":[18244,17480,16406,16533,16618,16613],"BALI":[17703,16674,16301,16370,16908,16742],"BANTEN":[16899,16532,16066,15825,15703,15700],"BENGKULU":[16871,16648,16314,16719,16641,16570],"DI YOGYAKARTA":[17243,16843,16974,17465,17994,17959],"DKI JAKARTA":[17440,17140,16968,16892,16805,17151],"GORONTALO":[17608,16781,15986,15973,15807,15774],"JAMBI":[16346,15956,15822,15835,15810,15811],"JAWA BARAT":[17426,16212,15692,15712,15687,15691],"JAWA TENGAH":[16906,16264,16061,16054,16215,16314],"JAWA TIMUR":[17052,16156,16116,16168,16089,16055],"KALIMANTAN BARAT":[18404,18497,17528,17847,17364,17321],"KALIMANTAN SELATAN":[17674,17362,16791,17391,18240,18800],"KALIMANTAN TENGAH":[17312,16998,16930,17032,17502,17639],"KALIMANTAN TIMUR":[18484,17502,16764,16664,17071,17087],"KALIMANTAN UTARA":[18796,18028,17957,17760,20104,20676],"KEP BANGKA BELITUNG":[16630,16361,16133,16059,16152,16266],"KEP RIAU":[16952,16545,16203,16276,16540,16720],"LAMPUNG":[17110,16916,16833,16923,17499,17460],"MALUKU":[19623,19684,19578,19500,19197,18811],"MALUKU UTARA":[19698,19744,19576,19364,19505,19840],"NUSA TENGGARA BARAT":[18526,16495,15851,15952,16029,16190],"NUSA TENGGARA TIMUR":[18996,18751,17614,17322,17261,17310],"PAPUA":[19475,19708,19567,19040,19121,20664],"PAPUA BARAT":[18189,17840,17372,18002,16558,16660],"PAPUA BARAT DAYA":[19470,19991,19974,19180,19426,19599],"PAPUA SELATAN":[16431,19605,19172,17640,15808,16799],"PAPUA TENGAH":[22385,24637,22355,20332,22772,18074],"RIAU":[17079,16568,16053,16363,16610,16668],"SULAWESI BARAT":[16697,16663,16267,16568,16131,16303],"SULAWESI SELATAN":[17037,16911,16570,16409,16418,16464],"SULAWESI TENGAH":[18581,17955,16192,16290,16094,16193],"SULAWESI TENGGARA":[18050,17592,17200,17356,18023,17987],"SULAWESI UTARA":[18171,17998,17616,17685,17962,17399],"SUMATERA BARAT":[17490,17252,17159,17599,17898,18080],"SUMATERA SELATAN":[17601,16982,16691,16769,16398,16459],"SUMATERA UTARA":[17604,17335,17007,17265,17968,17811]},"Gula Pasir":{"ACEH":[18792,18794,18992,19267,19296,19453],"BALI":[17379,17479,17510,17950,18022,17883],"BANTEN":[17911,18038,18102,18319,18576,18211],"BENGKULU":[18098,18074,18218,18781,18995,18999],"DI YOGYAKARTA":[17172,17294,17752,18071,17714,17487],"DKI JAKARTA":[18581,18692,18560,18433,18616,18676],"GORONTALO":[18769,18955,19066,19438,19634,19615],"JAMBI":[17820,17675,17764,18231,18329,18322],"JAWA BARAT":[17744,17703,17835,18137,18234,18209],"JAWA TENGAH":[16925,17194,17549,17835,17609,17494],"JAWA TIMUR":[16509,16745,17043,17418,17228,17161],"KALIMANTAN BARAT":[17985,18353,18914,19325,19672,19784],"KALIMANTAN SELATAN":[17712,17831,18263,19261,19145,18979],"KALIMANTAN TENGAH":[17960,17966,18410,19298,19538,19420],"KALIMANTAN TIMUR":[18660,18633,18699,18987,19347,19392],"KALIMANTAN UTARA":[18405,18302,18591,18774,18920,18946],"KEP BANGKA BELITUNG":[17665,17843,18077,18588,18714,18630],"KEP RIAU":[17790,17896,17964,17846,16976,16423],"LAMPUNG":[17630,17671,17824,18034,18282,18240],"MALUKU":[19654,19658,19884,20121,20137,20164],"MALUKU UTARA":[19368,19678,19946,19872,19978,20434],"NUSA TENGGARA BARAT":[17907,17717,17621,18160,18708,18737],"NUSA TENGGARA TIMUR":[19098,19013,19058,19268,19353,19396],"PAPUA":[20468,20552,20507,20679,20934,20956],"PAPUA BARAT":[20010,20067,20201,20188,20512,20632],"PAPUA BARAT DAYA":[20324,19732,19894,20206,19973,19949],"PAPUA PEGUNUNGAN":[null,null,null,30000,30000,30000],"PAPUA SELATAN":[21672,22167,22079,21574,22191,22375],"PAPUA TENGAH":[23727,27601,26146,23451,26563,23853],"RIAU":[17823,17947,18256,18646,18853,18720],"SULAWESI BARAT":[18396,18602,18649,18727,19134,19143],"SULAWESI SELATAN":[18233,18206,18179,18207,18339,18396],"SULAWESI TENGAH":[18939,19092,19319,19566,19573,19617],"SULAWESI TENGGARA":[18561,18556,18542,18969,19183,19262],"SULAWESI UTARA":[18842,18966,19134,19279,19520,19579],"SUMATERA BARAT":[18162,18139,18368,18824,18934,18928],"SUMATERA SELATAN":[17475,17478,17714,17960,18127,18097],"SUMATERA UTARA":[18279,18337,18459,18770,18990,19095]},"Daging Sapi":{"ACEH":[153436,155895,156510,155111,157911,157172],"BALI":[116780,118948,121509,119846,119688,119407],"BANTEN":[134206,137104,140822,140648,140792,142192],"BENGKULU":[135990,139508,143298,144394,145060,144700],"DI YOGYAKARTA":[140297,140073,147611,148931,148710,153776],"DKI JAKARTA":[136302,141566,145758,146996,148491,149505],"GORONTALO":[135948,139352,141874,145541,144552,145185],"JAMBI":[135274,138168,142855,144149,144992,146394],"JAWA BARAT":[133340,136609,142274,140532,143713,145523],"JAWA TENGAH":[130853,132027,137944,136907,136222,137410],"JAWA TIMUR":[120280,120971,124119,124356,124509,125475],"KALIMANTAN BARAT":[157258,162073,166664,165577,167031,166704],"KALIMANTAN SELATAN":[154011,154715,156426,155977,156147,156812],"KALIMANTAN TENGAH":[157666,157954,159683,160082,161452,164982],"KALIMANTAN TIMUR":[159070,158926,162179,161376,162185,161909],"KALIMANTAN UTARA":[165000,170446,175000,174250,174636,175000],"KEP BANGKA BELITUNG":[139414,141691,147268,142856,145808,148323],"KEP RIAU":[159912,160942,162965,162139,163228,163439],"LAMPUNG":[133241,133655,136665,135536,135001,135879],"MALUKU":[126851,129195,129665,126818,126534,127062],"MALUKU UTARA":[137766,138517,139447,139269,140243,138180],"NUSA TENGGARA BARAT":[123689,125230,128226,127809,128885,129329],"NUSA TENGGARA TIMUR":[118824,119528,119204,119611,119364,119554],"PAPUA":[149794,151637,155032,154853,155803,156999],"PAPUA BARAT":[126158,127014,128509,125833,132598,133333],"PAPUA BARAT DAYA":[155390,155802,157003,155305,155310,154785],"PAPUA PEGUNUNGAN":[null,null,null,170000,170000,170000],"PAPUA SELATAN":[138871,136111,143000,137000,137167,137333],"PAPUA TENGAH":[157153,166162,164685,163054,165944,162523],"RIAU":[144878,148165,151727,150958,151139,150272],"SULAWESI BARAT":[131236,131891,134622,136046,136524,137564],"SULAWESI SELATAN":[127626,128338,129805,129902,130730,131076],"SULAWESI TENGAH":[137384,137447,139593,138495,139519,140170],"SULAWESI TENGGARA":[137491,138476,139640,139704,140350,140205],"SULAWESI UTARA":[139307,140848,143148,145673,145354,145005],"SUMATERA BARAT":[143166,144437,146714,146488,147051,146954],"SUMATERA SELATAN":[134765,136684,141186,138122,139850,139004],"SUMATERA UTARA":[130873,132192,134140,134052,134135,134530]},"Daging Ayam":{"ACEH":[37566,37642,37616,36803,34988,35170],"BALI":[40343,42648,42815,40842,41023,39436],"BANTEN":[37868,39279,40329,38722,37325,36990],"BENGKULU":[40962,42948,44791,41475,38681,37739],"DI YOGYAKARTA":[35167,39362,40926,35074,34831,32306],"DKI JAKARTA":[42170,46590,43292,41257,40150,39633],"GORONTALO":[35708,36078,36472,36788,34840,33749],"JAMBI":[40319,40359,41199,39506,36578,36226],"JAWA BARAT":[37201,39827,41098,37096,36654,34911],"JAWA TENGAH":[37018,39239,41394,37719,36705,35263],"JAWA TIMUR":[35388,38567,39767,35628,35272,32900],"KALIMANTAN BARAT":[44863,48257,44817,42995,42611,44815],"KALIMANTAN SELATAN":[36566,38405,39025,35252,33472,31711],"KALIMANTAN TENGAH":[43549,45010,45179,41527,40228,38495],"KALIMANTAN TIMUR":[42421,42911,42527,40499,38683,37257],"KALIMANTAN UTARA":[47374,48651,50099,48962,47924,47050],"KEP BANGKA BELITUNG":[39640,40268,42555,38637,37672,37748],"KEP RIAU":[43552,43013,43198,42959,42584,42597],"LAMPUNG":[36133,35956,36934,36055,34949,34680],"MALUKU":[48785,48777,49454,49906,49856,49651],"MALUKU UTARA":[47765,48356,49761,49723,49628,49311],"NUSA TENGGARA BARAT":[42659,42993,44192,43480,42900,41809],"NUSA TENGGARA TIMUR":[45306,45442,45296,45366,45312,45210],"PAPUA":[45918,48992,50712,49446,49074,48539],"PAPUA BARAT":[48284,50064,50936,51758,52113,51182],"PAPUA BARAT DAYA":[44238,48505,49113,49384,49563,47782],"PAPUA SELATAN":[57377,57135,55417,53101,55187,60220],"PAPUA TENGAH":[53488,61735,59021,54726,59672,51655],"RIAU":[37489,38477,39972,37696,35016,33674],"SULAWESI BARAT":[33462,33406,34453,33784,29808,29025],"SULAWESI SELATAN":[31653,31730,33262,32490,29644,29124],"SULAWESI TENGAH":[36495,37390,38442,38350,34770,34943],"SULAWESI TENGGARA":[36302,36873,37968,38521,37422,37430],"SULAWESI UTARA":[40723,39794,41139,41135,39356,38238],"SUMATERA BARAT":[38628,39856,40547,40640,39112,37386],"SUMATERA SELATAN":[37393,37457,38721,35702,34650,34036],"SUMATERA UTARA":[39293,40207,40764,39576,36516,35145]},"Telur Ayam":{"ACEH":[29038,27100,28166,28398,27384,26762],"BALI":[27741,27823,28054,27913,27865,27496],"BANTEN":[29232,30174,30341,29100,27100,25957],"BENGKULU":[29663,28609,29035,29037,28813,28392],"DI YOGYAKARTA":[28174,29761,29195,27783,26142,25617],"DKI JAKARTA":[29953,30782,31348,29792,28340,27507],"GORONTALO":[35137,35968,37733,37831,34687,32359],"JAMBI":[30031,28928,28570,28482,28106,27598],"JAWA BARAT":[29395,30365,30834,28966,27409,26428],"JAWA TENGAH":[28190,29173,29612,27838,26178,25690],"JAWA TIMUR":[28021,29128,29441,27082,25694,24951],"KALIMANTAN BARAT":[34083,33277,35946,34385,31423,31407],"KALIMANTAN SELATAN":[31314,31032,32416,31968,30080,28926],"KALIMANTAN TENGAH":[32124,31967,33074,32631,31582,30903],"KALIMANTAN TIMUR":[33458,33264,33546,33336,33154,32591],"KALIMANTAN UTARA":[35280,35324,37353,36688,33917,32321],"KEP BANGKA BELITUNG":[30964,30950,31306,31278,31101,30786],"KEP RIAU":[31700,30986,31359,30738,30050,29920],"LAMPUNG":[29032,28989,29838,28765,27683,27184],"MALUKU":[39122,38305,39734,39881,38628,37258],"MALUKU UTARA":[36456,35070,37618,36069,34720,33293],"NUSA TENGGARA BARAT":[30341,29598,29900,29802,29782,29817],"NUSA TENGGARA TIMUR":[33582,33536,34067,33330,32384,32014],"PAPUA":[38578,38235,38331,38400,37955,37348],"PAPUA BARAT":[38012,37695,38143,37328,37571,36936],"PAPUA BARAT DAYA":[39655,40685,38412,37652,36240,38107],"PAPUA PEGUNUNGAN":[null,null,null,null,48000,49652],"PAPUA SELATAN":[47336,49443,50600,48230,47754,49144],"PAPUA TENGAH":[44419,52252,49016,45583,49390,43355],"RIAU":[30381,28916,29498,29190,28847,27970],"SULAWESI BARAT":[29660,29806,32122,30042,26195,24916],"SULAWESI SELATAN":[28028,28399,30229,29150,26553,24999],"SULAWESI TENGAH":[31564,31472,33333,33376,29844,27920],"SULAWESI TENGGARA":[30105,30465,33343,32570,29096,27665],"SULAWESI UTARA":[33728,32169,34206,34618,33503,31364],"SUMATERA BARAT":[30764,30065,30257,30080,29790,29280],"SUMATERA SELATAN":[28941,28897,29878,28572,27684,26812],"SUMATERA UTARA":[30184,29160,29495,29506,29310,28873]}}};
+const ACUAN = {"kon":[{"kom":"Beras","spec":"Medium umum","inst":"HET","lo":null,"hi":13500,"sat":"Rp/kg","wil":"Jawa, Lampung, Sumatera Selatan, Bali, NTB, Sulawesi","dasar":"Kepbadan 299/2025","mulai":"2025-08-22","nb":"Berlaku mulai 22 Agustus 2025. Berbeda dari beras SPHP.","url":"https://pustaka.badanpangan.go.id/publikasi/d18f655c3fce66ca401d5f38b48c89af"},{"kom":"Beras","spec":"Premium umum","inst":"HET","lo":null,"hi":14900,"sat":"Rp/kg","wil":"Jawa, Lampung, Sumatera Selatan, Bali, NTB, Sulawesi","dasar":"Kepbadan 299/2025","mulai":"2025-08-22","nb":"Berlaku mulai 22 Agustus 2025. Tidak digeneralisasi ke beras khusus.","url":"https://pustaka.badanpangan.go.id/publikasi/d18f655c3fce66ca401d5f38b48c89af"},{"kom":"Beras","spec":"Program SPHP","inst":"Harga program","lo":null,"hi":12500,"sat":"Rp/kg","wil":"Jawa, Lampung, Sumatera Selatan, Bali, NTB, Sulawesi","dasar":"Kepbadan 224/2025; publikasi Bapanas 20-10-2025 dan Buku Saku Mei 2026","mulai":null,"nb":"Harga maksimum konsumen program SPHP. Buku saku menyebutnya HET SPHP; bukan HET medium umum.","url":"https://pustaka.badanpangan.go.id/publikasi/d18f655c3fce66ca401d5f38b48c89af\nhttps://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"kom":"Beras","spec":"Medium umum","inst":"HET","lo":null,"hi":14000,"sat":"Rp/kg","wil":"Sumatera selain Lampung dan Sumatera Selatan, NTT, Kalimantan","dasar":"Kepbadan 299/2025","mulai":"2025-08-22","nb":"Berlaku mulai 22 Agustus 2025. Berbeda dari beras SPHP.","url":"https://pustaka.badanpangan.go.id/publikasi/d18f655c3fce66ca401d5f38b48c89af"},{"kom":"Beras","spec":"Premium umum","inst":"HET","lo":null,"hi":15400,"sat":"Rp/kg","wil":"Sumatera selain Lampung dan Sumatera Selatan, NTT, Kalimantan","dasar":"Kepbadan 299/2025","mulai":"2025-08-22","nb":"Berlaku mulai 22 Agustus 2025. Tidak digeneralisasi ke beras khusus.","url":"https://pustaka.badanpangan.go.id/publikasi/d18f655c3fce66ca401d5f38b48c89af"},{"kom":"Beras","spec":"Program SPHP","inst":"Harga program","lo":null,"hi":13100,"sat":"Rp/kg","wil":"Sumatera selain Lampung dan Sumatera Selatan, NTT, Kalimantan","dasar":"Kepbadan 224/2025; publikasi Bapanas 20-10-2025 dan Buku Saku Mei 2026","mulai":null,"nb":"Harga maksimum konsumen program SPHP. Buku saku menyebutnya HET SPHP; bukan HET medium umum.","url":"https://pustaka.badanpangan.go.id/publikasi/d18f655c3fce66ca401d5f38b48c89af\nhttps://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"kom":"Beras","spec":"Medium umum","inst":"HET","lo":null,"hi":15500,"sat":"Rp/kg","wil":"Maluku dan seluruh wilayah Papua","dasar":"Kepbadan 299/2025","mulai":"2025-08-22","nb":"Berlaku mulai 22 Agustus 2025. Berbeda dari beras SPHP.","url":"https://pustaka.badanpangan.go.id/publikasi/d18f655c3fce66ca401d5f38b48c89af"},{"kom":"Beras","spec":"Premium umum","inst":"HET","lo":null,"hi":15800,"sat":"Rp/kg","wil":"Maluku dan seluruh wilayah Papua","dasar":"Kepbadan 299/2025","mulai":"2025-08-22","nb":"Berlaku mulai 22 Agustus 2025. Tidak digeneralisasi ke beras khusus.","url":"https://pustaka.badanpangan.go.id/publikasi/d18f655c3fce66ca401d5f38b48c89af"},{"kom":"Beras","spec":"Program SPHP","inst":"Harga program","lo":null,"hi":13500,"sat":"Rp/kg","wil":"Maluku dan seluruh wilayah Papua","dasar":"Kepbadan 224/2025; publikasi Bapanas 20-10-2025 dan Buku Saku Mei 2026","mulai":null,"nb":"Harga maksimum konsumen program SPHP. Buku saku menyebutnya HET SPHP; bukan HET medium umum.","url":"https://pustaka.badanpangan.go.id/publikasi/d18f655c3fce66ca401d5f38b48c89af\nhttps://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"kom":"Minyak goreng","spec":"MINYAKITA / minyak goreng rakyat","inst":"HET","lo":null,"hi":15700,"sat":"Rp/liter","wil":"Nasional","dasar":"Kepmendag 2396/2025; Permendag 43/2025 jo. 20/2026","mulai":null,"nb":"Angka dikonfirmasi publikasi resmi 6 Maret 2026. Permendag 20/2026 menambah kewajiban pasokan dan sanksi, tanpa perubahan nominal HET. Jangan diterapkan pada seluruh minyak kemasan.","url":"https://tribratanews.polri.go.id/blog/nasional-3/kemendag-tertibkan-penjualan-minyakita-di-atas-het-99566\nhttps://jdih.kemendag.go.id/uploads/peraturan/2025/1785664445_77506ae452596412.pdf\nhttps://jdih.kemendag.go.id/uploads/peraturan/2026/1785664446_c8d1db0e2a189770.pdf"},{"kom":"Kedelai","spec":"Lokal, bersih","inst":"HAP penjualan","lo":null,"hi":11400,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Konsumen mencakup pengrajin tahu dan tempe.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Kedelai","spec":"Impor grade 1 / premium, bersih","inst":"HAP penjualan","lo":null,"hi":12000,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Rp11.500/kg dalam lampiran adalah asumsi harga importir, bukan HAP konsumen.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Bawang merah","spec":"Rogol kering panen","inst":"HAP penjualan","lo":36500,"hi":41500,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Rentang acuan; pertahankan perbedaan bentuk produk.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Bawang putih","spec":"Produksi lokal dan impor","inst":"HAP penjualan","lo":null,"hi":38000,"sat":"Rp/kg","wil":"Nasional selain wilayah khusus","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Bukan rentang kualitas Rp38.000–40.000; harga dibedakan berdasarkan wilayah.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Bawang putih","spec":"Produksi lokal dan impor","inst":"HAP penjualan","lo":null,"hi":40000,"sat":"Rp/kg","wil":"Maluku, Maluku Utara, Papua, Papua Barat, Papua Pegunungan, Papua Tengah, Papua Selatan, Papua Barat Daya, serta wilayah 3TP","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Wilayah khusus sesuai catatan f Lampiran Perbadan 12/2024.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Cabai rawit merah","spec":"Segar","inst":"HAP penjualan","lo":40000,"hi":57000,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Tidak otomatis berlaku pada cabai rawit hijau.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Cabai merah keriting","spec":"Segar","inst":"HAP penjualan","lo":37000,"hi":55000,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Tidak otomatis berlaku pada cabai merah besar.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Gula konsumsi","spec":"Konsumsi","inst":"HAP penjualan","lo":null,"hi":17500,"sat":"Rp/kg","wil":"Nasional selain wilayah khusus","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Tidak mencakup gula rafinasi industri.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Gula konsumsi","spec":"Konsumsi","inst":"HAP penjualan","lo":null,"hi":18500,"sat":"Rp/kg","wil":"Maluku, Maluku Utara, Papua, Papua Barat, Papua Pegunungan, Papua Tengah, Papua Selatan, Papua Barat Daya, serta wilayah 3TP","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Lampiran menetapkan pengecualian wilayah; tidak menyebut seluruh ritel modern sebagai pengecualian.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Daging sapi","spec":"Segar/chilled paha depan","inst":"HAP penjualan","lo":null,"hi":130000,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Jenis potongan dan kondisi produk menentukan acuan.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Daging sapi","spec":"Segar paha belakang","inst":"HAP penjualan","lo":null,"hi":140000,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Bukan satu angka untuk seluruh potongan daging sapi.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Daging sapi","spec":"Paha depan beku: chuck, blade, sengkel (impor)","inst":"HAP penjualan","lo":null,"hi":105000,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Asal impor sesuai catatan i lampiran.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Daging kerbau","spec":"Beku, asal impor","inst":"HAP penjualan","lo":null,"hi":80000,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Tidak otomatis berlaku pada kerbau lokal segar.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Jagung","spec":"Pipilan kering, kadar air 15%","inst":"HAP penjualan","lo":null,"hi":5800,"sat":"Rp/kg","wil":"Nasional; industri pakan dan/atau peternak","dasar":"Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024","mulai":"2024-08-22","nb":"Konsumen jagung untuk pakan. Bukan harga jagung manis konsumsi rumah tangga.","url":"https://www.scribd.com/document/1042903990/hap-jagung-telur-daging-ayam-kepbadan-529-perubahan-1\nPembanding resmi: https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"kom":"Telur ayam ras","spec":"Telur konsumsi","inst":"HAP penjualan","lo":null,"hi":30000,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024","mulai":"2024-08-22","nb":"Satuan kilogram, bukan butir.","url":"https://www.scribd.com/document/1042903990/hap-jagung-telur-daging-ayam-kepbadan-529-perubahan-1\nPembanding resmi: https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"kom":"Daging ayam ras","spec":"Karkas","inst":"HAP penjualan","lo":null,"hi":40000,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024","mulai":"2024-08-22","nb":"Produsen berupa ayam hidup mempunyai HAP terpisah.","url":"https://www.scribd.com/document/1042903990/hap-jagung-telur-daging-ayam-kepbadan-529-perubahan-1\nPembanding resmi: https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"}],"pro":[{"kom":"Kedelai","spec":"Lokal, bersih","inst":"HAP pembelian","lo":10775,"hi":null,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Harga acuan pembelian tingkat produsen.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Bawang merah","spec":"Konde basah","inst":"HAP pembelian","lo":18500,"hi":20000,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Berbeda dari rogol kering panen.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Bawang merah","spec":"Rogol kering panen","inst":"HAP pembelian","lo":25000,"hi":30000,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Bentuk produk sama dengan acuan konsumen.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Bawang merah","spec":"Konde kering askip","inst":"HAP pembelian","lo":32000,"hi":null,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Untuk benih atau cadangan konsumsi.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Bawang putih","spec":"Lokal produksi dalam negeri","inst":"HAP pembelian","lo":28500,"hi":null,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"HAP produsen tidak ditetapkan bagi bawang putih impor pada lampiran ini.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Cabai rawit merah","spec":"Segar","inst":"HAP pembelian","lo":25000,"hi":31500,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Rentang acuan produsen.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Cabai merah keriting","spec":"Segar","inst":"HAP pembelian","lo":22000,"hi":29600,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Rentang acuan produsen.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Gula konsumsi","spec":"Kemasan karung 50 kg","inst":"HAP pembelian","lo":14500,"hi":null,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Harga per kg, bukan harga per karung.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Sapi hidup","spec":"Sapi bakalan asal impor","inst":"HAP pembelian","lo":56000,"hi":58000,"sat":"Rp/kg berat hidup","wil":"Nasional","dasar":"Perbadan 12/2024, Lampiran (hlm. 7)","mulai":"2024-09-26","nb":"Jangan dibandingkan langsung dengan harga karkas atau daging.","url":"https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024\nSalinan lampiran: https://id.scribd.com/document/827213406/Perbadan-no-12-tahun-2024"},{"kom":"Jagung","spec":"Pipilan kering, kadar air 15%","inst":"HAP pembelian","lo":5000,"hi":null,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024","mulai":"2024-08-22","nb":"Angka HAP pada lampiran 529/2024. HPP pengadaan pemerintah adalah instrumen berbeda. Buku Saku Mei 2026 memakai pembanding Rp5.500/kg; jangan mengganti HAP lama menjadi HPP tanpa memeriksa dasar aturan.","url":"https://www.scribd.com/document/1042903990/hap-jagung-telur-daging-ayam-kepbadan-529-perubahan-1\nPembanding resmi: https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"kom":"Jagung","spec":"Pipilan kering, kadar air 20%","inst":"HAP pembelian","lo":4725,"hi":null,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024","mulai":"2024-08-22","nb":"Angka HAP pada lampiran 529/2024. HPP pengadaan pemerintah adalah instrumen berbeda. Buku Saku Mei 2026 memakai pembanding Rp5.500/kg; jangan mengganti HAP lama menjadi HPP tanpa memeriksa dasar aturan.","url":"https://www.scribd.com/document/1042903990/hap-jagung-telur-daging-ayam-kepbadan-529-perubahan-1\nPembanding resmi: https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"kom":"Jagung","spec":"Pipilan kering, kadar air 25%","inst":"HAP pembelian","lo":4450,"hi":null,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024","mulai":"2024-08-22","nb":"Angka HAP pada lampiran 529/2024. HPP pengadaan pemerintah adalah instrumen berbeda. Buku Saku Mei 2026 memakai pembanding Rp5.500/kg; jangan mengganti HAP lama menjadi HPP tanpa memeriksa dasar aturan.","url":"https://www.scribd.com/document/1042903990/hap-jagung-telur-daging-ayam-kepbadan-529-perubahan-1\nPembanding resmi: https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"kom":"Jagung","spec":"Pipilan kering, kadar air 30%","inst":"HAP pembelian","lo":4200,"hi":null,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024","mulai":"2024-08-22","nb":"Angka HAP pada lampiran 529/2024. HPP pengadaan pemerintah adalah instrumen berbeda. Buku Saku Mei 2026 memakai pembanding Rp5.500/kg; jangan mengganti HAP lama menjadi HPP tanpa memeriksa dasar aturan.","url":"https://www.scribd.com/document/1042903990/hap-jagung-telur-daging-ayam-kepbadan-529-perubahan-1\nPembanding resmi: https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"kom":"Telur ayam ras","spec":"Telur konsumsi","inst":"HAP pembelian","lo":26500,"hi":null,"sat":"Rp/kg","wil":"Nasional","dasar":"Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024","mulai":"2024-08-22","nb":"HAP pembelian tingkat produsen.","url":"https://www.scribd.com/document/1042903990/hap-jagung-telur-daging-ayam-kepbadan-529-perubahan-1\nPembanding resmi: https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"kom":"Ayam ras","spec":"Livebird / ayam hidup","inst":"HAP pembelian","lo":25000,"hi":null,"sat":"Rp/kg berat hidup","wil":"Nasional","dasar":"Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024","mulai":"2024-08-22","nb":"Harga konsumen Rp40.000/kg berlaku untuk karkas.","url":"https://www.scribd.com/document/1042903990/hap-jagung-telur-daging-ayam-kepbadan-529-perubahan-1\nPembanding resmi: https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"kom":"DOC layer","spec":"Bibit ayam","inst":"HAP penjualan input","lo":9000,"hi":11000,"sat":"Rp/ekor","wil":"Nasional","dasar":"Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024","mulai":"2024-08-22","nb":"Bibit ayam petelur; input peternakan, bukan pangan eceran.","url":"https://www.scribd.com/document/1042903990/hap-jagung-telur-daging-ayam-kepbadan-529-perubahan-1\nPembanding resmi: https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"kom":"Pullet umur 17 minggu","spec":"Bibit ayam","inst":"HAP penjualan input","lo":null,"hi":80000,"sat":"Rp/ekor","wil":"Nasional","dasar":"Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024","mulai":"2024-08-22","nb":"Ayam remaja; input peternakan.","url":"https://www.scribd.com/document/1042903990/hap-jagung-telur-daging-ayam-kepbadan-529-perubahan-1\nPembanding resmi: https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"kom":"DOC broiler","spec":"Bibit ayam","inst":"HAP penjualan input","lo":6500,"hi":7000,"sat":"Rp/ekor","wil":"Nasional","dasar":"Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024","mulai":"2024-08-22","nb":"Harga loco; input peternakan.","url":"https://www.scribd.com/document/1042903990/hap-jagung-telur-daging-ayam-kepbadan-529-perubahan-1\nPembanding resmi: https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"}],"catatan":[{"k":"Tanggal penelusuran","v":"14 September 2026"},{"k":"Cakupan","v":"Inventaris ketentuan nasional HET/HAP pangan pokok dan strategis yang ditemukan, termasuk rincian komoditas dalam Perbadan 12/2024 serta 5/2022 jo. 6/2024 dan Kepbadan 529/2024. Tidak semua jenis makanan, merek, atau produk olahan memiliki HET/HAP."},{"k":"HET","v":"Harga Eceran Tertinggi: batas harga jual eceran untuk produk dan wilayah yang ditetapkan."},{"k":"HAP","v":"Harga Acuan Pembelian di tingkat produsen dan Harga Acuan Penjualan di tingkat konsumen. Acuan stabilisasi tidak boleh disamakan begitu saja dengan seluruh mekanisme penegakan HET."},{"k":"HPP","v":"Harga Pembelian Pemerintah untuk pengadaan oleh pemerintah/Bulog. Tidak dimasukkan sebagai HAP. Khusus jagung, angka HAP lampiran dan pembanding HPP pada publikasi lebih baru berbeda."},{"k":"Cara membaca harga","v":"Untuk rentang, kedua kolom berisi angka. Untuk nilai tunggal, HET/HAP konsumen ditempatkan pada kolom kanan; HAP pembelian produsen pada kolom kiri. Posisi kolom tidak menambah ketentuan hukum tentang harga minimum."},{"k":"Tingkat pembeli","v":"Konsumen bisa berarti rumah tangga, pengrajin tahu/tempe, industri pakan, atau peternak. Jenis pembeli dan satuan ditulis di tabel."},{"k":"Wilayah khusus","v":"3TP mengikuti redaksi lampiran: Tertinggal, Terluar, Terpencil, dan Perbatasan. Penetapan suatu lokasi sebagai wilayah 3TP perlu dicek secara khusus; tidak semua provinsi di Indonesia timur otomatis masuk."},{"k":"Keterbatasan verifikasi","v":"Status Perbadan 12/2024 tercatat berlaku pada basis data BPK. Rincian lampiran 12/2024 dan 529/2024 dibaca dari salinan dokumen karena unduhan resmi tidak berhasil diakses; angka pokok dicocokkan dengan publikasi resmi Bapanas. Baris sumber menandai salinan tersebut."},{"k":"Keberlakuan","v":"Tanggal penelusuran bukan tanggal penerbitan aturan. Kolom tanggal dibiarkan kosong jika tanggal berlaku spesifik tidak terverifikasi. Tidak ditemukan perubahan nominal lebih baru dalam sumber yang berhasil diakses; ini bukan jaminan seluruh aturan lokal atau keputusan terbaru telah terindeks."},{"k":"Beras SPHP","v":"Harga program SPHP dipisahkan dari HET beras medium umum. Acuan SPHP pada publikasi 2026 masih Rp12.500/Rp13.100/Rp13.500 sesuai wilayah."},{"k":"Gula di ritel modern","v":"Ada publikasi pers menyebut Rp18.500 untuk ritel modern. Lampiran 12/2024 yang terbaca menetapkan Rp18.500 berdasarkan wilayah khusus, sehingga pengecualian menyeluruh ritel modern tidak diasumsikan."},{"k":"Minyak goreng curah","v":"Buku Saku Mei 2026 menggunakan pembanding Rp15.700/liter dengan label HAP. Dasar penetapan HAP universal untuk curah belum terverifikasi, sehingga angka tersebut tidak dimasukkan sebagai HET/HAP sah pada tabel utama."},{"k":"Sumber angka","v":"Prioritas pada peraturan dan publikasi pemerintah. Salinan lampiran diberi tautan tersendiri supaya spesifikasi produk serta angka dapat diperiksa."}],"belum":[{"k":"Cabai merah besar","s":"Belum ditetapkan dalam publikasi resmi","ket":"Buku Saku Mei 2026, hlm. 23–24","url":"https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"k":"Garam konsumsi","s":"Belum ditetapkan dalam publikasi resmi","ket":"Buku Saku Mei 2026, hlm. 25","url":"https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"k":"Ikan kembung","s":"Belum ditetapkan dalam publikasi resmi","ket":"Buku Saku Mei 2026, hlm. 25","url":"https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"k":"Ikan tongkol","s":"Belum ditetapkan dalam publikasi resmi","ket":"Buku Saku Mei 2026, hlm. 25","url":"https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"k":"Ikan bandeng","s":"Belum ditetapkan dalam publikasi resmi","ket":"Buku Saku Mei 2026, hlm. 25","url":"https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"k":"Daging kerbau lokal","s":"Belum ditetapkan dalam publikasi resmi","ket":"Bedakan dari kerbau beku impor Rp80.000/kg.","url":"https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"k":"Minyak goreng curah","s":"Dasar HET/HAP terkini belum terverifikasi","ket":"Pembanding publikasi Rp15.700/liter tidak diperlakukan sebagai HET/HAP universal.","url":"https://data.badanpangan.go.id/nfs_storage/public/publication/documents/1784796676.pdf"},{"k":"Minyak goreng kemasan premium","s":"HET/HAP nasional belum ditemukan","ket":"Permendag membedakan premium dari MGR; HET Minyakita tidak otomatis berlaku.","url":"https://jdih.kemendag.go.id/uploads/peraturan/2025/1785664445_77506ae452596412.pdf"},{"k":"Beras khusus (organik, indikasi geografis, dan lainnya)","s":"Perlu pemeriksaan klasifikasi khusus","ket":"Tidak otomatis memakai HET beras medium/premium umum.","url":null},{"k":"Tepung terigu (curah/kemasan)","s":"HET/HAP nasional belum ditemukan","ket":"Harga pemantauan pasar bukan harga acuan pemerintah.","url":null},{"k":"Cabai rawit hijau","s":"HET/HAP nasional belum ditemukan","ket":"Jangan memakai HAP cabai rawit merah secara otomatis.","url":null},{"k":"Jagung manis konsumsi","s":"HET/HAP nasional belum ditemukan","ket":"HAP jagung pipilan kering pakan tidak otomatis berlaku.","url":null},{"k":"Telur ayam kampung / telur bebek","s":"HET/HAP nasional belum ditemukan","ket":"HAP telur ayam ras tidak otomatis berlaku.","url":null},{"k":"Ayam kampung / bebek","s":"HET/HAP nasional belum ditemukan","ket":"HAP daging ayam ras tidak otomatis berlaku.","url":null},{"k":"Daging kambing / domba / babi","s":"HET/HAP nasional belum ditemukan","ket":"Tidak termasuk rincian HAP daging sapi/kerbau.","url":null},{"k":"Ikan lain, udang, dan hasil laut lainnya","s":"HET/HAP nasional belum ditemukan","ket":"Status untuk tiap produk/mutu/wilayah perlu ditelusuri bila digunakan.","url":null},{"k":"Susu dan produk susu","s":"HET/HAP nasional belum ditemukan","ket":"Tidak ditentukan berdasarkan HET/HAP komoditas lain.","url":null},{"k":"Singkong, ubi jalar, sagu, kentang","s":"HET/HAP nasional belum ditemukan","ket":"Harga kontrak industri atau kesepakatan lokal bukan otomatis HAP nasional.","url":null},{"k":"Kacang hijau, kacang tanah, kacang lain","s":"HET/HAP nasional belum ditemukan","ket":"HAP kedelai tidak otomatis berlaku.","url":null},{"k":"Sayuran dan buah lainnya","s":"HET/HAP nasional belum ditemukan","ket":"Termasuk tomat, wortel, kol, sayuran daun, dan buah segar.","url":null},{"k":"Tahu, tempe, mi, roti, pangan olahan","s":"HET/HAP nasional belum ditemukan","ket":"HAP bahan baku tidak otomatis menjadi HET produk olahan.","url":null},{"k":"Gula merah, gula aren, gula rafinasi industri","s":"HET/HAP nasional belum ditemukan","ket":"Jangan memakai HAP gula konsumsi tanpa mengecek klasifikasi.","url":null},{"k":"Rempah, kopi, teh, kakao, dan pangan lainnya","s":"HET/HAP nasional belum ditemukan","ket":"Kelompok pelengkap cakupan; bukan klaim bahwa seluruh regulasi daerah sudah diperiksa.","url":null}]};
+/* ===================== ambang HET & HAP ===================== */
+const ZONA1 = new Set(['DKI JAKARTA','JAWA BARAT','JAWA TENGAH','DI YOGYAKARTA','JAWA TIMUR','BANTEN','LAMPUNG','SUMATERA SELATAN','BALI','NUSA TENGGARA BARAT','SULAWESI UTARA','SULAWESI TENGAH','SULAWESI SELATAN','SULAWESI TENGGARA','GORONTALO','SULAWESI BARAT']);
+const ZONA3 = new Set(['MALUKU','MALUKU UTARA','PAPUA','PAPUA BARAT','PAPUA BARAT DAYA','PAPUA SELATAN','PAPUA TENGAH','PAPUA PEGUNUNGAN']);
+
+const U_BAPANAS='https://pustaka.badanpangan.go.id/publikasi/d18f655c3fce66ca401d5f38b48c89af';
+const U_P12='https://peraturan.bpk.go.id/Details/306096/peraturan-bapanas-no-12-tahun-2024';
+const U_529='https://www.scribd.com/document/1042903990/hap-jagung-telur-daging-ayam-kepbadan-529-perubahan-1';
+const U_MGR='https://jdih.kemendag.go.id/uploads/peraturan/2025/1785664445_77506ae452596412.pdf';
+
+/* zona: HET beras per wilayah · khusus: {u:umum, k:Maluku-Papua-3TP} · atas: nilai tunggal
+   bawah: batas bawah rentang · hati: perbandingan perlu kehati-hatian */
+const HETHAP = {
+ 'Beras Premium':{em:'🍚',inst:'HET',sat:'Rp/kg',spec:'Premium umum',
+   zona:{1:14900,2:15400,3:15800},
+   dasar:'Kepbadan 299/2025, berlaku 22 Agustus 2025',url:U_BAPANAS,
+   nb:'HET beras dibagi tiga zona wilayah. Tidak digeneralisasi ke beras khusus (organik, indikasi geografis).'},
+ 'Beras Medium':{em:'🍚',inst:'HET',sat:'Rp/kg',spec:'Medium umum',
+   zona:{1:13500,2:14000,3:15500},
+   dasar:'Kepbadan 299/2025, berlaku 22 Agustus 2025',url:U_BAPANAS,
+   nb:'Berbeda dari harga program SPHP (Rp12.500 / Rp13.100 / Rp13.500 per zona).'},
+ 'Kedelai':{em:'🫘',inst:'HAP penjualan',sat:'Rp/kg',spec:'Lokal, bersih',atas:11400,hati:true,
+   dasar:'Perbadan 12/2024, berlaku 26 September 2024',url:U_P12,
+   nb:'HAP ini ditetapkan bagi konsumen termasuk pengrajin tahu dan tempe. Kedelai impor grade 1 acuannya Rp12.000/kg, sehingga selisih tipis bisa berasal dari beda asal barang, bukan pelanggaran.'},
+ 'Jagung':{em:'🌽',inst:'HAP penjualan',sat:'Rp/kg',spec:'Pipilan kering KA 15%, pembeli industri pakan / peternak',atas:5800,hati:true,
+   dasar:'Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024',url:U_529,
+   nb:'HAP jagung berlaku pada tingkat pembeli industri pakan dan peternak, bukan jagung eceran rumah tangga. Selisih besar di sini sebagian besar mencerminkan beda tingkat pembeli — perlakukan sebagai indikasi disparitas, bukan bukti pelanggaran.'},
+ 'Cabai Merah Keriting':{em:'🌶️',inst:'HAP penjualan',sat:'Rp/kg',spec:'Segar',atas:55000,bawah:37000,
+   dasar:'Perbadan 12/2024, berlaku 26 September 2024',url:U_P12,
+   nb:'Acuan berupa rentang Rp37.000–55.000. Batas atas dipakai sebagai ambang peringatan. Tidak otomatis berlaku bagi cabai merah besar.'},
+ 'Cabai Rawit Merah':{em:'🌶️',inst:'HAP penjualan',sat:'Rp/kg',spec:'Segar',atas:57000,bawah:40000,
+   dasar:'Perbadan 12/2024, berlaku 26 September 2024',url:U_P12,
+   nb:'Acuan berupa rentang Rp40.000–57.000. Tidak otomatis berlaku bagi cabai rawit hijau.'},
+ 'Bawang Merah':{em:'🧅',inst:'HAP penjualan',sat:'Rp/kg',spec:'Rogol kering panen',atas:41500,bawah:36500,
+   dasar:'Perbadan 12/2024, berlaku 26 September 2024',url:U_P12,
+   nb:'Acuan berupa rentang Rp36.500–41.500 untuk bentuk rogol kering panen. Bentuk konde basah memiliki acuan berbeda.'},
+ 'Bawang Putih':{em:'🧄',inst:'HAP penjualan',sat:'Rp/kg',spec:'Produksi lokal dan impor',khusus:{u:38000,k:40000},
+   dasar:'Perbadan 12/2024, berlaku 26 September 2024',url:U_P12,
+   nb:'Angka Rp40.000 berlaku bagi wilayah khusus. Status 3TP di luar Maluku–Papua perlu dicek per lokasi dan belum tercakup di sini.'},
+ 'Minyakita':{em:'🫒',inst:'HET',sat:'Rp/liter',spec:'MINYAKITA / minyak goreng rakyat',atas:15700,
+   dasar:'Kepmendag 2396/2025; Permendag 43/2025 jo. 20/2026',url:U_MGR,
+   nb:'HET ini khusus MINYAKITA. Tidak berlaku bagi minyak goreng kemasan premium maupun curah.'},
+ 'Gula Pasir':{em:'🍬',inst:'HAP penjualan',sat:'Rp/kg',spec:'Gula konsumsi',khusus:{u:17500,k:18500},
+   dasar:'Perbadan 12/2024, berlaku 26 September 2024',url:U_P12,
+   nb:'Tidak mencakup gula rafinasi industri. Pengecualian menyeluruh bagi ritel modern tidak diasumsikan.'},
+ 'Daging Sapi':{em:'🥩',inst:'HAP penjualan',sat:'Rp/kg',spec:'Segar/chilled paha depan',atas:130000,hati:true,
+   dasar:'Perbadan 12/2024, berlaku 26 September 2024',url:U_P12,
+   nb:'HAP dibedakan per potongan: paha depan segar Rp130.000, paha belakang segar Rp140.000, paha depan beku impor Rp105.000. Ambang di sini memakai Rp130.000, sehingga provinsi yang mendata potongan paha belakang bisa tampak lebih tinggi dari semestinya.'},
+ 'Daging Ayam':{em:'🍗',inst:'HAP penjualan',sat:'Rp/kg',spec:'Karkas',atas:40000,
+   dasar:'Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024',url:U_529,
+   nb:'Berlaku bagi karkas. Ayam hidup (livebird) memiliki HAP produsen terpisah Rp25.000/kg berat hidup.'},
+ 'Telur Ayam':{em:'🥚',inst:'HAP penjualan',sat:'Rp/kg',spec:'Telur konsumsi',atas:30000,
+   dasar:'Perbadan 5/2022 jo. 6/2024; Kepbadan 529/2024',url:U_529,
+   nb:'Satuan kilogram, bukan butir. HAP pembelian tingkat produsen Rp26.500/kg.'}
+};
+
+const BANDS=[
+ {k:'AMAN',   lab:'Aman',    warna:'#3E8E63',    max:0,        ket:'pada atau di bawah acuan'},
+ {k:'WASPADA',lab:'Waspada', warna:'#B8860B', max:5,        ket:'0–5% di atas acuan'},
+ {k:'SIAGA',  lab:'Siaga',   warna:'#CC6B22',   max:15,       ket:'5–15% di atas acuan'},
+ {k:'AWAS',   lab:'Awas',    warna:'#B32E22',    max:Infinity, ket:'lebih dari 15% di atas acuan'}
+];
+
+const BLN={'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'Mei','06':'Jun','07':'Jul','08':'Agu','09':'Sep','10':'Okt','11':'Nov','12':'Des'};
+const mLab=s=>BLN[s.slice(5)]+' '+s.slice(0,4);
+const rp=n=>'Rp'+Math.round(n).toLocaleString('id-ID');
+const pc=d=>(d>=0?'+':'−')+Math.abs(d).toFixed(1).replace('.',',')+'%';
+const pcAbs=d=>Math.abs(d).toFixed(1).replace('.',',')+'%';
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function deltaTeks(d){if(d==null)return '';
+  if(Math.abs(d)<0.05)return ' Dibanding bulan sebelumnya harga praktis tidak berubah.';
+  return ' Dibanding bulan sebelumnya harga '+(d>0?'naik':'turun')+' <b class="k">'+pcAbs(d)+'</b>.';}
+
+function acuanAtas(com,pid){const r=HETHAP[com];
+  if(r.zona)return r.zona[ZONA1.has(pid)?1:(ZONA3.has(pid)?3:2)];
+  if(r.khusus)return ZONA3.has(pid)?r.khusus.k:r.khusus.u;
+  return r.atas;}
+function bandOf(d){for(const b of BANDS)if(d<=b.max)return b;return BANDS[3];}
+function hargaAt(com,pid,i){const a=(HARGA.data[com]||{})[pid];
+  if(!a||a[i]==null)return null;return a[i];}
+function nilai(com,pid,i){const h=hargaAt(com,pid,i);if(h==null)return null;
+  const ac=acuanAtas(com,pid),dev=(h-ac)/ac*100;
+  return {h:h,ac:ac,dev:dev,band:bandOf(dev)};}
+function ambangTeks(com){const r=HETHAP[com],u=' per '+r.sat.split('/')[1];
+  if(r.zona)return rp(r.zona[1])+' / '+rp(r.zona[2])+' / '+rp(r.zona[3])+u+' menurut zona wilayah';
+  if(r.khusus)return rp(r.khusus.u)+u+' secara nasional, '+rp(r.khusus.k)+' untuk Maluku, Papua, dan 3TP';
+  if(r.bawah)return rp(r.bawah)+'–'+rp(r.atas).replace('Rp','')+u+', ambang peringatan memakai batas atas';
+  return rp(r.atas)+u;}
+
 /* ==========================================================================
-   Dua tampilan berbagi satu peta. Tombol tampilan menggantikan panel centang
-   yang dulu menumpuk di atas peta; lapisan mengikuti tampilan yang dipilih.
-   Sinyal harga terhadap HET/HAP berada pada dasbor tersendiri (harga.html).
+   RANTAI PASOK + PERINGATAN DINI HARGA — satu dasbor.
+   Alur yang dituju: lihat alarm harga, lalu langsung lihat siapa yang bisa
+   memasok wilayah itu — dari sisi harga (13 komoditas) dan, bila neracanya
+   tersedia, dari sisi tonase surplus (beras, sapi, ayam, telur).
    ========================================================================== */
-let view='neraca';
 
-/* ---------- legenda per tampilan ---------- */
-function drawLegend(){const el=document.getElementById('legend');if(!el)return;
-  if(view==='logistik'){
-    el.innerHTML='<div class="row"><span class="ln" style="border-top-color:#D8B362"></span> Trayek Hub (H)</div>'
-      +'<div class="row"><span class="ln" style="border-top-color:#5FB892"></span> Trayek Spoke (S)</div>'
-      +'<div class="row"><span class="ln" style="border-top-color:#6FA8DC"></span> Trayek Perintis (T)</div>'
-      +'<div class="row"><i style="background:#E6C46A;width:11px;height:11px;border-radius:50%;display:inline-block;flex:none"></i> Pelabuhan hub</div>';}
-  else{
-    el.innerHTML='<div class="row"><span class="grad gp"></span><b>Surplus</b> (makin tua = makin besar)</div>'
-      +'<div class="row"><span class="grad gd"></span><b>Defisit</b> (perlu pasokan masuk)</div>'
-      +'<div class="row"><span class="ln"></span> Aliran pasok domestik (optimal)</div>'
-      +'<div class="row"><span class="ln" style="border-top-color:#C28A2B"></span> Impor dari luar negeri</div>';}}
+/* jembatan komoditas harga -> kunci neraca produksi/kebutuhan */
+const NERACA_KEY={'Beras Medium':'beras','Beras Premium':'beras',
+  'Daging Sapi':'sapi','Daging Ayam':'ayam','Telur Ayam':'telur'};
 
-/* ---------- peta netral pada tampilan logistik ---------- */
-const _styleFeat=styleFeat;
+const KOM=Object.keys(HETHAP);
+let view='matriks', warna='sinyal', mi=HARGA.months.length-1, curH='Beras Medium';
+let ONGKOS=300;                       /* asumsi ongkos angkut Rp/kg per 1.000 km */
+let hSortKey='dev', hSortDir=-1, trenChart=null;
+
+/* ---------------- ringkasan & sinyal ---------------- */
+function ringkas(com,i){const cnt={AMAN:0,WASPADA:0,SIAGA:0,AWAS:0,NA:0},rows=[];
+  P.forEach(p=>{const v=nilai(com,p.id,i);
+    if(!v){cnt.NA++;rows.push({id:p.id,name:p.name,island:p.island,v:null});return;}
+    cnt[v.band.k]++;rows.push({id:p.id,name:p.name,island:p.island,v:v});});
+  const ada=rows.filter(r=>r.v);
+  return {cnt:cnt,rows:rows,n:ada.length,diAtas:ada.filter(r=>r.v.dev>0).length};}
+function totalAwas(){return KOM.reduce((n,k)=>n+ringkas(k,mi).cnt.AWAS,0);}
+function dmOf(com,pid){const p=mi>0?hargaAt(com,pid,mi-1):null,c=hargaAt(com,pid,mi);
+  return (p&&c)?(c-p)/p*100:null;}
+
+/* ---------------- kandidat pemasok: inti integrasi ---------------- */
+function kandidat(com,target){
+  const t=nilai(com,target,mi); if(!t)return {ok:false,list:[],nk:null};
+  const nk=NERACA_KEY[com]||null;
+  let balMap=null;
+  if(nk){const b=balances(nk);balMap=Object.fromEntries(b.map(x=>[x.id,x.bal]));}
+  const list=[];
+  P.forEach(p=>{ if(p.id===target)return;
+    const v=nilai(com,p.id,mi); if(!v)return;
+    const gap=t.h-v.h; if(gap<=0)return;                 /* harus lebih murah */
+    const surplus=balMap?balMap[p.id]:null;
+    if(nk && !(surplus>0.5))return;                      /* harus benar-benar punya surplus */
+    const km=Math.round(hav(target,p.id));
+    const ongkos=ONGKOS*km/1000;
+    list.push({id:p.id,name:p.name,island:p.island,h:v.h,band:v.band,
+      gap:gap,km:km,ongkos:ongkos,net:gap-ongkos,surplus:surplus});});
+  list.sort((a,b)=>b.net-a.net);
+  return {ok:true,list:list,nk:nk,target:t};}
+
+/* ---------------- garis rekomendasi pengiriman ---------------- */
+function drawKandidatFlows(target,list){
+  clearFlows();
+  const top=list.filter(x=>x.net>0).slice(0,4);
+  const dest=ll(target);
+  if(!top.length){
+    L.circleMarker(dest,{radius:8,color:'#f0a07f',weight:2.4,fillColor:'#C0492F',fillOpacity:.75}).addTo(layerLines);
+    return;}
+  const maxN=Math.max(...top.map(x=>x.net));
+  top.forEach(e=>{const w=Math.max(1.8,Math.min(6.5,Math.sqrt(e.net/maxN)*6.5));
+    L.polyline([ll(e.id),dest],{color:'#2E7D52',weight:w,opacity:.55,className:'flowline'}).addTo(layerLines);
+    L.circleMarker(ll(e.id),{radius:5,color:'#7fd3a6',weight:1.6,fillColor:'#2E7D52',fillOpacity:.92}).addTo(layerLines)
+      .bindTooltip(e.name+' — '+rp(e.h)+' · '+e.km.toLocaleString('id-ID')+' km',{sticky:true});});
+  L.circleMarker(dest,{radius:8,color:'#f0a07f',weight:2.6,fillColor:'#C0492F',fillOpacity:.95}).addTo(layerLines);
+  top.forEach(e=>{const A0=ll(e.id),B0=dest,n=2;
+    for(let k=0;k<n;k++){const dot=L.circleMarker(A0,{radius:4.5,color:'#0f2535',weight:1,
+      fillColor:'#5FB892',fillOpacity:.95,className:'dot-pulse'}).addTo(layerLines);
+      animDots.push({dot,A:A0,B:B0,t:k/n});}});
+  let last=performance.now();
+  function step(now){const dt=(now-last)/1000;last=now;
+    animDots.forEach(d=>{d.t+=dt*0.45;if(d.t>1)d.t-=1;
+      d.dot.setLatLng([d.A[0]+(d.B[0]-d.A[0])*d.t,d.A[1]+(d.B[1]-d.A[1])*d.t]);
+      d.dot.setStyle({fillOpacity:.35+.6*Math.sin(d.t*Math.PI)});});
+    animTimer=requestAnimationFrame(step);}
+  animTimer=requestAnimationFrame(step);}
+
+/* ---------------- sparkline ---------------- */
+function spark(com,pid){const a=(HARGA.data[com]||{})[pid];if(!a)return '';
+  const ac=acuanAtas(com,pid),vals=a.filter(x=>x!=null);if(!vals.length)return '';
+  const lo=Math.min(ac,...vals)*.985,hi=Math.max(ac,...vals)*1.015,W=240,H=52,rng=(hi-lo)||1;
+  const X=i=>8+i*((W-16)/(a.length-1)),Y=v=>H-8-((v-lo)/rng)*(H-16);
+  let d='',first=true;
+  a.forEach((v,i)=>{if(v==null)return;d+=(first?'M':'L')+X(i).toFixed(1)+' '+Y(v).toFixed(1);first=false;});
+  const dots=a.map((v,i)=>v==null?'':'<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(v).toFixed(1)+'" r="'+(i===mi?3.4:2)+'" fill="'+(i===mi?bandOf((v-ac)/ac*100).warna:'var(--ink2)')+'"/>').join('');
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:52px;overflow:visible" role="img" aria-label="Tren harga enam bulan">'
+    +'<line x1="8" y1="'+Y(ac).toFixed(1)+'" x2="'+(W-8)+'" y2="'+Y(ac).toFixed(1)+'" stroke="var(--gold)" stroke-width="1.2" stroke-dasharray="4 3"/>'
+    +'<path d="'+d+'" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>'+dots+'</svg>';}
+
+/* ---------------- peta ---------------- */
+const _styleFeat=styleFeat,_select=select;
 styleFeat=function(f){const pid=f.properties.pid,sel=selected===pid;
   if(view==='logistik')return {fillColor:'#7d8994',fillOpacity:sel?.4:.2,
     color:sel?'#E9C46A':'rgba(233,240,248,.25)',weight:sel?2.2:.7};
-  return _styleFeat(f);};
+  if(warna==='neraca'&&NERACA_KEY[curH])return _styleFeat(f);
+  const v=nilai(curH,pid,mi);
+  return {fillColor:v?v.band.warna:'#94A3B0',fillOpacity:sel?.97:(v?.86:.34),
+    color:sel?'#E9C46A':'rgba(233,240,248,.22)',weight:sel?2.6:.9};};
 
-/* ---------- tombol tampilan ---------- */
+function tipFor(pid){const nm=byId[pid].name;
+  if(view==='logistik')return '<span style="font-family:Fraunces,serif;font-weight:600">'+nm+'</span>';
+  if(warna==='neraca'&&NERACA_KEY[curH]){const x=A.bmap[pid],pos=x.bal>=0;
+    return '<span style="font-family:Fraunces,serif;font-weight:600">'+nm+'</span><br>'
+      +'<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:'+(pos?'#7fd3a6':'#f0a07f')+'">Neraca '+fmtS(x.bal)+' t</span>';}
+  const v=nilai(curH,pid,mi);
+  if(!v)return '<span style="font-family:Fraunces,serif;font-weight:600">'+nm+'</span><br><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:#9aa4ae">data harga belum tersedia</span>';
+  return '<span style="font-family:Fraunces,serif;font-weight:600">'+nm+'</span><br>'
+    +'<span style="font-family:JetBrains Mono,monospace;font-size:11px">'+rp(v.h)+' vs '+HETHAP[curH].inst+' '+rp(v.ac)+'</span><br>'
+    +'<span style="font-family:JetBrains Mono,monospace;font-size:11px;font-weight:700;color:'+v.band.warna+'">'+v.band.lab.toUpperCase()+' '+pc(v.dev)+'</span>';}
+
+drawMap=function(){
+  A._maxAbs=Math.max(...A.b.map(x=>Math.abs(x.bal)));
+  if(geoLayer)geoLayer.remove();
+  geoLayer=L.geoJSON(GEO,{style:styleFeat,onEachFeature:(f,layer)=>{const pid=f.properties.pid;
+    layer.bindTooltip(tipFor(pid),{sticky:true});
+    layer.on('click',()=>select(pid));
+    layer.on('mouseover',function(){if(selected!==pid)this.setStyle({weight:1.6,color:'#211C16'});});
+    layer.on('mouseout',function(){if(selected!==pid)this.setStyle({weight:.7,color:'#fff'});});
+  }}).addTo(map);
+  geoLayer.bringToBack();
+  if(!map._fitted){map.fitBounds(geoLayer.getBounds(),{padding:[14,14]});map._fitted=true;}
+  if(selected)select(selected);};
+
+function drawLegend(){const el=document.getElementById('legend');if(!el)return;
+  if(view==='logistik'){el.className='legend';
+    el.innerHTML='<div class="row"><span class="ln" style="border-top-color:#D8B362"></span> Trayek Hub (H)</div>'
+      +'<div class="row"><span class="ln" style="border-top-color:#5FB892"></span> Trayek Spoke (S)</div>'
+      +'<div class="row"><span class="ln" style="border-top-color:#6FA8DC"></span> Trayek Perintis (T)</div>'
+      +'<div class="row"><i style="background:#E6C46A;width:11px;height:11px;border-radius:50%;display:inline-block;flex:none"></i> Pelabuhan hub</div>';return;}
+  if(warna==='neraca'&&NERACA_KEY[curH]){el.className='legend';
+    el.innerHTML='<div class="row"><span class="grad gp"></span><b>Surplus</b> (makin tua = makin besar)</div>'
+      +'<div class="row"><span class="grad gd"></span><b>Defisit</b> (perlu pasokan masuk)</div>'
+      +'<div class="row"><span class="ln" style="border-top-color:#2E7D52"></span> Rekomendasi pengiriman</div>';return;}
+  el.className='legend harga';
+  el.innerHTML=BANDS.map(b=>'<div class="row"><i style="background:'+b.warna+'"></i><b>'+b.lab+'</b> — '+b.ket+'</div>').join('')
+    +'<div class="row"><i style="background:#94A3B0;opacity:.4"></i>data harga belum tersedia</div>'
+    +'<div class="row"><span class="ln" style="border-top-color:#2E7D52"></span> Rekomendasi pengiriman</div>';}
+
+/* ---------------- panel rincian terpadu ---------------- */
+select=function(id){
+  if(view==='logistik'){selected=id;return _select(id);}
+  selected=id;
+  const nm=byId[id].name,r=HETHAP[curH],v=nilai(curH,id,mi),nk=NERACA_KEY[curH];
+  document.getElementById('detailHint').textContent=nm;
+  let h='<div class="dprov">'+nm+'<span class="sig '+(v?v.band.k:'NA')+'">'+(v?v.band.lab:'Tanpa data harga')+'</span></div>';
+
+  /* --- A. harga terhadap ambang --- */
+  if(v){
+    const prev=mi>0?hargaAt(curH,id,mi-1):null,delta=prev?(v.h-prev)/prev*100:null,selisih=v.h-v.ac;
+    h+='<div class="pricebig">'
+      +'<div class="b"><div class="lab">Harga '+mLab(HARGA.months[mi])+'</div><div class="num">'+rp(v.h)+'</div></div>'
+      +'<div class="b"><div class="lab">'+r.inst+'</div><div class="num" style="color:var(--gold)">'+rp(v.ac)+'</div></div>'
+      +'<div class="b"><div class="lab">Deviasi</div><div class="num" style="color:'+v.band.warna+'">'+pc(v.dev)+'</div></div></div>'
+      +'<div class="sparkbox"><div class="sh"><span>Tren 6 bulan · '+r.sat+'</span><span style="color:var(--gold)">- - - ambang '+r.inst+'</span></div>'
+      +spark(curH,id)+'<div class="sh" style="margin:6px 0 0"><span>'+mLab(HARGA.months[0])+'</span><span>'+mLab(HARGA.months[HARGA.months.length-1])+'</span></div></div>';
+    h+=v.dev>0
+      ? '<div class="callout warn">Harga di atas ambang sebesar <b class="k">'+rp(selisih)+'</b> per '+r.sat.split('/')[1]+' (<b class="k">'+pc(v.dev)+'</b>).'+deltaTeks(delta)+'</div>'
+      : '<div class="callout">Harga masih <b class="k">'+rp(-selisih)+'</b> di bawah ambang '+r.inst+'.'+deltaTeks(delta)+'</div>';
+  }else{
+    h+='<p style="margin-top:14px;color:var(--ink2);font-size:13.5px">Harga '+curH+' untuk provinsi ini belum tersedia pada '+mLab(HARGA.months[mi])+'.</p>';}
+
+  /* --- B. neraca provinsi bila tersedia --- */
+  if(nk){const x=A.bmap[id],pos=x.bal>=0;
+    h+='<div class="alloc-h">Neraca '+COMM[nk].label+' di provinsi ini</div>'
+      +'<div class="balline"><div class="b"><div class="lab">Produksi</div><div class="num">'+fmt(x.prod[nk])+'</div></div>'
+      +'<div class="b"><div class="lab">Kebutuhan</div><div class="num">'+fmt(x.dem[nk])+'</div></div>'
+      +'<div class="b"><div class="lab">Neraca</div><div class="num" style="color:'+(pos?'var(--surplus-deep)':'var(--deficit-deep)')+'">'+fmtS(x.bal)+'</div></div></div>';}
+
+  /* --- C. kandidat pemasok: jawaban atas alarm --- */
+  if(v){
+    const K=kandidat(curH,id);
+    h+='<div class="alloc-h">Dari mana bisa dipasok</div>';
+    h+='<div class="ongkos"><label>Asumsi ongkos angkut ⬚ <span style="text-transform:none;letter-spacing:0">(Rp/kg per 1.000 km)</span></label>'
+      +'<div class="oin"><input type="range" id="sOngkos" min="0" max="1500" step="25" value="'+ONGKOS+'">'
+      +'<input type="number" id="nOngkos" min="0" max="1500" step="25" value="'+ONGKOS+'"></div>'
+      +'<div class="oh">Angka ini <b>asumsi yang bisa Anda ubah</b>, bukan tarif resmi. Keuntungan bersih = selisih harga − ongkos angkut × jarak.</div></div>';
+    if(!K.list.length){
+      h+='<div class="callout">Tidak ada provinsi lain yang harganya lebih murah'+(K.nk?' <b>dan</b> punya surplus':'')+' pada bulan ini. Intervensi harga lewat pengiriman antar provinsi belum tersedia — pertimbangkan cadangan pemerintah atau pasokan impor.</div>';
+    }else{
+      const layak=K.list.filter(x=>x.net>0);
+      h+='<div class="kand">';
+      K.list.slice(0,6).forEach((x,i)=>{
+        h+='<div class="ki'+(x.net>0?'':' neg')+'" data-p="'+x.id+'"><div class="rank">'+(i+1)+'</div>'
+          +'<div class="info"><div class="nm">'+x.name+'</div>'
+          +'<div class="meta2">'+rp(x.h)+' · '+x.km.toLocaleString('id-ID')+' km · '+x.island
+          +(x.surplus!=null?'<br>surplus '+fmt(x.surplus)+' ton tersedia':'')
+          +'<br>selisih '+rp(x.gap)+' − ongkos '+rp(x.ongkos)+'</div></div>'
+          +'<div class="val"><div class="big">'+(x.net>0?'+':'−')+rp(Math.abs(x.net)).replace('Rp','Rp')+'</div><small>per kg</small></div></div>';});
+      h+='</div>';
+      if(layak.length){const b=layak[0];
+        h+='<div class="callout">Kandidat terkuat: <b>'+b.name+'</b> — harga di sana <b class="k">'+rp(b.h)+'</b>, berjarak <b class="k">'+b.km.toLocaleString('id-ID')+' km</b>. '
+          +'Setelah dikurangi asumsi ongkos angkut, masih ada ruang <b class="k">'+rp(b.net)+'/kg</b>'
+          +(b.surplus!=null?' dan surplusnya <b class="k">'+fmt(b.surplus)+' ton</b>':'')+'.</div>';
+      }else{
+        h+='<div class="caveat">Semua kandidat menjadi <b>tidak layak</b> pada asumsi ongkos angkut saat ini — selisih harganya habis oleh biaya angkut. Turunkan asumsi ongkos untuk melihat pada tarif berapa pengiriman mulai masuk akal.</div>';}
+      if(!K.nk)h+='<div class="caveat">Peringkat ini disusun <b>dari sisi harga dan jarak saja</b>. Neraca produksi–kebutuhan provinsi untuk '+curH+' belum tersedia, sehingga ketersediaan tonase di provinsi asal belum diperhitungkan.</div>';
+    }
+    if(v)drawKandidatFlows(id,K.list);
+  }
+
+  /* --- D. cadangan pangan & trayek (dari lapisan tol laut) --- */
+  if(window.reserveHTML)h+=window.reserveHTML(id);
+  if(window.trayekChipsHTML)h+=window.trayekChipsHTML(id);
+
+  /* --- E. status seluruh komoditas --- */
+  h+='<div class="alloc-h">Status seluruh komoditas di '+nm+'</div>';
+  KOM.forEach(k=>{const w=nilai(k,id,mi);
+    h+='<div class="comrow" data-k="'+esc(k)+'"><span style="font-size:15px">'+HETHAP[k].em+'</span>'
+      +'<span class="cn"'+(k===curH?' style="font-weight:700"':'')+'>'+k+'</span>'
+      +'<span class="cp">'+(w?rp(w.h):'—')+'</span>'
+      +'<span class="cd" style="color:'+(w?w.band.warna:'var(--line2)')+'">'+(w?pc(w.dev):'—')+'</span>'
+      +'<span class="sig '+(w?w.band.k:'NA')+'">'+(w?w.band.lab:'n/a')+'</span></div>';});
+
+  const el=document.getElementById('detail');
+  el.innerHTML=h;
+  el.querySelectorAll('.comrow').forEach(b=>b.onclick=()=>{curH=b.dataset.k;render();});
+  el.querySelectorAll('.kand .ki').forEach(b=>b.onclick=()=>{select(b.dataset.p);});
+  const so=document.getElementById('sOngkos'),no=document.getElementById('nOngkos');
+  if(so&&no){const sync=val=>{ONGKOS=Math.max(0,Math.min(1500,+val||0));select(id);};
+    so.oninput=()=>sync(so.value); no.onchange=()=>sync(no.value);}
+  geoLayer.setStyle(styleFeat);
+  if(typeof highlightRanks==='function')highlightRanks(null);};
+
+/* ---------------- KPI ---------------- */
+const _drawKPI=drawKPI;
+drawKPI=function(){
+  if(view==='logistik'||(warna==='neraca'&&NERACA_KEY[curH]))return _drawKPI();
+  const s=ringkas(curH,mi);
+  document.getElementById('kpis').innerHTML=BANDS.slice().reverse().map(b=>{
+    const n=s.cnt[b.k],p=s.n?n/s.n*100:0;
+    return '<div class="kpi"><div class="lab">'+b.lab+'</div>'
+      +'<div class="val" style="color:'+b.warna+'">'+n+'</div>'
+      +'<div class="note">'+b.ket+' · '+p.toFixed(0)+'% provinsi</div>'
+      +'<i style="position:absolute;left:0;top:0;bottom:0;width:3px;background:'+b.warna+'"></i></div>';}).join('');};
+
+/* ---------------- daftar peringkat ---------------- */
+const _drawRanks=drawRanks;
+drawRanks=function(){
+  if(warna==='neraca'&&NERACA_KEY[curH]){
+    document.getElementById('hDef').textContent='Defisit Terbesar';
+    document.getElementById('hSur').textContent='Surplus Terbesar';
+    return _drawRanks();}
+  const s=ringkas(curH,mi),r=HETHAP[curH];
+  const atas=s.rows.filter(x=>x.v).sort((a,b)=>b.v.dev-a.v.dev).slice(0,12);
+  const maxD=atas.length?Math.max(1,Math.abs(atas[0].v.dev)):1;
+  document.getElementById('hDef').textContent='Paling Jauh di Atas Acuan';
+  document.getElementById('hSur').textContent='Komoditas Paling Rawan Nasional';
+  document.getElementById('hintDef').innerHTML='<b style="color:#B32E22">'+s.diAtas+'</b> dari '+s.n+' provinsi di atas '+r.inst+' '+curH;
+  document.getElementById('hintSur').innerHTML='klik untuk mengganti komoditas · '+mLab(HARGA.months[mi]);
+  document.getElementById('rankDef').innerHTML=atas.map((x,i)=>
+    '<div class="rank-row" data-pid="'+x.id+'"><span class="nm">'+x.name+'</span>'
+    +'<span class="track"><i class="anim" style="--w:'+Math.min(100,Math.abs(x.v.dev)/maxD*100).toFixed(0)+'%;background:'+x.v.band.warna+';animation-delay:'+i*28+'ms"></i></span>'
+    +'<span class="v" style="color:'+x.v.band.warna+'">'+pc(x.v.dev)+'</span></div>').join('')
+    ||'<p style="color:var(--ink2);font-size:13px;padding:14px 0">Belum ada data harga.</p>';
+  document.querySelectorAll('#rankDef .rank-row').forEach(b=>b.onclick=()=>{select(b.dataset.pid);
+    document.getElementById('mapTitle').scrollIntoView({behavior:'smooth',block:'center'});});
+  const rank=KOM.map(k=>{const t=ringkas(k,mi);
+    return {k:k,pct:t.n?t.diAtas/t.n*100:0,diAtas:t.diAtas,n:t.n};}).sort((a,b)=>b.pct-a.pct);
+  document.getElementById('rankSur').innerHTML=rank.map((x,i)=>
+    '<div class="rank-row" data-k="'+esc(x.k)+'"'+(x.k===curH?' style="background:linear-gradient(90deg,rgba(216,179,98,.16),transparent);border-radius:5px"':'')+'>'
+    +'<span class="nm">'+HETHAP[x.k].em+' '+x.k+(HETHAP[x.k].hati?' <span style="color:var(--gold)">⚠</span>':'')+'</span>'
+    +'<span class="track"><i class="anim" style="--w:'+x.pct.toFixed(0)+'%;background:'+(x.pct>75?'#B32E22':x.pct>40?'#CC6B22':'#3E8E63')+';animation-delay:'+i*28+'ms"></i></span>'
+    +'<span class="v">'+x.diAtas+'/'+x.n+'</span></div>').join('');
+  document.querySelectorAll('#rankSur .rank-row').forEach(b=>b.onclick=()=>{curH=b.dataset.k;render();});};
+
+/* ---------------- tabel ---------------- */
+const _drawTable=drawTable;
+drawTable=function(){
+  if(warna==='neraca'&&NERACA_KEY[curH]){document.getElementById('hTbl').textContent='Tabel Neraca Lengkap';
+    document.getElementById('hintTbl').textContent='klik judul kolom untuk urut · satuan ton';return _drawTable();}
+  const r=HETHAP[curH],s=ringkas(curH,mi),nk=NERACA_KEY[curH];
+  document.getElementById('hTbl').textContent='Tabel Sinyal Harga — '+curH;
+  document.getElementById('hintTbl').textContent='klik judul kolom untuk urut · '+mLab(HARGA.months[mi]);
+  document.querySelector('#tbl thead').innerHTML='<tr><th data-hk="name">Provinsi</th><th data-hk="island">Pulau</th>'
+    +'<th data-hk="h">Harga</th><th data-hk="ac">'+r.inst+'</th><th data-hk="dev">Deviasi</th>'
+    +'<th data-hk="dm">Δ bulan lalu</th>'+(nk?'<th data-hk="bal">Neraca (ton)</th>':'')+'<th data-hk="band">Sinyal</th></tr>';
+  const rows=s.rows.slice().sort((a,b)=>{
+    if(!a.v&&!b.v)return 0; if(!a.v)return 1; if(!b.v)return -1;
+    if(hSortKey==='name'||hSortKey==='island')return a[hSortKey].localeCompare(b[hSortKey])*hSortDir;
+    let x,y;
+    if(hSortKey==='band'){x=BANDS.findIndex(z=>z.k===a.v.band.k);y=BANDS.findIndex(z=>z.k===b.v.band.k);}
+    else if(hSortKey==='dm'){x=dmOf(curH,a.id);y=dmOf(curH,b.id);x=(x==null?-1e9:x);y=(y==null?-1e9:y);}
+    else if(hSortKey==='bal'){x=nk?A.bmap[a.id].bal:0;y=nk?A.bmap[b.id].bal:0;}
+    else{x=a.v[hSortKey];y=b.v[hSortKey];}
+    return (x-y)*hSortDir;});
+  document.querySelector('#tbl tbody').innerHTML=rows.map(x=>{
+    if(!x.v)return '<tr style="opacity:.5"><td>'+x.name+'</td><td style="color:var(--ink2)">'+x.island
+      +'</td><td colspan="'+(nk?5:4)+'" style="color:var(--line2);text-align:center">data harga belum tersedia</td><td><span class="sig NA">n/a</span></td></tr>';
+    const dm=dmOf(curH,x.id),bal=nk?A.bmap[x.id].bal:null;
+    return '<tr style="cursor:pointer" data-p="'+x.id+'"><td>'+x.name+'</td><td style="color:var(--ink2)">'+x.island+'</td>'
+      +'<td>'+rp(x.v.h)+'</td><td style="color:var(--gold)">'+rp(x.v.ac)+'</td>'
+      +'<td style="color:'+x.v.band.warna+';font-weight:700">'+pc(x.v.dev)+'</td>'
+      +'<td style="color:'+(dm==null?'var(--line2)':(dm>0?'var(--deficit-deep)':'var(--surplus-deep)'))+'">'+(dm==null?'—':pc(dm))+'</td>'
+      +(nk?'<td class="'+(bal>=0?'num-pos':'num-neg')+'">'+fmtS(bal)+'</td>':'')
+      +'<td><span class="sig '+x.v.band.k+'">'+x.v.band.lab+'</span></td></tr>';}).join('');
+  document.querySelectorAll('#tbl th').forEach(th=>th.onclick=()=>{const k=th.dataset.hk;
+    if(k===hSortKey)hSortDir*=-1;else{hSortKey=k;hSortDir=(k==='name'||k==='island')?1:-1;}drawTable();});
+  document.querySelectorAll('#tbl tbody tr[data-p]').forEach(tr=>tr.onclick=()=>{
+    select(tr.dataset.p);document.getElementById('mapTitle').scrollIntoView({behavior:'smooth',block:'center'});});};
+
+drawTabs=function(){};   /* deretan tab lama diganti dropdown */
+
+/* ---------------- pemilih ---------------- */
+function drawPicker(){
+  const sel=document.getElementById('ksel');
+  if(sel){
+    sel.innerHTML=KOM.map(k=>{const t=ringkas(k,mi);
+      return '<option value="'+esc(k)+'"'+(k===curH?' selected':'')+'>'+HETHAP[k].em+'  '+k
+        +(HETHAP[k].hati?' ⚠':'')+(NERACA_KEY[k]?' ●':'')+' — '+t.diAtas+'/'+t.n+' provinsi di atas acuan</option>';}).join('');
+    sel.value=curH;
+    sel.onchange=()=>{curH=sel.value;selected=null;clearFlows();render();};
+    const t=ringkas(curH,mi);
+    document.getElementById('ksum').innerHTML='<b>'+t.diAtas+'</b> dari '+t.n+' provinsi di atas acuan'
+      +(t.cnt.AWAS?' · <b style="color:#B32E22">'+t.cnt.AWAS+'</b> berstatus Awas':'')
+      +(NERACA_KEY[curH]?' · <b>●</b> neraca tonase tersedia':' · neraca tonase belum tersedia');
+  }
+  ['mrow','mrow2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;
+    el.innerHTML='<span class="plab" style="margin:0 5px 0 0">Bulan data</span>'
+      +HARGA.months.map((m,i)=>'<button class="mbtn'+(i===mi?' active':'')+'" type="button" data-i="'+i+'">'+mLab(m)+'</button>').join('');
+    el.querySelectorAll('.mbtn').forEach(b=>b.onclick=()=>{mi=+b.dataset.i;render();});});}
+
+function drawWarna(){const el=document.getElementById('wrow');if(!el)return;
+  const ada=!!NERACA_KEY[curH];
+  el.innerHTML='<button class="wbtn '+(warna==='sinyal'?'active':'')+'" type="button" data-w="sinyal">Sinyal harga</button>'
+    +'<button class="wbtn '+(warna==='neraca'&&ada?'active':'')+'" type="button" data-w="neraca"'+(ada?'':' disabled title="Neraca provinsi untuk komoditas ini belum tersedia"')+'>Surplus / defisit</button>';
+  el.querySelectorAll('.wbtn').forEach(b=>b.onclick=()=>{if(b.disabled)return;warna=b.dataset.w;render();});}
+
+function ambangTeks(com){const r=HETHAP[com],u=' per '+r.sat.split('/')[1];
+  if(r.zona)return rp(r.zona[1])+' / '+rp(r.zona[2])+' / '+rp(r.zona[3])+u+' menurut zona wilayah';
+  if(r.khusus)return rp(r.khusus.u)+u+' secara nasional, '+rp(r.khusus.k)+' untuk Maluku, Papua, dan 3TP';
+  if(r.bawah)return rp(r.bawah)+'–'+rp(r.atas).replace('Rp','')+u+', ambang peringatan memakai batas atas';
+  return rp(r.atas)+u;}
+function drawRefbar(){const el=document.getElementById('refbar');if(!el)return;const r=HETHAP[curH];
+  el.innerHTML='Ambang: <b>'+r.inst+'</b> · '+r.spec+' · <span class="amb">'+ambangTeks(curH)+'</span>. '
+    +'Dasar '+r.dasar+'. <a href="'+r.url+'" target="_blank" rel="noopener">Lihat sumber</a>'
+    +(r.hati?'<span class="warn"><b>⚠ Perlu kehati-hatian.</b> '+r.nb+'</span>':'');}
+
+/* ---------------- papan prioritas ---------------- */
+function drawPrio(){
+  const all=[];
+  KOM.forEach(k=>P.forEach(p=>{const v=nilai(k,p.id,mi);if(v&&v.dev>0)all.push({k:k,pid:p.id,name:p.name,v:v});}));
+  all.sort((a,b)=>b.v.dev-a.v.dev);
+  document.getElementById('prioHint').textContent=all.length+' pasangan provinsi–komoditas di atas acuan · '+mLab(HARGA.months[mi]);
+  document.getElementById('prio').innerHTML=all.slice(0,9).map(x=>
+    '<div class="pcard" data-k="'+esc(x.k)+'" data-p="'+x.pid+'" style="border-left-color:'+x.v.band.warna+'">'
+    +'<div class="pk">'+HETHAP[x.k].em+' '+x.k+(HETHAP[x.k].hati?' <span style="color:var(--gold)">⚠</span>':'')+'</div>'
+    +'<div class="pp">'+x.name+'</div>'
+    +'<div class="pd" style="color:'+x.v.band.warna+'">'+pc(x.v.dev)+'</div>'
+    +'<div class="px">'+rp(x.v.h)+' vs '+HETHAP[x.k].inst+' '+rp(x.v.ac)+'</div></div>').join('');
+  document.querySelectorAll('#prio .pcard').forEach(c=>c.onclick=()=>{
+    curH=c.dataset.k;const p=c.dataset.p;view='peta';warna='sinyal';render();select(p);
+    document.getElementById('mapTitle').scrollIntoView({behavior:'smooth',block:'center'});});}
+
+/* ---------------- matriks & tren ---------------- */
+function drawMatrix(){
+  let h='<table class="mx"><thead><tr><th class="prov">Provinsi</th>'
+    +KOM.map(k=>'<th class="kom"><span>'+HETHAP[k].em+' '+esc(k)+(HETHAP[k].hati?' ⚠':'')+'</span></th>').join('')+'</tr></thead><tbody>';
+  const order=P.slice().sort((a,b)=>{
+    const na=KOM.reduce((s,k)=>{const v=nilai(k,a.id,mi);return s+(v&&v.dev>0?1:0);},0);
+    const nb=KOM.reduce((s,k)=>{const v=nilai(k,b.id,mi);return s+(v&&v.dev>0?1:0);},0);
+    return nb-na||a.name.localeCompare(b.name);});
+  order.forEach(p=>{h+='<tr><th class="prov">'+p.name+'</th>';
+    KOM.forEach(k=>{const v=nilai(k,p.id,mi);
+      h+='<td><div class="cell'+(v?'':' na')+'" data-k="'+esc(k)+'" data-p="'+p.id+'" '
+        +'style="background:'+(v?v.band.warna:'#94A3B0')+(v?'':';opacity:.32')+'" '
+        +'title="'+esc(p.name+' · '+k)+'">'+(v?(v.dev>0?'+':'')+Math.round(v.dev):'–')+'</div></td>';});
+    h+='</tr>';});
+  document.getElementById('mx').innerHTML=h+'</tbody></table>';
+  document.getElementById('mxHint').textContent='angka = deviasi % terhadap acuan · '+mLab(HARGA.months[mi])+' · diurut dari provinsi paling banyak melampaui acuan · klik sel untuk melihat pemasoknya';
+  document.querySelectorAll('#mx .cell').forEach(c=>c.onclick=()=>{
+    curH=c.dataset.k;const p=c.dataset.p;view='peta';warna='sinyal';render();select(p);
+    document.getElementById('mapTitle').scrollIntoView({behavior:'smooth',block:'center'});});
+  const el=document.getElementById('mleg2');
+  if(el)el.innerHTML=BANDS.map(b=>'<span><i style="background:'+b.warna+'"></i>'+b.lab+' — '+b.ket+'</span>').join('')
+    +'<span><i style="background:#94A3B0;opacity:.35"></i>data belum tersedia</span>';}
+
+function drawTren(){const cv=document.getElementById('trenChart');if(!cv||!window.Chart)return;
+  const dark=document.documentElement.getAttribute('data-theme')!=='light';
+  const grid=dark?'rgba(233,240,248,.10)':'rgba(32,48,74,.12)',tick=dark?'#90A4BF':'#5D6B80';
+  const ds=BANDS.map(b=>({label:b.lab,data:HARGA.months.map((m,i)=>ringkas(curH,i).cnt[b.k]),
+    backgroundColor:b.warna,borderWidth:0,stack:'s'}));
+  if(trenChart)trenChart.destroy();
+  document.getElementById('trenTitle').textContent='Komposisi Sinyal per Bulan — '+curH;
+  trenChart=new Chart(cv,{type:'bar',data:{labels:HARGA.months.map(mLab),datasets:ds},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:tick,font:{size:11},boxWidth:12}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+' provinsi'}}},
+      scales:{x:{stacked:true,grid:{display:false},ticks:{color:tick,font:{size:11}}},
+        y:{stacked:true,grid:{color:grid},ticks:{color:tick,font:{size:11},precision:0},
+          title:{display:true,text:'jumlah provinsi',color:tick,font:{size:10}}}}}});}
+
+/* ---------------- acuan ---------------- */
+let acuanDrawn=false;
+function tgl(s){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?(+m[3])+' '+BLN[m[2]]+' '+m[1]:(s||'');}
+function hargaSel(d){if(d.lo!=null&&d.hi!=null)return rp(d.lo)+'–'+rp(d.hi).replace('Rp','');
+  if(d.hi!=null)return rp(d.hi); if(d.lo!=null)return rp(d.lo); return '—';}
+function drawAcuan(){
+  if(acuanDrawn)return; acuanDrawn=true;
+  const head='<tr><th style="text-align:left">Komoditas</th><th style="text-align:left">Jenis / spesifikasi</th>'
+    +'<th>Instrumen</th><th>Harga</th><th>Satuan</th><th style="text-align:left">Wilayah / pembeli</th>'
+    +'<th style="text-align:left">Dasar aturan</th><th style="text-align:left">Catatan</th></tr>';
+  const body=rows=>rows.map(d=>{const het=/HET/.test(d.inst),url=(d.url||'').split('\n')[0];
+    return '<tr><td><b>'+d.kom+'</b></td><td class="wrapcell">'+(d.spec||'—')+'</td>'
+      +'<td><span class="badge'+(het?' het':'')+'">'+d.inst+'</span></td>'
+      +'<td class="numc">'+hargaSel(d)+'</td><td style="color:var(--ink2)">'+(d.sat||'')+'</td>'
+      +'<td class="wrapcell">'+(d.wil||'')+'</td>'
+      +'<td class="wrapcell">'+(d.dasar||'')+(d.mulai?'<br><span style="color:var(--ink2);font-family:JetBrains Mono,monospace;font-size:11px">berlaku '+tgl(d.mulai)+'</span>':'')
+      +(url?'<br><a href="'+url+'" target="_blank" rel="noopener" style="color:var(--gold);font-size:11.5px">sumber</a>':'')+'</td>'
+      +'<td class="wrapcell" style="color:var(--ink2)">'+(d.nb||'')+'</td></tr>';}).join('');
+  document.querySelector('#tKon thead').innerHTML=head;
+  document.querySelector('#tKon tbody').innerHTML=body(ACUAN.kon);
+  document.querySelector('#tPro thead').innerHTML=head;
+  document.querySelector('#tPro tbody').innerHTML=body(ACUAN.pro);
+  document.querySelector('#tBelum thead').innerHTML='<tr><th style="text-align:left">Pangan / kelompok</th>'
+    +'<th style="text-align:left">Status penelusuran</th><th style="text-align:left">Penjelasan</th></tr>';
+  document.querySelector('#tBelum tbody').innerHTML=ACUAN.belum.map(d=>
+    '<tr><td><b>'+d.k+'</b></td><td class="wrapcell">'+(d.s||'')+'</td>'
+    +'<td class="wrapcell" style="color:var(--ink2)">'+(d.ket||'')
+    +(d.url?' <a href="'+d.url+'" target="_blank" rel="noopener" style="color:var(--gold)">sumber</a>':'')+'</td></tr>').join('');
+  document.getElementById('catatan').innerHTML=ACUAN.catatan.map(c=>
+    '<div class="ncard"><h5>'+c.k+'</h5><p>'+c.v+'</p></div>').join('');}
+
+/* ---------------- tampilan ---------------- */
 const VIEWS=[
- {k:'neraca',lab:'Neraca & Pemasok',ic:'<path d="M3 3v18h18"/><path d="M7 15l3.5-4 3 2.6L20 7"/>'},
- {k:'logistik',lab:'Jaringan Logistik',ic:'<path d="M3 17.5c1.8-1.4 3.4-1.4 5.2 0 1.8 1.4 3.4 1.4 5.2 0 1.8-1.4 3.4-1.4 5.2 0"/><path d="M5 13.5V7h10l3 4"/><path d="M9 7V4.5h3"/>'}
+ {k:'matriks', lab:'Matriks Sinyal', ic:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'},
+ {k:'peta',    lab:'Peta & Intervensi', ic:'<path d="M12 3l9.5 16.5H2.5z"/><path d="M12 9.5v4"/><path d="M12 16.8h.01"/>'},
+ {k:'logistik',lab:'Jaringan Logistik', ic:'<path d="M3 17.5c1.8-1.4 3.4-1.4 5.2 0 1.8 1.4 3.4 1.4 5.2 0 1.8-1.4 3.4-1.4 5.2 0"/><path d="M5 13.5V7h10l3 4"/><path d="M9 7V4.5h3"/>'},
+ {k:'acuan',   lab:'Acuan HET & HAP', ic:'<path d="M7 3.5h7l4 4v13H7z"/><path d="M14 3.5V8h4"/><path d="M10 12.5h5M10 16h5"/>'}
 ];
-function drawViewbar(){
+function drawViewbar(){const aw=totalAwas();
   document.getElementById('viewbar').innerHTML=VIEWS.map(v=>
     '<button class="vbtn '+(v.k===view?'active':'')+'" type="button" data-v="'+v.k+'">'
     +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+v.ic+'</svg>'
-    +v.lab+'</button>').join('')
-    +'<a class="vbtn xlink" href="harga.html" title="Buka dasbor Peringatan Dini Harga">'
-    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 16.5H2.5z"/><path d="M12 9.5v4"/><path d="M12 16.8h.01"/></svg>'
-    +'Peringatan Harga <span class="ext">↗</span></a>';
+    +v.lab+(v.k==='matriks'&&aw?'<span class="cnt">'+aw+'</span>':'')+'</button>').join('');
   document.querySelectorAll('.vbtn[data-v]').forEach(b=>b.onclick=()=>setView(b.dataset.v));}
 
 function setLayers(){
@@ -941,39 +1613,63 @@ function setLayers(){
   const log=view==='logistik';
   tl.checked=log; pt.checked=log; if(!log)cb.checked=false;
   md.checked=!log;
-  const ml=md.closest('label'); if(ml)ml.style.display='none'; // kini otomatis mengikuti tampilan
+  const ml=md.closest('label'); if(ml)ml.style.display='none';
   window.__view=view;
   if(window._tlSync)window._tlSync();}
 
 function setView(v){if(v===view)return;
   view=v;selected=null;clearFlows();
   if(window.stopShipGlobal)window.stopShipGlobal();
-  setLayers();refresh();}
+  setLayers();render();}
 
-/* ---------- refresh terpadu ---------- */
-const _refresh=refresh;
-refresh=function(){
+/* ---------------- render ---------------- */
+function render(){
+  cur=NERACA_KEY[curH]||cur;
+  if(!NERACA_KEY[curH]&&warna==='neraca')warna='sinyal';
   recompute();
-  drawViewbar();setLayers();drawLegend();
-  document.getElementById('logistikPanel').hidden=(view!=='logistik');
-  document.getElementById('lowerRow').hidden=(view==='logistik');
-  document.getElementById('tablePanel').hidden=(view==='logistik');
-  document.getElementById('noteNeraca').hidden=(view!=='neraca');
-  document.getElementById('noteLogistik').hidden=(view!=='logistik');
-  const tb=document.querySelector('.tabbar'); if(tb)tb.hidden=(view==='logistik');
-  if(view==='logistik'){
+  drawViewbar();setLayers();drawPicker();
+
+  const peta=view==='peta', mat=view==='matriks', log=view==='logistik', acu=view==='acuan';
+  document.getElementById('pickerBar').hidden=(log||acu);
+  document.getElementById('refbar').hidden=!(peta||mat);
+  document.getElementById('mapRow').hidden=!(peta||log);
+  document.getElementById('kpis').hidden=!(peta||log);
+  document.getElementById('matriksPane').hidden=!mat;
+  document.getElementById('acuanPane').hidden=!acu;
+  document.getElementById('prioPanel').hidden=!mat;
+  document.getElementById('lowerRow').hidden=!peta;
+  document.getElementById('tablePanel').hidden=!peta;
+  document.getElementById('logistikPanel').hidden=!log;
+  document.getElementById('noteNeraca').hidden=!peta;
+  document.getElementById('noteHarga').hidden=!(peta||mat);
+  document.getElementById('noteLogistik').hidden=!log;
+  document.getElementById('warnaBar').hidden=!peta;
+
+  if(peta||mat)drawRefbar();
+  if(peta){
+    drawWarna();
+    const judul=(warna==='neraca'&&NERACA_KEY[curH])?('Peta Neraca — '+COMM[cur].label):('Peta Sinyal Harga — '+curH);
+    document.getElementById('mapTitle').textContent=judul;
+    document.querySelector('#mapTitle').nextElementSibling.textContent='klik provinsi → pemasok yang disarankan';
+    document.getElementById('hDetail').textContent='Rincian & Intervensi';
+    if(!selected){document.getElementById('detailHint').textContent='pilih provinsi';
+      document.getElementById('detail').innerHTML='<div class="placeholder"><div class="big">⌖</div>Klik provinsi pada peta — panel ini menampilkan harga terhadap ambang, neraca, dan <b>daftar provinsi yang paling masuk akal memasoknya</b>.</div>';}
+    drawKPI();drawMap();drawLegend();drawRanks();drawTable();
+  }else if(log){
     document.getElementById('mapTitle').textContent='Jaringan Tol Laut — 41 trayek';
     document.querySelector('#mapTitle').nextElementSibling.textContent='klik provinsi atau garis trayek';
     document.getElementById('hDetail').textContent='Cadangan & Trayek';
-    document.getElementById('detailHint').textContent='pilih provinsi';
-    document.getElementById('detail').innerHTML='<div class="placeholder"><div class="big">⚓</div>Klik provinsi untuk melihat cadangan beras daerah dan trayek Tol Laut yang melayaninya — kapal akan menyusuri jalur pelayaran sebenarnya.</div>';
-    drawTabs();drawKPI();drawMap();
+    if(!selected){document.getElementById('detailHint').textContent='pilih provinsi';
+      document.getElementById('detail').innerHTML='<div class="placeholder"><div class="big">⚓</div>Klik provinsi untuk melihat cadangan beras daerah dan trayek Tol Laut yang melayaninya — kapal akan menyusuri jalur pelayaran sebenarnya.</div>';}
+    drawKPI();drawMap();drawLegend();
+  }else if(mat){
+    drawMatrix();drawTren();drawPrio();
   }else{
-    document.getElementById('hDetail').textContent='Rincian & Pemasok';
-    _refresh();
-  }};
+    drawAcuan();}
+  const tb=document.querySelector('.tabbar'); if(tb)tb.hidden=true;}
 
-drawViewbar();setLayers();refresh();
+window.__redraw=function(){if(view==='matriks')drawTren();};
+render();
 </script>
 </body>
 </html>
