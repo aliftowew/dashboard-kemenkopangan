@@ -201,9 +201,14 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);display
 </style>
 </head>
 <body>
-<script>/* gerbang akses portal */(function(){try{
-  var raw=sessionStorage.getItem('fp_auth');if(!raw)throw 0;var a=JSON.parse(raw);if(!a||!a.u)throw 0;
-}catch(e){location.replace('../index.html');}})();</script>
+<script>
+/* === Portal access guard (login gate) === */
+(function(){
+  try{
+    if(!sessionStorage.getItem('fp_auth')){ location.replace('../index.html'); }
+  }catch(e){ location.replace('../index.html'); }
+})();
+</script>
 <script>/* tema bersama portal (default terang) */(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('fp_theme')||'light');}catch(e){}})();</script>
 <button class="theme-fab" id="themeFab" title="Tema terang/gelap" aria-label="Ganti tema"></button>
 <script>(function(){
